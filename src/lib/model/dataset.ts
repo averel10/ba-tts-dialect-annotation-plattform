@@ -1,0 +1,23 @@
+import { sqliteTable, text, integer, real } from 'drizzle-orm/sqlite-core';
+import { relations } from 'drizzle-orm';
+import { dataset_entry } from './dataset_entry';
+
+// Define the dataset table schema
+export const dataset = sqliteTable('dataset', {
+  id: integer('id').primaryKey({ autoIncrement: true }),
+  name: text('name').notNull(),
+  createdAt: integer('created_at', { mode: 'timestamp' })
+    .notNull()
+    .default(new Date()),
+  updatedAt: integer('updated_at', { mode: 'timestamp' })
+    .notNull()
+    .default(new Date())
+});
+
+export const datasetRelations = relations(dataset, ({ many }) => ({
+  entries: many(dataset_entry)
+}));
+
+// Create a type for dataset records based on the schema
+export type Dataset = typeof dataset.$inferSelect;
+export type NewDataset = typeof dataset.$inferInsert;

@@ -1,12 +1,22 @@
-import AuthRedirect from "@/components/AuthRedirect";
+import DatasetsList from "@/components/DatasetsList";
+import CreateDatasetModal from "@/components/CreateDatasetModal";
+import { auth } from "@/lib/auth";
+import { headers } from "next/headers";
+import { redirect } from "next/navigation";
 
-export default function AdminPage() {
+export default async function AdminPage() {
+    const session = await auth.api.getSession({
+        headers: await headers()
+    })
+
+    if(!session) {
+        redirect("/user/sign-in")
+    }
 
   return (
-    <div>
-        <AuthRedirect />
-        <h1>Admin Dashboard</h1>
-        <p>Welcome to the admin dashboard. Here you can manage the application.</p>
+    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <CreateDatasetModal />
+        <DatasetsList />
     </div>
   );
 }
