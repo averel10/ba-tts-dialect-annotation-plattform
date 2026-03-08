@@ -1,20 +1,24 @@
-import { betterAuth } from "better-auth";
+import { betterAuth, Session } from "better-auth";
 import { localization } from "better-auth-localization";
 import { drizzleAdapter } from "@better-auth/drizzle-adapter";
+import { headers } from "next/headers";
 import db from "./db";
-import { user, session, account, verification } from "./model";
+import * as schema from "./model/auth-schema";
 
 
 export const auth = betterAuth({
     database: drizzleAdapter(db, {
       provider: "sqlite",
-      schema: {
-        user,
-        session,
-        account,
-        verification,
-      },
+      schema: schema
     }),
+    user:{
+      additionalFields: {
+        admin: {
+          type: "boolean",
+          default: false,
+        }
+      }
+    },
     emailAndPassword: {
         enabled: true,
     },
@@ -26,3 +30,15 @@ export const auth = betterAuth({
     })
   ]
 });
+
+export async function requireAdmin() {
+  const session = await auth.api.getSession({
+    headers: await headers()
+  });
+
+  if (!session) {
+    return { authenticated: false, admin: false };
+  }
+
+  return { authenticated: true, admin: session.user.admin, session };
+}

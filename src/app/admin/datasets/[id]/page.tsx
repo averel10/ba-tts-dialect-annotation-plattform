@@ -6,6 +6,8 @@ import EditableDatasetHeader from '@/components/EditableDatasetHeader';
 import DatasetEntriesList from '@/components/DatasetEntriesList';
 import UploadDatasetEntriesModal from '@/components/UploadDatasetEntriesModal';
 import RemoveAllEntriesButton from '@/components/RemoveAllEntriesButton';
+import { requireAdmin } from '@/lib/auth';
+import { redirect } from 'next/navigation';
 
 interface DatasetPageProps {
   params: {
@@ -14,6 +16,16 @@ interface DatasetPageProps {
 }
 
 export default async function DatasetPage({ params }: DatasetPageProps) {
+  const result = await requireAdmin();
+
+  if (!result.authenticated) {
+    redirect("/user/sign-in");
+  }
+
+  if (!result.admin) {
+    redirect("/");
+  }
+
   const {id} = await params;
   const datasetId = parseInt(id, 10);
 

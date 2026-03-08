@@ -3,6 +3,8 @@ import db from '@/lib/db';
 import { dataset_entry } from '@/lib/model/dataset_entry';
 import { eq } from 'drizzle-orm';
 import AudioPlayer from '@/components/AudioPlayer';
+import { requireAdmin } from '@/lib/auth';
+import { redirect } from 'next/navigation';
 
 interface DatasetEntryPageProps {
   params: {
@@ -12,6 +14,16 @@ interface DatasetEntryPageProps {
 }
 
 export default async function DatasetEntryPage({ params }: DatasetEntryPageProps) {
+  const result = await requireAdmin();
+
+  if (!result.authenticated) {
+    redirect("/user/sign-in");
+  }
+
+  if (!result.admin) {
+    redirect("/");
+  }
+
   const { id: datasetId, entryId } = await params;
   const datasetIdNum = parseInt(datasetId, 10);
   const entryIdNum = parseInt(entryId, 10);
