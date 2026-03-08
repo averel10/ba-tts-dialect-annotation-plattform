@@ -15,13 +15,11 @@ export async function getFilterOptions(datasetId: number) {
   const modelNames = [...new Set(entries.map(e => e.modelName))].sort();
   const dialects = [...new Set(entries.map(e => e.dialect))].sort();
   const iterations = [...new Set(entries.map(e => e.iteration))].sort((a, b) => a - b);
-  const utteranceIds = [...new Set(entries.map(e => e.utteranceId).filter(Boolean))].sort();
 
   return {
     speakerIds,
     modelNames,
     dialects,
     iterations,
-    utteranceIds,
   };
 }

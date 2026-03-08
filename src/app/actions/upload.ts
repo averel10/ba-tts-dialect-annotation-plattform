@@ -2,7 +2,6 @@
 
 import db from '@/lib/db';
 import { dataset_entry } from '@/lib/model/dataset_entry';
-import { dataset_utterance } from '@/lib/model/utterance';
 import { revalidatePath } from 'next/cache';
 import { eq } from 'drizzle-orm';
 import { writeFile, mkdir, readFile, rm, readdir } from 'fs/promises';
@@ -14,7 +13,6 @@ interface DatasetEntryInput {
   id: string;
   audio_file: string;
   duration_ms: string;
-  utt_id: string;
   speaker: string;
   model: string;
   dialect: string;
@@ -104,7 +102,6 @@ export async function uploadDatasetEntries(
           speakerId: row.speaker,
           modelName: row.model,
           fileName: relativePath,
-          utteranceId: row.utt_id || undefined,
           dialect: row.dialect,
           iteration: parseInt(row.iteration, 10),
         });

@@ -5,7 +5,6 @@ import { eq } from 'drizzle-orm';
 import EditableDatasetHeader from '@/components/EditableDatasetHeader';
 import DatasetEntriesList from '@/components/DatasetEntriesList';
 import UploadDatasetEntriesModal from '@/components/UploadDatasetEntriesModal';
-import UploadUtterancesModal from '@/components/UploadUtterancesModal';
 import RemoveAllEntriesButton from '@/components/RemoveAllEntriesButton';
 
 interface DatasetPageProps {
@@ -57,7 +56,6 @@ export default async function DatasetPage({ params }: DatasetPageProps) {
 
         <div className="flex gap-3 mb-6">
           <UploadDatasetEntriesModal datasetId={datasetId} />
-          <UploadUtterancesModal datasetId={datasetId} />
           <RemoveAllEntriesButton datasetId={datasetId} />
         </div>
 

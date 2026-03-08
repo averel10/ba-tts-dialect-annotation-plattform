@@ -7,9 +7,10 @@
     "build": "next build",
     "start": "next start",
     "db:push": "drizzle-kit push",
-    "auth:push": "auth migrate"
+    "auth:push": "auth generate"
   },
   "dependencies": {
+    "@better-auth/drizzle-adapter": "^1.5.4",
     "@libsql/client": "^0.17.0",
     "@tailwindcss/postcss": "^4.2.1",
     "auth": "^1.5.3",

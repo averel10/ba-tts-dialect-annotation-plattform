@@ -1,3 +1,3 @@
 export * from "./dataset";
 export * from "./dataset_entry";
-export * from "./utterance";
+export * from "./auth-schema";

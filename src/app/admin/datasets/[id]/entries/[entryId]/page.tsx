@@ -1,7 +1,6 @@
 import Link from 'next/link';
 import db from '@/lib/db';
 import { dataset_entry } from '@/lib/model/dataset_entry';
-import { dataset_utterance } from '@/lib/model/utterance';
 import { eq } from 'drizzle-orm';
 import AudioPlayer from '@/components/AudioPlayer';
 
@@ -41,17 +40,6 @@ export default async function DatasetEntryPage({ params }: DatasetEntryPageProps
   }
 
   const entry = entries[0];
-
-  // Fetch utterance if utteranceId is present
-  let utterance = null;
-  if (entry.utteranceId) {
-    const utterances = await db
-      .select()
-      .from(dataset_utterance)
-      .where(eq(dataset_utterance.id, entry.utteranceId));
-    
-    utterance = utterances.length > 0 ? utterances[0] : null;
-  }
 
   return (
     <div>
@@ -106,13 +94,6 @@ export default async function DatasetEntryPage({ params }: DatasetEntryPageProps
               <p className="text-sm text-gray-600 mb-3">Audio Player</p>
               <AudioPlayer datasetId={datasetIdNum} fileName={entry.fileName} externalId={entry.externalId} />
             </div>
-
-            {utterance && (
-              <div className="col-span-2 bg-blue-50 p-4 rounded-lg border border-blue-200">
-                <p className="text-sm font-semibold text-gray-700 mb-2">Utterance {entry.utteranceId}</p>
-                <p className="text-lg text-gray-800 leading-relaxed">{utterance.text}</p>
-              </div>
-            )}
 
             <div className="bg-white border border-gray-200 p-4 rounded-lg">
               <p className="text-sm text-gray-600 mb-1">Created</p>
