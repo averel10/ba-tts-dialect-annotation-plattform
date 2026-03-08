@@ -8,6 +8,7 @@ import { writeFile, mkdir, readFile, rm, readdir } from 'fs/promises';
 import { join } from 'path';
 import { existsSync } from 'fs';
 import extract from 'extract-zip';
+import { line } from 'drizzle-orm/pg-core';
 
 interface DatasetEntryInput {
   id: string;
@@ -71,8 +72,41 @@ export async function uploadDatasetEntries(
     // Parse and insert entries
     const entries: typeof dataset_entry.$inferInsert[] = [];
 
+    // CSV parser that handles quoted fields
+    const parseCSVLine = (line: string): string[] => {
+      const values: string[] = [];
+      let current = '';
+      let inQuotes = false;
+
+      for (let i = 0; i < line.length; i++) {
+        const char = line[i];
+        const nextChar = line[i + 1];
+
+        if (char === '"') {
+          if (inQuotes && nextChar === '"') {
+            // Escaped quote
+            current += '"';
+            i++;
+          } else {
+            // Toggle quote state
+            inQuotes = !inQuotes;
+          }
+        } else if (char === ',' && !inQuotes) {
+          // Field separator
+          values.push(current.trim());
+          current = '';
+        } else {
+          current += char;
+        }
+      }
+
+      // Add the last field
+      values.push(current.trim());
+      return values;
+    };
+
     for (let i = 1; i < lines.length; i++) {
-      const values = lines[i].split(',').map(v => v.trim());
+      const values = parseCSVLine(lines[i]);
 
       if (values.length !== headers.length) {
         continue; // Skip malformed lines
@@ -81,11 +115,11 @@ export async function uploadDatasetEntries(
       const row: Record<string, string> = {};
       headers.forEach((header, index) => {
         row[header] = values[index];
-      });
+      })
 
       const audioFile = row.audio_file as string;
       // Try different path separators and remove /output prefix
-      const relativePath = audioFile.replace(/\\/g, '/').replace(/^output\//, '');
+      const relativePath = audioFile.replace(/\\/g, '/')
       const audioPath = join(tempDir, relativePath);
 
       if (existsSync(audioPath)) {
