@@ -9,6 +9,7 @@ import { join } from 'path';
 import { existsSync } from 'fs';
 import extract from 'extract-zip';
 import { line } from 'drizzle-orm/pg-core';
+import { requireAdmin } from '@/lib/auth';
 
 interface DatasetEntryInput {
   id: string;
@@ -24,6 +25,11 @@ export async function uploadDatasetEntries(
   datasetId: number,
   formData: FormData
 ) {
+  const result = await requireAdmin();
+  if (!result.authenticated || !result.admin) {
+    throw new Error('Unauthorized');
+  }
+
   const file = formData.get('file') as File;
 
   if (!file) {

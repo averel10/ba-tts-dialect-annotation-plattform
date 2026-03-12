@@ -4,8 +4,14 @@ import db from '@/lib/db';
 import { dataset } from '@/lib/model/dataset';
 import { eq } from 'drizzle-orm';
 import { revalidatePath } from 'next/cache';
+import { requireAdmin } from '@/lib/auth';
 
 export async function createDataset({ name }: { name: string }) {
+  const result = await requireAdmin();
+  if (!result.authenticated || !result.admin) {
+    throw new Error('Unauthorized');
+  }
+
   if (!name || !name.trim()) {
     throw new Error('Dataset name is required');
   }
@@ -24,6 +30,11 @@ export async function updateDataset(
   id: number,
   updates: { name?: string }
 ) {
+  const result = await requireAdmin();
+  if (!result.authenticated || !result.admin) {
+    throw new Error('Unauthorized');
+  }
+
   if (updates.name !== undefined && !updates.name.trim()) {
     throw new Error('Dataset name cannot be empty');
   }
