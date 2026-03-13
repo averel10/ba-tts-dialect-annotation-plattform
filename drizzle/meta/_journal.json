@@ -8,6 +8,13 @@
       "when": 1773382660038,
       "tag": "0000_brown_veda",
       "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "6",
+      "when": 1773389231869,
+      "tag": "0001_friendly_tana_nile",
+      "breakpoints": true
     }
   ]
 }
