@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { uploadDatasetEntries } from '@/app/actions/upload';
+import { processDatasetEntries } from '@/app/actions/upload';
 import Modal from '@/components/Modal';
 
 interface UploadDatasetEntriesModalProps {
@@ -19,6 +19,7 @@ export default function UploadDatasetEntriesModal({
   const [entriesCreated, setEntriesCreated] = useState(0);
   const [status, setStatus] = useState<string>('');
   const [isDragging, setIsDragging] = useState(false);
+  const [tempDir, setTempDir] = useState<string | null>(null);
 
   function handleFileChange(e: React.ChangeEvent<HTMLInputElement>) {
     const selectedFile = e.target.files?.[0];
@@ -39,18 +40,42 @@ export default function UploadDatasetEntriesModal({
     }
 
     setLoading(true);
-    setStatus('Preparing upload...');
     
     try {
+      // Step 1: Upload and extract ZIP via API route
+      setStatus('Uploading and extracting ZIP file...');
       const formData = new FormData();
       formData.append('file', file);
+      formData.append('datasetId', datasetId.toString());
 
-      const result = await uploadDatasetEntries(datasetId, formData);
+      const uploadResponse = await fetch('/api/upload', {
+        method: 'POST',
+        body: formData,
+      });
+
+      if (!uploadResponse.ok) {
+        const errorData = await uploadResponse.json();
+        throw new Error(errorData.error || 'Failed to upload ZIP file');
+      }
+
+      const uploadResult = await uploadResponse.json();
+      
+      if (!uploadResult.success) {
+        throw new Error('Failed to upload ZIP file');
+      }
+
+      setTempDir(uploadResult.tempDir);
+      setStatus(`${uploadResult.message} Now processing...`);
+
+      // Step 2: Process the extracted data (server action)
+      setStatus('Processing entries and copying audio files...');
+      const processResult = await processDatasetEntries(datasetId, uploadResult.tempDir);
 
       setSuccess(true);
-      setEntriesCreated(result.entriesCreated);
-      setStatus(`Successfully created ${result.entriesCreated} entries!`);
+      setEntriesCreated(processResult.entriesCreated);
+      setStatus(processResult.message);
       setFile(null);
+      setTempDir(null);
 
       setTimeout(() => {
         setSuccess(false);
@@ -60,7 +85,7 @@ export default function UploadDatasetEntriesModal({
       }, 2500);
     } catch (err) {
       const errorMsg =
-        err instanceof Error ? err.message : 'Failed to upload dataset entries';
+        err instanceof Error ? err.message : 'Failed to upload and process dataset entries';
       setError(errorMsg);
       setStatus('');
     } finally {
@@ -75,6 +100,7 @@ export default function UploadDatasetEntriesModal({
       setError(null);
       setSuccess(false);
       setStatus('');
+      setTempDir(null);
     }
   }
 
@@ -99,7 +125,7 @@ export default function UploadDatasetEntriesModal({
             disabled: loading,
           },
           {
-            label: loading ? 'Uploading...' : 'Upload',
+            label: loading ? 'Uploading & Processing...' : 'Upload',
             onClick: () => {
               const form = document.getElementById(
                 'uploadForm'
@@ -165,8 +191,8 @@ export default function UploadDatasetEntriesModal({
             </div>
           )}
 
-          {success && (
-            <div className="p-3 bg-green-100 border border-green-400 text-green-700 rounded text-sm">
+          {status && (
+            <div className={`p-3 rounded text-sm ${success ? 'bg-green-100 border border-green-400 text-green-700' : 'bg-blue-100 border border-blue-400 text-blue-700'}`}>
               {status}
             </div>
           )}

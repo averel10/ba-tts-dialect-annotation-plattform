@@ -4,62 +4,71 @@ import db from '@/lib/db';
 import { dataset_entry } from '@/lib/model/dataset_entry';
 import { revalidatePath } from 'next/cache';
 import { eq } from 'drizzle-orm';
-import { writeFile, mkdir, readFile, rm, readdir } from 'fs/promises';
+import { writeFile, mkdir, readFile, rm } from 'fs/promises';
 import { join } from 'path';
 import { existsSync } from 'fs';
-import extract from 'extract-zip';
-import { line } from 'drizzle-orm/pg-core';
 import { requireAdmin } from '@/lib/auth';
 
-interface DatasetEntryInput {
-  id: string;
-  audio_file: string;
-  duration_ms: string;
-  speaker: string;
-  model: string;
-  dialect: string;
-  iteration: string;
+/**
+ * CSV parser that handles quoted fields
+ */
+function parseCSVLine(line: string): string[] {
+  const values: string[] = [];
+  let current = '';
+  let inQuotes = false;
+
+  for (let i = 0; i < line.length; i++) {
+    const char = line[i];
+    const nextChar = line[i + 1];
+
+    if (char === '"') {
+      if (inQuotes && nextChar === '"') {
+        // Escaped quote
+        current += '"';
+        i++;
+      } else {
+        // Toggle quote state
+        inQuotes = !inQuotes;
+      }
+    } else if (char === ',' && !inQuotes) {
+      // Field separator
+      values.push(current.trim());
+      current = '';
+    } else {
+      current += char;
+    }
+  }
+
+  // Add the last field
+  values.push(current.trim());
+  return values;
 }
 
-export async function uploadDatasetEntries(
+/**
+ * Step 2: Process the extracted ZIP data and insert into database
+ * Copies audio files and creates database entries
+ */
+export async function processDatasetEntries(
   datasetId: number,
-  formData: FormData
+  tempDir: string
 ) {
   const result = await requireAdmin();
   if (!result.authenticated || !result.admin) {
     throw new Error('Unauthorized');
   }
 
-  const file = formData.get('file') as File;
-
-  if (!file) {
-    throw new Error('No file provided');
-  }
-
-  if (!file.name.endsWith('.zip')) {
-    throw new Error('File must be a ZIP archive');
-  }
-
-  const tempDir = join(process.cwd(), 'tmp', `upload-${Date.now()}`);
   const datasetDir = join(process.cwd(), 'public', 'datasets', datasetId.toString());
 
   try {
-    // Create temp directory
-    await mkdir(tempDir, { recursive: true });
+    // Validate temp directory exists
+    if (!existsSync(tempDir)) {
+      throw new Error('Temporary extraction directory not found');
+    }
 
-    // Save uploaded file to temp location
-    const tempZipPath = join(tempDir, file.name);
-    const arrayBuffer = await file.arrayBuffer();
-    const buffer = Buffer.from(arrayBuffer);
-    await writeFile(tempZipPath, buffer);
-
-    // Extract ZIP file
-    await extract( tempZipPath, { dir: tempDir } );
-
-    // Read metadata.csv
+    // Read metadata.csv again
     const metadataPath = join(tempDir, 'metadata.csv');
     if (!existsSync(metadataPath)) {
-      throw new Error('metadata.csv not found in ZIP');
+      throw new Error('metadata.csv not found in extracted files');
     }
 
     const metadataContent = await readFile(metadataPath, 'utf-8');
@@ -69,48 +78,14 @@ export async function uploadDatasetEntries(
       throw new Error('metadata.csv is empty or invalid');
     }
 
-    // Parse CSV header
+    // Parse CSV
     const headers = lines[0].split(',').map(h => h.trim());
+    const entries: typeof dataset_entry.$inferInsert[] = [];
 
     // Create dataset directory
     await mkdir(datasetDir, { recursive: true });
 
-    // Parse and insert entries
-    const entries: typeof dataset_entry.$inferInsert[] = [];
-
-    // CSV parser that handles quoted fields
-    const parseCSVLine = (line: string): string[] => {
-      const values: string[] = [];
-      let current = '';
-      let inQuotes = false;
-
-      for (let i = 0; i < line.length; i++) {
-        const char = line[i];
-        const nextChar = line[i + 1];
-
-        if (char === '"') {
-          if (inQuotes && nextChar === '"') {
-            // Escaped quote
-            current += '"';
-            i++;
-          } else {
-            // Toggle quote state
-            inQuotes = !inQuotes;
-          }
-        } else if (char === ',' && !inQuotes) {
-          // Field separator
-          values.push(current.trim());
-          current = '';
-        } else {
-          current += char;
-        }
-      }
-
-      // Add the last field
-      values.push(current.trim());
-      return values;
-    };
-
+    // Process each row
     for (let i = 1; i < lines.length; i++) {
       const values = parseCSVLine(lines[i]);
 
@@ -121,11 +96,10 @@ export async function uploadDatasetEntries(
       const row: Record<string, string> = {};
       headers.forEach((header, index) => {
         row[header] = values[index];
-      })
+      });
 
       const audioFile = row.audio_file as string;
-      // Try different path separators and remove /output prefix
-      const relativePath = audioFile.replace(/\\/g, '/')
+      const relativePath = audioFile.replace(/\\/g, '/');
       const audioPath = join(tempDir, relativePath);
 
       if (existsSync(audioPath)) {
@@ -149,7 +123,7 @@ export async function uploadDatasetEntries(
     }
 
     if (entries.length === 0) {
-      throw new Error('No valid entries found in metadata.csv');
+      throw new Error('No valid audio files found for entries');
     }
 
     // Check for existing entries to avoid duplicates
@@ -174,12 +148,13 @@ export async function uploadDatasetEntries(
 
     return {
       success: true,
-      entriesCreated: entries.length,
+      entriesCreated: newEntries.length,
+      message: `Successfully processed and inserted ${newEntries.length} entries.`,
     };
   } catch (error) {
-    console.error('Error uploading dataset entries:', error);
+    console.error('Error processing dataset entries:', error);
     throw new Error(
-      error instanceof Error ? error.message : 'Failed to upload dataset entries'
+      error instanceof Error ? error.message : 'Failed to process dataset entries'
     );
   } finally {
     // Clean up temp directory
