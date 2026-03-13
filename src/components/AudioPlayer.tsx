@@ -17,7 +17,7 @@ export default function AudioPlayer({ fileName, datasetId, externalId }: AudioPl
 
   // Extract file extension from original fileName and construct URL using externalId
   const fileExtension = fileName.substring(fileName.lastIndexOf('.'));
-  const audioPath = `/datasets/${datasetId}/${externalId}${fileExtension}`;
+  const audioPath = `/public/datasets/${datasetId}/${externalId}${fileExtension}`;
 
   // Stop playing if another audio started
   useEffect(() => {

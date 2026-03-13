@@ -30,6 +30,7 @@ services:
     container_name: tts-app
     expose:
       - "3000"
+    env_file: .env
     environment:
       - NODE_ENV=production
       - NEXT_PUBLIC_APP_URL=https://tts.averel10.app
@@ -50,6 +51,35 @@ services:
     volumes:
       - ./public:/app/public
       - ./sqlite_data.db:/app/sqlite_data.db
+    networks:
+      - traefik-network
+    depends_on:
+      - traefik
+    restart: unless-stopped
+
+  static:
+    image: nginx:alpine
+    container_name: tts-static
+    expose:
+      - "80"
+    volumes:
+      - ./public:/usr/share/nginx/html:ro
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.tts-static.rule=Host(`tts.averel10.app`) && PathPrefix(`/public`)"
+      - "traefik.http.routers.tts-static.entrypoints=web,websecure"
+      - "traefik.http.routers.tts-static.service=tts-static-service"
+      - "traefik.http.routers.tts-static.middlewares=https-redirect,public-strip"
+      - "traefik.http.routers.tts-static-secure.rule=Host(`tts.averel10.app`) && PathPrefix(`/public`)"
+      - "traefik.http.routers.tts-static-secure.entrypoints=websecure"
+      - "traefik.http.routers.tts-static-secure.tls=true"
+      - "traefik.http.routers.tts-static-secure.tls.certresolver=letsencrypt"
+      - "traefik.http.routers.tts-static-secure.service=tts-static-service"
+      - "traefik.http.routers.tts-static-secure.middlewares=public-strip"
+      - "traefik.http.services.tts-static-service.loadbalancer.server.port=80"
+      - "traefik.http.middlewares.public-strip.stripprefix.prefixes=/public"
+      - "traefik.http.middlewares.https-redirect.redirectscheme.scheme=https"
+      - "traefik.http.middlewares.https-redirect.redirectscheme.permanent=true"
     networks:
       - traefik-network
     depends_on:

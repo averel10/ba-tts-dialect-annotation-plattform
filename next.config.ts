@@ -7,6 +7,16 @@ const nextConfig: NextConfig = {
     },
   },
   output: "standalone",
+  async rewrites() {
+    return {
+      beforeFiles: [
+        {
+          source: '/public/:path*',
+          destination: '/:path*',
+        },
+      ],
+    };
+  },
 };
 
 export default nextConfig;
