@@ -1,5 +1,5 @@
 import { sqliteTable, text, integer, real } from 'drizzle-orm/sqlite-core';
-import { relations } from 'drizzle-orm';
+import { relations, sql } from 'drizzle-orm';
 import { dataset } from './dataset';
 
 export const dataset_entry = sqliteTable('dataset_entry', {
@@ -15,10 +15,10 @@ export const dataset_entry = sqliteTable('dataset_entry', {
   iteration: integer('iteration').notNull(),
   createdAt: integer('created_at', { mode: 'timestamp' })
     .notNull()
-    .default(new Date()),
+    .default(sql`(CURRENT_TIMESTAMP)`),
   updatedAt: integer('updated_at', { mode: 'timestamp' })
     .notNull()
-    .default(new Date())
+    .default(sql`(CURRENT_TIMESTAMP)`),
 });
 
 export const dataset_entryRelations = relations(dataset_entry, ({ one }) => ({
