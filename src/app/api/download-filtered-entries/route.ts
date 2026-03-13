@@ -65,9 +65,7 @@ export async function POST(request: NextRequest) {
 
             if (existsSync(audioPath)) {
               const fileBuffer = await readFileAsync(audioPath);
-              // Use the original fileName from CSV, removing 'wavs_' prefix if present
-              const cleanFileName = entry.fileName.replace(/^wavs_/, '');
-              audioFolder.file(cleanFileName, fileBuffer);
+              zip.file(entry.fileName, fileBuffer);
               filesAdded++;
             } else {
               console.warn(`Audio file not found: ${audioPath}`);
