@@ -1,12 +1,13 @@
 'use client';
 
-import { useState, useTransition } from 'react';
+import { useState, useEffect, useTransition } from 'react';
 import Link from 'next/link';
-import WaveformPlayer from './WaveformPlayer';
+import WaveformPlayer from '../WaveformPlayer';
 import { saveAnnotations } from '@/app/actions/annotations';
 import { type AnnotationEntry, DIALECT_LABELS } from '@/lib/dialects';
 
-const PAGE_SIZE = 5;
+const PAGE_SIZE = 1;
+const AUTO_ADVANCE_DELAY_MS = 600;
 
 const RATING_OPTIONS = (dialectLabel: string) => [
   { value: 1, label: `Klingt überhaupt nicht nach ${dialectLabel}` },
@@ -16,12 +17,12 @@ const RATING_OPTIONS = (dialectLabel: string) => [
   { value: 5, label: `Klingt eindeutig nach ${dialectLabel}` },
 ];
 
-interface AnnotationViewProps {
+interface SingleChoiceViewProps {
   entries: AnnotationEntry[];
   datasetId: number;
 }
 
-export default function AnnotationView({ entries, datasetId }: AnnotationViewProps) {
+export default function SingleChoiceView({ entries, datasetId }: SingleChoiceViewProps) {
 
   const [isPending, startTransition] = useTransition();
 
@@ -29,7 +30,6 @@ export default function AnnotationView({ entries, datasetId }: AnnotationViewPro
   const [answers, setAnswers] = useState<Record<number, number>>({});
   const [fullyPlayed, setFullyPlayed] = useState<Set<number>>(new Set());
   const [activePlayerId, setActivePlayerId] = useState<number | null>(null);
-  const [showHint, setShowHint] = useState(false);
   const [isComplete, setIsComplete] = useState(false);
 
   const totalPages = Math.ceil(entries.length / PAGE_SIZE);
@@ -40,24 +40,25 @@ export default function AnnotationView({ entries, datasetId }: AnnotationViewPro
     pageEntries.length > 0 &&
     pageEntries.every((e) => fullyPlayed.has(e.id) && answers[e.id] !== undefined);
 
-  const handleWeiter = () => {
-    if (!allCurrentDone) {
-      setShowHint(true);
-      return;
-    }
-    setShowHint(false);
+  useEffect(() => {
+    if (!allCurrentDone || isPending) return;
 
-    const batch = pageEntries.map((e) => ({ entryId: e.id, rating: answers[e.id], dialectLabel: e.dialect }));
-    startTransition(async () => {
-      await saveAnnotations(batch);
-      if (currentPage + 1 >= totalPages) {
-        setIsComplete(true);
-      } else {
-        setCurrentPage((p) => p + 1);
-        setActivePlayerId(null);
-      }
-    });
-  };
+    const timer = setTimeout(() => {
+      const batch = pageEntries.map((e) => ({ entryId: e.id, rating: answers[e.id], dialectLabel: e.dialect }));
+      startTransition(async () => {
+        await saveAnnotations(batch);
+        if (currentPage + 1 >= totalPages) {
+          setIsComplete(true);
+        } else {
+          setCurrentPage((p) => p + 1);
+          setActivePlayerId(null);
+        }
+      });
+    }, AUTO_ADVANCE_DELAY_MS);
+
+    return () => clearTimeout(timer);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [allCurrentDone]);
 
   if (isComplete) {
     return (
@@ -80,10 +81,10 @@ export default function AnnotationView({ entries, datasetId }: AnnotationViewPro
   return (
     <div className="max-w-3xl mx-auto">
       {/* ── Top bar ─────────────────────────────────────────── */}
-      <div className="sticky top-[72px] z-40 bg-white border-b border-gray-200 pb-3 mb-6">
+      <div className="sticky top-[72px] z-40 bg-white border-b border-gray-200 pt-4 pb-3 mb-6">
         <div className="flex items-center justify-between mb-2">
           <span className="text-sm text-gray-500">
-            Seite {currentPage + 1} von {totalPages}
+            Sample {currentPage + 1} von {totalPages}
           </span>
           <Link
             href="/"
@@ -114,7 +115,7 @@ export default function AnnotationView({ entries, datasetId }: AnnotationViewPro
           return (
             <div
               key={entry.id}
-              className={`border rounded-xl p-5 bg-white shadow-sm transition-colors ${
+              className={`border rounded-xl p-5 bg-white shadow-sm transition-colors duration-300 ${
                 isListened && currentRating !== null
                   ? 'border-green-300'
                   : 'border-gray-200'
@@ -166,7 +167,7 @@ export default function AnnotationView({ entries, datasetId }: AnnotationViewPro
               <div className="flex flex-col gap-2">
                 {RATING_OPTIONS(dialectLabel).map(({ value, label }) => {
                   const selected = currentRating === value;
-                  const disabled = !isListened;
+                  const disabled = !isListened || isPending;
                   return (
                     <button
                       key={value}
@@ -199,28 +200,6 @@ export default function AnnotationView({ entries, datasetId }: AnnotationViewPro
             </div>
           );
         })}
-      </div>
-
-      {/* ── Navigation ──────────────────────────────────────── */}
-      <div className="mt-8 mb-12 flex flex-col items-end gap-2">
-        {showHint && !allCurrentDone && (
-          <p className="text-sm text-red-600">
-            Bitte alle{' '}
-            {pageEntries.length < PAGE_SIZE ? pageEntries.length : PAGE_SIZE}{' '}
-            Samples vollständig anhören und bewerten, bevor Sie fortfahren.
-          </p>
-        )}
-        <button
-          onClick={handleWeiter}
-          disabled={isPending}
-          className={`px-8 py-3 rounded-lg font-semibold text-white transition-colors ${
-            allCurrentDone && !isPending
-              ? 'bg-blue-600 hover:bg-blue-700 cursor-pointer'
-              : 'bg-gray-300 cursor-not-allowed'
-          }`}
-        >
-          {isPending ? 'Speichern…' : currentPage + 1 >= totalPages ? 'Abschließen' : 'Weiter →'}
-        </button>
       </div>
     </div>
   );

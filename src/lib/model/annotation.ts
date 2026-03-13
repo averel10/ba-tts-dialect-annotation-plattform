@@ -15,14 +15,7 @@ export const annotation = sqliteTable(
     createdAt: integer('created_at', { mode: 'timestamp' })
       .notNull()
       .default(sql`(unixepoch())`),
-  },
-  (table) => [
-    uniqueIndex('annotation_user_entry_dialect_idx').on(
-      table.userId,
-      table.datasetEntryId,
-      table.dialectLabel
-    ),
-  ]
+  }
 );
 
 export const annotationRelations = relations(annotation, ({ one }) => ({

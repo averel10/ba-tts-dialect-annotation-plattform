@@ -10,8 +10,7 @@ import { headers } from 'next/headers';
 import type { AnnotationEntry } from '@/lib/dialects';
 
 /**
- * Returns shuffled unannotated entries for the given dataset and authenticated user.
- * Consecutive entries will never share the same externalId.
+ * Returns unannotated entries for the given dataset and authenticated user.
  */
 export async function getAnnotationEntries(datasetId: number): Promise<AnnotationEntry[]> {
   const session = await auth.api.getSession({ headers: await headers() });
@@ -48,7 +47,7 @@ export async function getAnnotationEntries(datasetId: number): Promise<Annotatio
     datasetId: e.datasetId,
   }));
 
-  return shuffleWithConstraint(mapped);
+  return mapped;
 }
 
 /**
@@ -105,31 +104,3 @@ export async function getAnnotationProgress(
   return { total: allEntries.length, done: annotated.length };
 }
 
-// ---------------------------------------------------------------------------
-// Helpers
-// ---------------------------------------------------------------------------
-
-/** Fisher-Yates shuffle with a greedy fix for consecutive same externalId. */
-function shuffleWithConstraint(entries: AnnotationEntry[]): AnnotationEntry[] {
-  if (entries.length <= 1) return entries;
-
-  const arr = [...entries];
-  for (let i = arr.length - 1; i > 0; i--) {
-    const j = Math.floor(Math.random() * (i + 1));
-    [arr[i], arr[j]] = [arr[j], arr[i]];
-  }
-
-  // Single-pass greedy fix
-  for (let i = 1; i < arr.length; i++) {
-    if (arr[i].externalId === arr[i - 1].externalId) {
-      for (let j = i + 1; j < arr.length; j++) {
-        if (arr[j].externalId !== arr[i - 1].externalId) {
-          [arr[i], arr[j]] = [arr[j], arr[i]];
-          break;
-        }
-      }
-    }
-  }
-
-  return arr;
-}

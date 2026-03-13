@@ -2,52 +2,52 @@ import { redirect } from 'next/navigation';
 import { headers } from 'next/headers';
 import Link from 'next/link';
 import { auth } from '@/lib/auth';
-import { getAnnotationEntries } from '@/app/actions/annotations';
-import AnnotationView from '@/components/AnnotationView';
+
+const PROTOTYPES = [
+  {
+    id: 'single-choice',
+    name: 'Single Choice',
+    description: 'Bewerten Sie jedes Sample auf einer Skala von 1–5.',
+  },
+];
 
 interface Props {
   params: Promise<{ datasetId: string }>;
 }
 
-export default async function AnnotatePage({ params }: Props) {
+export default async function PrototypeSelectionPage({ params }: Props) {
   const session = await auth.api.getSession({ headers: await headers() });
   if (!session) redirect('/user/sign-in');
 
-  const { datasetId: datasetIdStr } = await params;
-  const datasetId = parseInt(datasetIdStr, 10);
+  const { datasetId } = await params;
 
-  if (isNaN(datasetId)) {
-    return (
-      <div className="max-w-xl mx-auto py-16 text-center">
-        <p className="text-gray-600">Ungültige Dataset-ID.</p>
-        <Link href="/" className="text-blue-600 hover:underline mt-4 inline-block">
-          ← Startseite
-        </Link>
+  return (
+    <div className="max-w-2xl mx-auto py-8">
+      <Link href="/" className="text-sm text-gray-500 hover:text-gray-700 mb-6 inline-block">
+        ← Zurück zur Startseite
+      </Link>
+      <h1 className="text-2xl font-bold text-gray-800 mb-2">Prototyp auswählen</h1>
+      <p className="text-gray-500 mb-8">
+        Wählen Sie einen Annotationsprototyp aus, um mit der Bewertung zu beginnen.
+      </p>
+
+      <div className="flex flex-col gap-4">
+        {PROTOTYPES.map((proto) => (
+          <Link
+            key={proto.id}
+            href={`/annotate/${datasetId}/${proto.id}`}
+            className="bg-white border border-gray-200 rounded-xl p-5 shadow-sm hover:border-blue-300 hover:shadow-md transition-all"
+          >
+            <div className="flex items-center justify-between">
+              <div>
+                <h2 className="font-semibold text-gray-800">{proto.name}</h2>
+                <p className="text-sm text-gray-500 mt-0.5">{proto.description}</p>
+              </div>
+              <span className="text-gray-400 text-lg">→</span>
+            </div>
+          </Link>
+        ))}
       </div>
-    );
-  }
-
-  const entries = await getAnnotationEntries(datasetId);
-
-  if (entries.length === 0) {
-    return (
-      <div className="max-w-xl mx-auto py-20 text-center">
-        <div className="text-5xl mb-4">✓</div>
-        <h1 className="text-2xl font-bold text-green-600 mb-3">
-          Alle Samples bewertet!
-        </h1>
-        <p className="text-gray-600 mb-8">
-          Sie haben alle Samples in diesem Dataset bereits bewertet. Danke für Ihre Mitarbeit!
-        </p>
-        <Link
-          href="/"
-          className="px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-lg transition-colors"
-        >
-          Zurück zur Startseite
-        </Link>
-      </div>
-    );
-  }
-
-  return <AnnotationView entries={entries} datasetId={datasetId} />;
+    </div>
+  );
 }
