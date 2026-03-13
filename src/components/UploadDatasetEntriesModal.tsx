@@ -12,20 +12,20 @@ export default function UploadDatasetEntriesModal({
   datasetId,
 }: UploadDatasetEntriesModalProps) {
   const [isOpen, setIsOpen] = useState(false);
-  const [file, setFile] = useState<File | null>(null);
+  const [files, setFiles] = useState<File[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState(false);
-  const [entriesCreated, setEntriesCreated] = useState(0);
+  const [uploadQueue, setUploadQueue] = useState<Array<{ file: File; status: 'pending' | 'uploading' | 'completed' | 'failed'; message?: string }>>([]);
   const [status, setStatus] = useState<string>('');
-  const [isDragging, setIsDragging] = useState(false);
-  const [tempDir, setTempDir] = useState<string | null>(null);
 
   function handleFileChange(e: React.ChangeEvent<HTMLInputElement>) {
-    const selectedFile = e.target.files?.[0];
-    if (selectedFile) {
-      setFile(selectedFile);
+    const selectedFiles = e.target.files ? Array.from(e.target.files) : [];
+    if (selectedFiles.length > 0) {
+      setFiles(selectedFiles);
       setError(null);
+      // Initialize queue with pending status
+      setUploadQueue(selectedFiles.map(file => ({ file, status: 'pending' })));
     }
   }
 
@@ -34,58 +34,82 @@ export default function UploadDatasetEntriesModal({
     setError(null);
     setSuccess(false);
 
-    if (!file) {
-      setError('Please select a ZIP file');
+    if (files.length === 0) {
+      setError('Please select at least one ZIP file');
       return;
     }
 
     setLoading(true);
     
     try {
-      // Step 1: Upload and extract ZIP via API route
-      setStatus('Uploading and extracting ZIP file...');
-      const formData = new FormData();
-      formData.append('file', file);
-      formData.append('datasetId', datasetId.toString());
-
-      const uploadResponse = await fetch('/api/upload', {
-        method: 'POST',
-        body: formData,
-      });
-
-      if (!uploadResponse.ok) {
-        const errorData = await uploadResponse.json();
-        throw new Error(errorData.error || 'Failed to upload ZIP file');
-      }
-
-      const uploadResult = await uploadResponse.json();
+      // Process each file in the queue sequentially
+      const newQueue = [...uploadQueue];
       
-      if (!uploadResult.success) {
-        throw new Error('Failed to upload ZIP file');
+      for (let i = 0; i < newQueue.length; i++) {
+        const item = newQueue[i];
+        item.status = 'uploading';
+        setUploadQueue([...newQueue]);
+        setStatus(`Processing file ${i + 1} of ${newQueue.length}: ${item.file.name}`);
+
+        try {
+          const formData = new FormData();
+          formData.append('file', item.file);
+          formData.append('datasetId', datasetId.toString());
+
+          const uploadResponse = await fetch('/api/upload', {
+            method: 'POST',
+            body: formData,
+          });
+
+          if (!uploadResponse.ok) {
+            const errorData = await uploadResponse.json();
+            throw new Error(errorData.error || 'Failed to upload ZIP file');
+          }
+
+          const uploadResult = await uploadResponse.json();
+          
+          if (!uploadResult.success) {
+            throw new Error('Failed to upload ZIP file');
+          }
+
+          // Process the extracted data
+          const processResult = await processDatasetEntries(datasetId, uploadResult.tempDir);
+
+          item.status = 'completed';
+          item.message = `✓ Processed (${processResult.entriesCreated} entries)`;
+        } catch (err) {
+          item.status = 'failed';
+          item.message = err instanceof Error ? err.message : 'Unknown error';
+        }
+
+        setUploadQueue([...newQueue]);
       }
 
-      setTempDir(uploadResult.tempDir);
-      setStatus(`${uploadResult.message} Now processing...`);
+      const failedCount = newQueue.filter(item => item.status === 'failed').length;
+      const completedCount = newQueue.filter(item => item.status === 'completed').length;
 
-      // Step 2: Process the extracted data (server action)
-      setStatus('Processing entries and copying audio files...');
-      const processResult = await processDatasetEntries(datasetId, uploadResult.tempDir);
+      if (failedCount === 0) {
+        setSuccess(true);
+        setStatus(`All files processed! (${completedCount}/${newQueue.length} completed)`);
+      } else if (completedCount > 0) {
+        setStatus(`Completed with errors: ${completedCount} succeeded, ${failedCount} failed`);
+      } else {
+        setError(`All files failed to process`);
+      }
 
-      setSuccess(true);
-      setEntriesCreated(processResult.entriesCreated);
-      setStatus(processResult.message);
-      setFile(null);
-      setTempDir(null);
+      setFiles([]);
 
-      setTimeout(() => {
-        setSuccess(false);
-        setIsOpen(false);
-        setStatus('');
-        window.location.reload();
-      }, 2500);
+      if (failedCount === 0) {
+        setTimeout(() => {
+          setSuccess(false);
+          setIsOpen(false);
+          setStatus('');
+          setUploadQueue([]);
+          window.location.reload();
+        }, 2500);
+      }
     } catch (err) {
-      const errorMsg =
-        err instanceof Error ? err.message : 'Failed to upload and process dataset entries';
+      const errorMsg = err instanceof Error ? err.message : 'Failed to process uploads';
       setError(errorMsg);
       setStatus('');
     } finally {
@@ -96,11 +120,11 @@ export default function UploadDatasetEntriesModal({
   function handleClose() {
     if (!loading) {
       setIsOpen(false);
-      setFile(null);
+      setFiles([]);
       setError(null);
       setSuccess(false);
       setStatus('');
-      setTempDir(null);
+      setUploadQueue([]);
     }
   }
 
@@ -125,7 +149,7 @@ export default function UploadDatasetEntriesModal({
             disabled: loading,
           },
           {
-            label: loading ? 'Uploading & Processing...' : 'Upload',
+            label: loading ? `Processing ${uploadQueue.filter(f => f.status !== 'pending').length}/${uploadQueue.length}...` : 'Upload Queue',
             onClick: () => {
               const form = document.getElementById(
                 'uploadForm'
@@ -133,40 +157,45 @@ export default function UploadDatasetEntriesModal({
               form?.dispatchEvent(new Event('submit', { bubbles: true }));
             },
             variant: 'primary',
-            disabled: loading || !file,
+            disabled: loading || files.length === 0,
           },
         ]}
       >
         <form id="uploadForm" onSubmit={handleSubmit} className="space-y-4">
           <div>
             <label htmlFor="file" className="block text-sm font-medium mb-2">
-              ZIP File
+              ZIP Files (Multiple)
             </label>
             <div className="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center">
               <input
                 id="file"
                 type="file"
                 accept=".zip"
+                multiple
                 onChange={handleFileChange}
                 disabled={loading}
                 className="hidden"
               />
               <label htmlFor="file" className="cursor-pointer block">
-                {file ? (
+                {files.length > 0 ? (
                   <div>
                     <p className="text-sm font-medium text-blue-600">
-                      {file.name}
+                      {files.length} file{files.length !== 1 ? 's' : ''} selected
                     </p>
-                    <p className="text-xs text-gray-500 mt-1">
-                      {(file.size / 1024 / 1024).toFixed(2)} MB
-                    </p>
+                    <div className="mt-2 text-xs text-gray-600 max-h-24 overflow-y-auto">
+                      {files.map((f, idx) => (
+                        <div key={idx} className="py-1">
+                          {f.name} ({(f.size / 1024 / 1024).toFixed(2)} MB)
+                        </div>
+                      ))}
+                    </div>
                   </div>
                 ) : (
                   <div>
                     <p className="text-sm font-medium text-gray-700">
                       Click to select or drag and drop
                     </p>
-                    <p className="text-xs text-gray-500 mt-1">ZIP file only</p>
+                    <p className="text-xs text-gray-500 mt-1">ZIP files only (multiple allowed)</p>
                   </div>
                 )}
               </label>
@@ -184,6 +213,31 @@ export default function UploadDatasetEntriesModal({
               <li>Audio files (.wav) referenced in metadata.csv</li>
             </ul>
           </div>
+
+          {uploadQueue.length > 0 && (
+            <div className="bg-gray-50 border border-gray-200 rounded-lg p-4 space-y-2">
+              <p className="font-semibold text-sm text-gray-700">Upload Queue:</p>
+              <div className="space-y-1 max-h-32 overflow-y-auto">
+                {uploadQueue.map((item, idx) => (
+                  <div key={idx} className="flex items-center gap-2 text-xs">
+                    <span className={`font-medium ${
+                      item.status === 'completed' ? 'text-green-600' :
+                      item.status === 'failed' ? 'text-red-600' :
+                      item.status === 'uploading' ? 'text-blue-600' :
+                      'text-gray-600'
+                    }`}>
+                      {item.status === 'completed' ? '✓' :
+                       item.status === 'failed' ? '✗' :
+                       item.status === 'uploading' ? '⟳' :
+                       '○'}
+                    </span>
+                    <span className="flex-1">{item.file.name}</span>
+                    {item.message && <span className="text-gray-500">{item.message}</span>}
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
 
           {error && (
             <div className="p-3 bg-red-100 border border-red-400 text-red-700 rounded text-sm">
