@@ -16,6 +16,10 @@ export const dataset_entry = sqliteTable('dataset_entry', {
   dialect: text('dialect').notNull(),
   iteration: integer('iteration').notNull(),
   durationMs: integer('duration_ms'),
+  rmsValue: real('rms_value'),
+  longestPause: real('longest_pause'),
+  utmosScore: real('utmos_score'),
+  werScore: real('wer_score'),
   createdAt: integer('created_at', { mode: 'timestamp' })
     .notNull()
     .default(sql`(unixepoch())`),

@@ -2,47 +2,13 @@
 
 import db from '@/lib/db';
 import { dataset_entry } from '@/lib/model/dataset_entry';
+import { parseCSVLine } from '@/lib/csv-parser';
 import { revalidatePath } from 'next/cache';
 import { eq } from 'drizzle-orm';
 import { writeFile, mkdir, readFile, rm } from 'fs/promises';
 import { join } from 'path';
 import { existsSync } from 'fs';
 import { requireAdmin } from '@/lib/auth';
-
-/**
- * CSV parser that handles quoted fields
- */
-function parseCSVLine(line: string): string[] {
-  const values: string[] = [];
-  let current = '';
-  let inQuotes = false;
-
-  for (let i = 0; i < line.length; i++) {
-    const char = line[i];
-    const nextChar = line[i + 1];
-
-    if (char === '"') {
-      if (inQuotes && nextChar === '"') {
-        // Escaped quote
-        current += '"';
-        i++;
-      } else {
-        // Toggle quote state
-        inQuotes = !inQuotes;
-      }
-    } else if (char === ',' && !inQuotes) {
-      // Field separator
-      values.push(current.trim());
-      current = '';
-    } else {
-      current += char;
-    }
-  }
-
-  // Add the last field
-  values.push(current.trim());
-  return values;
-}
 
 /**
  * Step 2: Process the extracted ZIP data and insert into database
@@ -137,6 +103,10 @@ export async function processDatasetEntries(
           dialect: row.dialect,
           iteration: parseInt(row.iteration, 10),
           durationMs: row.duration_ms ? parseInt(row.duration_ms, 10) : undefined,
+          rmsValue: row.rms_value ? parseFloat(row.rms_value) : undefined,
+          longestPause: row.longest_pause ? parseFloat(row.longest_pause) : undefined,
+          utmosScore: row.utmos_score ? parseFloat(row.utmos_score) : undefined,
+          werScore: row.wer_score ? parseFloat(row.wer_score) : undefined,
         });
       }
     }

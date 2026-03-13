@@ -123,6 +123,26 @@ export default async function DatasetEntryPage({ params }: DatasetEntryPageProps
             </div>
 
             <div className="bg-white border border-gray-200 p-4 rounded-lg">
+              <p className="text-sm text-gray-600 mb-1">RMS Value</p>
+              <p className="text-lg font-semibold">{entry.rmsValue?.toFixed(3) || '-'}</p>
+            </div>
+
+            <div className="bg-white border border-gray-200 p-4 rounded-lg">
+              <p className="text-sm text-gray-600 mb-1">Longest Pause (s)</p>
+              <p className="text-lg font-semibold">{entry.longestPause?.toFixed(3) || '-'}</p>
+            </div>
+
+            <div className="bg-white border border-gray-200 p-4 rounded-lg">
+              <p className="text-sm text-gray-600 mb-1">UTMOS Score</p>
+              <p className="text-lg font-semibold">{entry.utmosScore?.toFixed(3) || '-'}</p>
+            </div>
+
+            <div className="bg-white border border-gray-200 p-4 rounded-lg">
+              <p className="text-sm text-gray-600 mb-1">WER Score</p>
+              <p className="text-lg font-semibold">{entry.werScore?.toFixed(3) || '-'}</p>
+            </div>
+
+            <div className="bg-white border border-gray-200 p-4 rounded-lg">
               <p className="text-sm text-gray-600 mb-1">Created</p>
               <p className="text-lg font-semibold">
                 {new Date(entry.createdAt).toLocaleDateString()}

@@ -43,6 +43,13 @@
       "when": 1773395728082,
       "tag": "0005_flashy_piledriver",
       "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "6",
+      "when": 1773406006276,
+      "tag": "0006_special_junta",
+      "breakpoints": true
     }
   ]
 }

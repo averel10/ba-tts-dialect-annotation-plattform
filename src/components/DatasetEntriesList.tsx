@@ -22,6 +22,11 @@ interface DatasetEntry {
   fileName: string;
   dialect: string;
   iteration: number;
+  durationMs: number | null;
+  rmsValue: number | null;
+  longestPause: number | null;
+  utmosScore: number | null;
+  werScore: number | null;
   createdAt: Date;
   updatedAt: Date;
 }
@@ -417,6 +422,11 @@ export default function DatasetEntriesList({
               <th className="text-left py-3 px-4 font-semibold text-gray-700">Dialect</th>
               <th className="text-left py-3 px-4 font-semibold text-gray-700">File Name</th>
               <th className="text-left py-3 px-4 font-semibold text-gray-700">Iteration</th>
+              <th className="text-left py-3 px-4 font-semibold text-gray-700">Duration (ms)</th>
+              <th className="text-left py-3 px-4 font-semibold text-gray-700">RMS Value</th>
+              <th className="text-left py-3 px-4 font-semibold text-gray-700">Longest Pause (s)</th>
+              <th className="text-left py-3 px-4 font-semibold text-gray-700">UTMOS Score</th>
+              <th className="text-left py-3 px-4 font-semibold text-gray-700">WER Score</th>
             </tr>
           </thead>
           <tbody>
@@ -439,6 +449,11 @@ export default function DatasetEntriesList({
                 <td className="py-3 px-4">{entry.dialect}</td>
                 <td className="py-3 px-4 truncate">{entry.fileName}</td>
                 <td className="py-3 px-4">{entry.iteration}</td>
+                <td className="py-3 px-4">{entry.durationMs?.toLocaleString() || '-'}</td>
+                <td className="py-3 px-4">{entry.rmsValue?.toFixed(3) || '-'}</td>
+                <td className="py-3 px-4">{entry.longestPause?.toFixed(3) || '-'}</td>
+                <td className="py-3 px-4">{entry.utmosScore?.toFixed(3) || '-'}</td>
+                <td className="py-3 px-4">{entry.werScore?.toFixed(3) || '-'}</td>
               </tr>
             ))}
           </tbody>
