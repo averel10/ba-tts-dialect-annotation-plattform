@@ -374,7 +374,6 @@ export default function DatasetEntriesList({
               <th className="text-left py-3 px-4 font-semibold text-gray-700">Speaker ID</th>
               <th className="text-left py-3 px-4 font-semibold text-gray-700">Model Name</th>
               <th className="text-left py-3 px-4 font-semibold text-gray-700">Utterance ID</th>
-              <th className="text-left py-3 px-4 font-semibold text-gray-700">Utterance Text</th>
               <th className="text-left py-3 px-4 font-semibold text-gray-700">Dialect</th>
               <th className="text-left py-3 px-4 font-semibold text-gray-700">File Name</th>
               <th className="text-left py-3 px-4 font-semibold text-gray-700">Iteration</th>
@@ -397,7 +396,6 @@ export default function DatasetEntriesList({
                 <td className="py-3 px-4">{entry.speakerId}</td>
                 <td className="py-3 px-4">{entry.modelName}</td>
                 <td className="py-3 px-4 truncate">{entry.utteranceId || '-'}</td>
-                <td className="py-3 px-4 truncate">{entry.utteranceText || '-'}</td>
                 <td className="py-3 px-4">{entry.dialect}</td>
                 <td className="py-3 px-4 truncate">{entry.fileName}</td>
                 <td className="py-3 px-4">{entry.iteration}</td>
