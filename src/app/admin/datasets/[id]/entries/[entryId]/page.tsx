@@ -36,7 +36,7 @@ export default async function DatasetEntryPage({ params }: DatasetEntryPageProps
   if (entries.length === 0 || entries[0].datasetId !== datasetIdNum) {
     return (
       <div className="min-h-screen">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <div className="px-4 sm:px-6 lg:px-8 py-8">
           <Link
             href={`/admin/datasets/${datasetId}`}
             className="text-blue-500 hover:text-blue-600 mb-6 inline-block"
@@ -55,7 +55,7 @@ export default async function DatasetEntryPage({ params }: DatasetEntryPageProps
 
   return (
     <div>
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <div className="px-4 sm:px-6 lg:px-8 py-8">
         <Link
           href={`/admin/datasets/${datasetId}`}
           className="text-blue-500 hover:text-blue-600 mb-6 inline-block"

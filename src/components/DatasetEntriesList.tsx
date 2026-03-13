@@ -420,7 +420,6 @@ export default function DatasetEntriesList({
               <th className="text-left py-3 px-4 font-semibold text-gray-700">Model Name</th>
               <th className="text-left py-3 px-4 font-semibold text-gray-700">Utterance ID</th>
               <th className="text-left py-3 px-4 font-semibold text-gray-700">Dialect</th>
-              <th className="text-left py-3 px-4 font-semibold text-gray-700">File Name</th>
               <th className="text-left py-3 px-4 font-semibold text-gray-700">Iteration</th>
               <th className="text-left py-3 px-4 font-semibold text-gray-700">Duration (ms)</th>
               <th className="text-left py-3 px-4 font-semibold text-gray-700">RMS Value</th>
@@ -445,9 +444,8 @@ export default function DatasetEntriesList({
                 </td>
                 <td className="py-3 px-4">{entry.speakerId}</td>
                 <td className="py-3 px-4">{entry.modelName}</td>
-                <td className="py-3 px-4 truncate">{entry.utteranceId || '-'}</td>
+                <td className="py-3 px-4">{entry.utteranceId || '-'}</td>
                 <td className="py-3 px-4">{entry.dialect}</td>
-                <td className="py-3 px-4 truncate">{entry.fileName}</td>
                 <td className="py-3 px-4">{entry.iteration}</td>
                 <td className="py-3 px-4">{entry.durationMs?.toLocaleString() || '-'}</td>
                 <td className="py-3 px-4">{entry.rmsValue?.toFixed(3) || '-'}</td>

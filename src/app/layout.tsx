@@ -13,7 +13,7 @@ export default function RootLayout({
       <body className="flex flex-col min-h-screen">
         <AudioProvider>
           <Header />
-          <main className="flex-grow mt-4 mb-4 mr-8 ml-8">
+          <main className="flex-grow">
             {children}
           </main>
           <Footer />
