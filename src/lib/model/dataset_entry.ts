@@ -18,7 +18,8 @@ export const dataset_entry = sqliteTable('dataset_entry', {
     .default(sql`(unixepoch())`),
   updatedAt: integer('updated_at', { mode: 'timestamp' })
     .notNull()
-    .default(sql`(unixepoch())`),
+    .default(sql`(unixepoch())`)
+    .$onUpdate(() => sql`(unixepoch())`),
 });
 
 export const dataset_entryRelations = relations(dataset_entry, ({ one }) => ({
