@@ -1,0 +1,61 @@
+version: '3.8'
+
+services:
+  traefik:
+    image: traefik:v3.6
+    container_name: traefik
+    command:
+      - "--api.insecure=true"
+      - "--providers.docker=true"
+      - "--providers.docker.exposedbydefault=false"
+      - "--entrypoints.web.address=:80"
+      - "--entrypoints.websecure.address=:443"
+      - "--certificatesresolvers.letsencrypt.acme.httpchallenge=true"
+      - "--certificatesresolvers.letsencrypt.acme.httpchallenge.entrypoint=web"
+      - "--certificatesresolvers.letsencrypt.acme.email=admin@averel10.app"
+      - "--certificatesresolvers.letsencrypt.acme.storage=/letsencrypt/acme.json"
+    ports:
+      - "80:80"
+      - "443:443"
+      - "8080:8080"
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+      - ./letsencrypt:/letsencrypt
+    networks:
+      - traefik-network
+    restart: unless-stopped
+
+  app:
+    image: ghcr.io/averel10/ba-tts-dialect-annotation-plattform:latest
+    container_name: tts-app
+    expose:
+      - "3000"
+    environment:
+      - NODE_ENV=production
+      - NEXT_PUBLIC_APP_URL=https://tts.averel10.app
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.tts.rule=Host(`tts.averel10.app`)"
+      - "traefik.http.routers.tts.entrypoints=web,websecure"
+      - "traefik.http.routers.tts.service=tts-service"
+      - "traefik.http.routers.tts.middlewares=https-redirect"
+      - "traefik.http.routers.tts-secure.rule=Host(`tts.averel10.app`)"
+      - "traefik.http.routers.tts-secure.entrypoints=websecure"
+      - "traefik.http.routers.tts-secure.tls=true"
+      - "traefik.http.routers.tts-secure.tls.certresolver=letsencrypt"
+      - "traefik.http.routers.tts-secure.service=tts-service"
+      - "traefik.http.services.tts-service.loadbalancer.server.port=3000"
+      - "traefik.http.middlewares.https-redirect.redirectscheme.scheme=https"
+      - "traefik.http.middlewares.https-redirect.redirectscheme.permanent=true"
+    volumes:
+      - ./public:/app/public
+      - ./sqlite_data.db:/app/sqlite_data.db
+    networks:
+      - traefik-network
+    depends_on:
+      - traefik
+    restart: unless-stopped
+
+networks:
+  traefik-network:
+    driver: bridge
