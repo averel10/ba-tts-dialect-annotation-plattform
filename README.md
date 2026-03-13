@@ -1,40 +1,101 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/create-next-app).
+# TTS Dialect Annotation Platform
 
-## Getting Started
+A Next.js web application for annotating and managing dialect audio datasets.
 
-First, run the development server:
+## Prerequisites
 
+- Node.js 18+
+- npm or yarn
+- SQLite (included with better-sqlite3)
+
+## Quick Start
+
+### 1. Install Dependencies
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+npm install
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+### 2. Set Up Environment Variables
+Create a `.env` file in the project root with necessary configuration (database URL, auth secrets, etc.).
 
-You can start editing the page by modifying `app/route.ts`. The page auto-updates as you edit the file.
+### 3. Initialize Database
+```bash
+npm run db:generate  # Generate migration files
+npm run db:push     # Apply migrations to database
+```
 
-## Learn More
+### 4. Run Development Server
+```bash
+npm run dev
+```
+Open [http://localhost:3000](http://localhost:3000) in your browser.
 
-To learn more about Next.js, take a look at the following resources:
+## Project Structure
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+- `src/app/` - Next.js pages and API routes
+  - `admin/` - Admin dashboard pages
+  - `user/` - User authentication pages
+  - `actions/` - Server actions for data operations
+- `src/components/` - Reusable React components
+- `src/lib/` - Utilities, database, and auth configuration
+- `drizzle/` - Database migrations
+- `public/datasets/` - Dataset storage
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+## Available Scripts
 
-## Deploy on Vercel
+| Command | Description |
+|---------|-------------|
+| `npm run dev` | Start development server (localhost:3000) |
+| `npm run build` | Build for production |
+| `npm run start` | Start production server |
+| `npm run db:generate` | Generate database migrations |
+| `npm run db:push` | Push migrations to database |
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+## Tech Stack
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+- **Framework**: Next.js 16
+- **Auth**: Better-Auth
+- **Database**: Drizzle ORM + SQLite
+- **Styling**: Tailwind CSS
+- **Language**: TypeScript
 
-## API Routes
+## Modifying the Data Model
 
-This directory contains example API routes for the headless API app.
+### Steps to Update the Database Schema
 
-For more details, see [route.js file convention](https://nextjs.org/docs/app/api-reference/file-conventions/route).
+1. **Edit the Schema**
+   - Open `src/lib/model/` and modify the relevant schema files
+   - Export any new tables in `src/lib/model/index.ts`
+
+2. **Generate Migration**
+   ```bash
+   npm run db:generate
+   ```
+   This creates SQL migration files in the `drizzle/` directory.
+
+3. **Review the Migration**
+   - Check the generated SQL file in `drizzle/` to ensure correctness
+   - Make manual adjustments if needed
+
+4. **Apply Migration to Database**
+   ```bash
+   npm run db:push
+   ```
+   This applies the migration to your local database.
+
+5. **Update Server Actions** (if needed)
+   - Update or create server actions in `src/app/actions/` to handle the new fields/tables
+
+### Example: Adding a New Field
+
+1. Open `src/lib/model/dataset_entry.ts`
+2. Add the new column to the schema
+3. Run `npm run db:generate`
+4. Review and run `npm run db:push`
+5. Update relevant server actions and components
+
+## Development Notes
+
+- Database schema is defined in `src/lib/model/`
+- Authentication config is in `src/lib/auth.ts`
+- Server actions for database operations are in `src/app/actions/`
