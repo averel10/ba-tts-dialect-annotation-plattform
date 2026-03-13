@@ -52,30 +52,46 @@ export async function processDatasetEntries(
   datasetId: number,
   tempDir: string
 ) {
-  const result = await requireAdmin();
-  if (!result.authenticated || !result.admin) {
-    throw new Error('Unauthorized');
-  }
-
-  const datasetDir = join(process.cwd(), 'public', 'datasets', datasetId.toString());
-
   try {
+    const result = await requireAdmin();
+    if (!result.authenticated || !result.admin) {
+      return {
+        success: false,
+        error: 'Unauthorized',
+        entriesCreated: 0,
+      };
+    }
+
+    const datasetDir = join(process.cwd(), 'public', 'datasets', datasetId.toString());
+
     // Validate temp directory exists
     if (!existsSync(tempDir)) {
-      throw new Error('Temporary extraction directory not found');
+      return {
+        success: false,
+        error: 'Temporary extraction directory not found',
+        entriesCreated: 0,
+      };
     }
 
     // Read metadata.csv again
     const metadataPath = join(tempDir, 'metadata.csv');
     if (!existsSync(metadataPath)) {
-      throw new Error('metadata.csv not found in extracted files');
+      return {
+        success: false,
+        error: 'metadata.csv not found in extracted files',
+        entriesCreated: 0,
+      };
     }
 
     const metadataContent = await readFile(metadataPath, 'utf-8');
     const lines = metadataContent.split('\n').filter(line => line.trim());
 
     if (lines.length < 2) {
-      throw new Error('metadata.csv is empty or invalid');
+      return {
+        success: false,
+        error: 'metadata.csv is empty or invalid',
+        entriesCreated: 0,
+      };
     }
 
     // Parse CSV
@@ -123,7 +139,11 @@ export async function processDatasetEntries(
     }
 
     if (entries.length === 0) {
-      throw new Error('No valid audio files found for entries');
+      return {
+        success: false,
+        error: 'No valid audio files found for entries',
+        entriesCreated: 0,
+      };
     }
 
     // Check for existing entries to avoid duplicates
@@ -138,7 +158,11 @@ export async function processDatasetEntries(
     const newEntries = entries.filter(entry => !existingExternalIds.has(entry.externalId));
 
     if (newEntries.length === 0) {
-      throw new Error('All entries already exist in the dataset');
+      return {
+        success: false,
+        error: 'All entries already exist in the dataset',
+        entriesCreated: 0,
+      };
     }
 
     // Insert new entries into database
@@ -153,9 +177,12 @@ export async function processDatasetEntries(
     };
   } catch (error) {
     console.error('Error processing dataset entries:', error);
-    throw new Error(
-      error instanceof Error ? error.message : 'Failed to process dataset entries'
-    );
+    const errorMessage = error instanceof Error ? error.message : 'Failed to process dataset entries';
+    return {
+      success: false,
+      error: errorMessage,
+      entriesCreated: 0,
+    };
   } finally {
     // Clean up temp directory
     try {

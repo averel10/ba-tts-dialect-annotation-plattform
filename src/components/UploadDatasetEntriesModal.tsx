@@ -59,13 +59,19 @@ export default function UploadDatasetEntriesModal({
           // Process the extracted data
           const processResult = await processDatasetEntries(datasetId, uploadResult.tempDir);
 
-          item.status = 'completed';
-          item.progress = 100;
-          item.message = `✓ Processed (${processResult.entriesCreated} entries)`;
+          if (!processResult.success) {
+            item.status = 'failed';
+            item.progress = 0;
+            item.message = `✗ ${processResult.error || 'Processing failed'}`;
+          } else {
+            item.status = 'completed';
+            item.progress = 100;
+            item.message = `✓ Processed (${processResult.entriesCreated} entries)`;
+          }
         } catch (err) {
           item.status = 'failed';
           item.progress = 0;
-          item.message = err instanceof Error ? err.message : 'Unknown error';
+          item.message = `✗ ${err instanceof Error ? err.message : 'Network error'}`;
         }
 
         setUploadQueue([...newQueue]);
