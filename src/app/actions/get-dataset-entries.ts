@@ -2,7 +2,7 @@
 
 import db from '@/lib/db';
 import { dataset_entry } from '@/lib/model/dataset_entry';
-import { count, eq, and, like } from 'drizzle-orm';
+import { count, eq, and, like, asc, desc, SQL } from 'drizzle-orm';
 
 const ENTRIES_PER_PAGE = 20;
 
@@ -14,10 +14,16 @@ interface FilterParams {
   utteranceId?: string;
 }
 
+interface SortParams {
+  sortBy?: keyof typeof dataset_entry;
+  sortOrder?: 'asc' | 'desc';
+}
+
 export async function getDatasetEntries(
   datasetId: number,
   page: number = 1,
-  filters?: FilterParams
+  filters?: FilterParams,
+  sort?: SortParams
 ) {
   const offset = (page - 1) * ENTRIES_PER_PAGE;
 
@@ -46,10 +52,21 @@ export async function getDatasetEntries(
 
   const whereClause = and(...conditions);
 
+  // Build sort clause
+  let sortColumn: SQL | undefined;
+  const sortFn = sort?.sortOrder === 'desc' ? desc : asc;
+
+  if (sort?.sortBy && (sort.sortBy in dataset_entry)) {
+    sortColumn = sortFn(dataset_entry[sort.sortBy as keyof typeof dataset_entry]);
+  } else {
+    sortColumn = asc(dataset_entry.externalId); // Default sort
+  }
+
   const entries = await db
     .select()
     .from(dataset_entry)
     .where(whereClause)
+    .orderBy(sortColumn)
     .limit(ENTRIES_PER_PAGE)
     .offset(offset);
 

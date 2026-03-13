@@ -67,6 +67,10 @@ export default function DatasetEntriesList({
     utteranceIds: [],
   });
 
+  // Sort state
+  const [sortBy, setSortBy] = useState<keyof DatasetEntry>('externalId');
+  const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('asc');
+
   // Load filter options on mount
   useEffect(() => {
     async function loadFilterOptions() {
@@ -83,7 +87,7 @@ export default function DatasetEntriesList({
   useEffect(() => {
     setPage(1);
     loadEntries(1);
-  }, [filters]);
+  }, [filters, sortBy, sortOrder]);
 
   async function loadEntries(pageNum: number = page) {
     setLoading(true);
@@ -96,7 +100,12 @@ export default function DatasetEntriesList({
         utteranceId: filters.utteranceId || undefined,
       };
 
-      const result = await getDatasetEntries(datasetId, pageNum, filterParams);
+      const sortParams = {
+        sortBy: sortBy as keyof DatasetEntry,
+        sortOrder: sortOrder,
+      };
+
+      const result = await getDatasetEntries(datasetId, pageNum, filterParams, sortParams);
       if (pageNum === 1) {
         setEntries(result.entries);
       } else {
@@ -123,7 +132,12 @@ export default function DatasetEntriesList({
         utteranceId: filters.utteranceId || undefined,
       };
 
-      const result = await getDatasetEntries(datasetId, page + 1, filterParams);
+      const sortParams = {
+        sortBy: sortBy as keyof DatasetEntry,
+        sortOrder: sortOrder,
+      };
+
+      const result = await getDatasetEntries(datasetId, page + 1, filterParams, sortParams);
       setEntries((prev) => [...prev, ...result.entries]);
       setHasMore(result.hasMore);
       setTotal(result.total);
@@ -150,6 +164,17 @@ export default function DatasetEntriesList({
       iteration: '',
       utteranceId: '',
     });
+  }
+
+  function handleSort(column: keyof DatasetEntry) {
+    if (sortBy === column) {
+      // Toggle sort order if clicking the same column
+      setSortOrder(sortOrder === 'asc' ? 'desc' : 'asc');
+    } else {
+      // Set new column to sort by, default to ascending
+      setSortBy(column);
+      setSortOrder('asc');
+    }
   }
 
   async function handleDownloadFiltered() {
@@ -415,17 +440,39 @@ export default function DatasetEntriesList({
           <thead>
             <tr className="border-b border-gray-200">
               <th className="text-left py-3 px-4 font-semibold text-gray-700">Play</th>
-              <th className="text-left py-3 px-4 font-semibold text-gray-700">External ID</th>
-              <th className="text-left py-3 px-4 font-semibold text-gray-700">Speaker ID</th>
-              <th className="text-left py-3 px-4 font-semibold text-gray-700">Model Name</th>
-              <th className="text-left py-3 px-4 font-semibold text-gray-700">Utterance ID</th>
-              <th className="text-left py-3 px-4 font-semibold text-gray-700">Dialect</th>
-              <th className="text-left py-3 px-4 font-semibold text-gray-700">Iteration</th>
-              <th className="text-left py-3 px-4 font-semibold text-gray-700">Duration (ms)</th>
-              <th className="text-left py-3 px-4 font-semibold text-gray-700">RMS Value</th>
-              <th className="text-left py-3 px-4 font-semibold text-gray-700">Longest Pause (s)</th>
-              <th className="text-left py-3 px-4 font-semibold text-gray-700">UTMOS Score</th>
-              <th className="text-left py-3 px-4 font-semibold text-gray-700">WER Score</th>
+              <th className="text-left py-3 px-4 font-semibold text-gray-700 cursor-pointer hover:bg-gray-100" onClick={() => handleSort('externalId')}>
+                External ID {sortBy === 'externalId' && (sortOrder === 'asc' ? '↑' : '↓')}
+              </th>
+              <th className="text-left py-3 px-4 font-semibold text-gray-700 cursor-pointer hover:bg-gray-100" onClick={() => handleSort('speakerId')}>
+                Speaker ID {sortBy === 'speakerId' && (sortOrder === 'asc' ? '↑' : '↓')}
+              </th>
+              <th className="text-left py-3 px-4 font-semibold text-gray-700 cursor-pointer hover:bg-gray-100" onClick={() => handleSort('modelName')}>
+                Model Name {sortBy === 'modelName' && (sortOrder === 'asc' ? '↑' : '↓')}
+              </th>
+              <th className="text-left py-3 px-4 font-semibold text-gray-700 cursor-pointer hover:bg-gray-100" onClick={() => handleSort('utteranceId')}>
+                Utterance ID {sortBy === 'utteranceId' && (sortOrder === 'asc' ? '↑' : '↓')}
+              </th>
+              <th className="text-left py-3 px-4 font-semibold text-gray-700 cursor-pointer hover:bg-gray-100" onClick={() => handleSort('dialect')}>
+                Dialect {sortBy === 'dialect' && (sortOrder === 'asc' ? '↑' : '↓')}
+              </th>
+              <th className="text-left py-3 px-4 font-semibold text-gray-700 cursor-pointer hover:bg-gray-100" onClick={() => handleSort('iteration')}>
+                Iteration {sortBy === 'iteration' && (sortOrder === 'asc' ? '↑' : '↓')}
+              </th>
+              <th className="text-left py-3 px-4 font-semibold text-gray-700 cursor-pointer hover:bg-gray-100" onClick={() => handleSort('durationMs')}>
+                Duration (ms) {sortBy === 'durationMs' && (sortOrder === 'asc' ? '↑' : '↓')}
+              </th>
+              <th className="text-left py-3 px-4 font-semibold text-gray-700 cursor-pointer hover:bg-gray-100" onClick={() => handleSort('rmsValue')}>
+                RMS Value {sortBy === 'rmsValue' && (sortOrder === 'asc' ? '↑' : '↓')}
+              </th>
+              <th className="text-left py-3 px-4 font-semibold text-gray-700 cursor-pointer hover:bg-gray-100" onClick={() => handleSort('longestPause')}>
+                Longest Pause (s) {sortBy === 'longestPause' && (sortOrder === 'asc' ? '↑' : '↓')}
+              </th>
+              <th className="text-left py-3 px-4 font-semibold text-gray-700 cursor-pointer hover:bg-gray-100" onClick={() => handleSort('utmosScore')}>
+                UTMOS Score {sortBy === 'utmosScore' && (sortOrder === 'asc' ? '↑' : '↓')}
+              </th>
+              <th className="text-left py-3 px-4 font-semibold text-gray-700 cursor-pointer hover:bg-gray-100" onClick={() => handleSort('werScore')}>
+                WER Score {sortBy === 'werScore' && (sortOrder === 'asc' ? '↑' : '↓')}
+              </th>
             </tr>
           </thead>
           <tbody>
