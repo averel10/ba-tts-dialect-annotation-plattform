@@ -1,5 +1,6 @@
 import DatasetsList from "@/components/DatasetsList";
 import CreateDatasetModal from "@/components/CreateDatasetModal";
+import { AdminTokenForm } from "@/components/AdminTokenForm";
 import { requireAdmin } from "@/lib/auth";
 import { redirect } from "next/navigation";
 import Link from "next/link";
@@ -12,7 +13,7 @@ export default async function AdminPage() {
     }
 
     if (!result.admin) {
-        redirect("/");
+        return <AdminTokenForm userEmail={result.session?.user.email || ""} />;
     }
 
   return (

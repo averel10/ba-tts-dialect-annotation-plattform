@@ -88,6 +88,24 @@ Open [http://localhost:3000](http://localhost:3000) in your browser.
 4. Review and run `npm run db:push`
 5. Update relevant server actions and components
 
+## Admin Signup System
+
+The platform automatically generates a one-time admin token on startup if no admin exists in the database. This token is logged to the console and can only be used once.
+
+### Upgrading to Admin Account
+
+1. Sign in with your regular account
+2. Try to access `/admin`
+3. You'll see a form asking for the admin token
+4. Paste the token from the console output
+5. Click "Admin aktivieren" to upgrade your account
+
+After successful upgrade:
+- The token becomes invalid
+- Your account gains full admin privileges
+- No new token is generated (admin now exists)
+- Trying to upgrade another account will fail (token is spent)
+
 ## Development Notes
 
 - Database schema is defined in `src/lib/model/`
