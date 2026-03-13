@@ -7,9 +7,14 @@ import { revalidatePath } from 'next/cache';
 import { rm } from 'fs/promises';
 import { join } from 'path';
 import { existsSync } from 'fs';
+import { requireAdmin } from '@/lib/auth';
 
 export async function removeAllDatasetEntries(datasetId: number) {
   try {
+    const result = await requireAdmin();
+    if (!result.authenticated || !result.admin) {
+      throw new Error('Unauthorized');
+    }
     // Delete all entries from database
     await db.delete(dataset_entry).where(eq(dataset_entry.datasetId, datasetId));
 

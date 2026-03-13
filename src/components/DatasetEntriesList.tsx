@@ -5,6 +5,7 @@ import Link from 'next/link';
 import AudioPlayer from './AudioPlayer';
 import { getDatasetEntries } from '@/app/actions/get-dataset-entries';
 import { getFilterOptions } from '@/app/actions/get-filter-options';
+import { downloadFilteredEntriesAsZip } from '@/lib/download-utils';
 
 interface DatasetEntriesListProps {
   datasetId: number;
@@ -38,6 +39,7 @@ export default function DatasetEntriesList({
 }: DatasetEntriesListProps) {
   const [entries, setEntries] = useState<DatasetEntry[]>([]);
   const [loading, setLoading] = useState(false);
+  const [downloading, setDownloading] = useState(false);
   const [hasMore, setHasMore] = useState(true);
   const [page, setPage] = useState(1);
   const [total, setTotal] = useState(0);
@@ -145,6 +147,26 @@ export default function DatasetEntriesList({
     });
   }
 
+  async function handleDownloadFiltered() {
+    setDownloading(true);
+    try {
+      const filterParams = {
+        speakerId: filters.speakerId || undefined,
+        modelName: filters.modelName || undefined,
+        dialect: filters.dialect || undefined,
+        iteration: filters.iteration ? parseInt(filters.iteration, 10) : undefined,
+        utteranceId: filters.utteranceId || undefined,
+      };
+
+      await downloadFilteredEntriesAsZip(datasetId, filterParams);
+    } catch (error) {
+      console.error('Error downloading entries:', error);
+      alert('Failed to download entries. Please try again.');
+    } finally {
+      setDownloading(false);
+    }
+  }
+
   if (entries.length === 0 && !loading) {
     return (
       <div className="bg-white rounded-lg shadow p-6">
@@ -154,12 +176,21 @@ export default function DatasetEntriesList({
         <div className="mb-6 p-4 bg-gray-50 rounded-lg border border-gray-200">
           <div className="flex items-center justify-between mb-4">
             <h3 className="text-lg font-semibold text-gray-700">Filters</h3>
-            <button
-              onClick={handleClearFilters}
-              className="text-sm text-blue-500 hover:text-blue-600"
-            >
-              Clear all
-            </button>
+            <div className="flex gap-3">
+              <button
+                onClick={handleDownloadFiltered}
+                disabled={downloading || total === 0}
+                className="text-sm px-3 py-1 bg-green-500 text-white rounded hover:bg-green-600 disabled:bg-gray-400 disabled:cursor-not-allowed transition-colors"
+              >
+                {downloading ? 'Downloading...' : 'Download as ZIP'}
+              </button>
+              <button
+                onClick={handleClearFilters}
+                className="text-sm text-blue-500 hover:text-blue-600"
+              >
+                Clear all
+              </button>
+            </div>
           </div>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-6 gap-4">
           <div>
@@ -263,12 +294,21 @@ export default function DatasetEntriesList({
       <div className="mb-6 p-4 bg-gray-50 rounded-lg border border-gray-200">
         <div className="flex items-center justify-between mb-4">
           <h3 className="text-lg font-semibold text-gray-700">Filters</h3>
-          <button
-            onClick={handleClearFilters}
-            className="text-sm text-blue-500 hover:text-blue-600"
-          >
-            Clear all
-          </button>
+          <div className="flex gap-3">
+            <button
+              onClick={handleDownloadFiltered}
+              disabled={downloading || total === 0}
+              className="text-sm px-3 py-1 bg-green-500 text-white rounded hover:bg-green-600 disabled:bg-gray-400 disabled:cursor-not-allowed transition-colors"
+            >
+              {downloading ? 'Downloading...' : 'Download as ZIP'}
+            </button>
+            <button
+              onClick={handleClearFilters}
+              className="text-sm text-blue-500 hover:text-blue-600"
+            >
+              Clear all
+            </button>
+          </div>
         </div>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-6 gap-4">
           <div>
