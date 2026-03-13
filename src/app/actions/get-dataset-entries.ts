@@ -2,9 +2,10 @@
 
 import db from '@/lib/db';
 import { dataset_entry } from '@/lib/model/dataset_entry';
-import { count, eq, and, like, asc, desc, SQL } from 'drizzle-orm';
+import { count, eq, and, like, asc, desc, getTableColumns } from 'drizzle-orm';
 
 const ENTRIES_PER_PAGE = 20;
+const SORT_COLUMNS = getTableColumns(dataset_entry);
 
 interface FilterParams {
   speakerId?: string;
@@ -15,7 +16,7 @@ interface FilterParams {
 }
 
 interface SortParams {
-  sortBy?: keyof typeof dataset_entry;
+  sortBy?: keyof typeof SORT_COLUMNS;
   sortOrder?: 'asc' | 'desc';
 }
 
@@ -53,14 +54,10 @@ export async function getDatasetEntries(
   const whereClause = and(...conditions);
 
   // Build sort clause
-  let sortColumn: SQL | undefined;
   const sortFn = sort?.sortOrder === 'desc' ? desc : asc;
-
-  if (sort?.sortBy && (sort.sortBy in dataset_entry)) {
-    sortColumn = sortFn(dataset_entry[sort.sortBy as keyof typeof dataset_entry]);
-  } else {
-    sortColumn = asc(dataset_entry.externalId); // Default sort
-  }
+  const sortColumn = sort?.sortBy && sort.sortBy in SORT_COLUMNS
+    ? sortFn(SORT_COLUMNS[sort.sortBy as keyof typeof SORT_COLUMNS])
+    : asc(dataset_entry.externalId);
 
   const entries = await db
     .select()
