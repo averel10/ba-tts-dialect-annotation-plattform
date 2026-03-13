@@ -1,78 +1,9 @@
 {
   "version": "6",
   "dialect": "sqlite",
-  "id": "59929a2a-9ed3-4f73-8ef7-7af2b8d436b6",
+  "id": "4e72f679-ef9b-47d5-a6fb-a1c45d5cbe74",
   "prevId": "e6165973-fcea-4b1b-8004-60db966b8106",
   "tables": {
-    "annotation": {
-      "name": "annotation",
-      "columns": {
-        "id": {
-          "name": "id",
-          "type": "integer",
-          "primaryKey": true,
-          "notNull": true,
-          "autoincrement": true
-        },
-        "dataset_entry_id": {
-          "name": "dataset_entry_id",
-          "type": "integer",
-          "primaryKey": false,
-          "notNull": true,
-          "autoincrement": false
-        },
-        "user_id": {
-          "name": "user_id",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": true,
-          "autoincrement": false
-        },
-        "rating": {
-          "name": "rating",
-          "type": "integer",
-          "primaryKey": false,
-          "notNull": true,
-          "autoincrement": false
-        },
-        "created_at": {
-          "name": "created_at",
-          "type": "integer",
-          "primaryKey": false,
-          "notNull": true,
-          "autoincrement": false,
-          "default": "(unixepoch())"
-        }
-      },
-      "indexes": {
-        "annotation_user_entry_idx": {
-          "name": "annotation_user_entry_idx",
-          "columns": [
-            "user_id",
-            "dataset_entry_id"
-          ],
-          "isUnique": true
-        }
-      },
-      "foreignKeys": {
-        "annotation_dataset_entry_id_dataset_entry_id_fk": {
-          "name": "annotation_dataset_entry_id_dataset_entry_id_fk",
-          "tableFrom": "annotation",
-          "tableTo": "dataset_entry",
-          "columnsFrom": [
-            "dataset_entry_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
-          "onDelete": "no action",
-          "onUpdate": "no action"
-        }
-      },
-      "compositePrimaryKeys": {},
-      "uniqueConstraints": {},
-      "checkConstraints": {}
-    },
     "account": {
       "name": "account",
       "columns": {
@@ -509,6 +440,34 @@
         "duration_ms": {
           "name": "duration_ms",
           "type": "integer",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "rms_value": {
+          "name": "rms_value",
+          "type": "real",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "longest_pause": {
+          "name": "longest_pause",
+          "type": "real",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "utmos_score": {
+          "name": "utmos_score",
+          "type": "real",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "wer_score": {
+          "name": "wer_score",
+          "type": "real",
           "primaryKey": false,
           "notNull": false,
           "autoincrement": false

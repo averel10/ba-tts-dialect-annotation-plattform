@@ -36,7 +36,7 @@ export default async function DatasetEntryPage({ params }: DatasetEntryPageProps
   if (entries.length === 0 || entries[0].datasetId !== datasetIdNum) {
     return (
       <div className="min-h-screen">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <div className="px-4 sm:px-6 lg:px-8 py-8">
           <Link
             href={`/admin/datasets/${datasetId}`}
             className="text-blue-500 hover:text-blue-600 mb-6 inline-block"
@@ -55,7 +55,7 @@ export default async function DatasetEntryPage({ params }: DatasetEntryPageProps
 
   return (
     <div>
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <div className="px-4 sm:px-6 lg:px-8 py-8">
         <Link
           href={`/admin/datasets/${datasetId}`}
           className="text-blue-500 hover:text-blue-600 mb-6 inline-block"
@@ -120,6 +120,26 @@ export default async function DatasetEntryPage({ params }: DatasetEntryPageProps
             <div className="bg-white border border-gray-200 p-4 rounded-lg">
               <p className="text-sm text-gray-600 mb-1">Duration (ms)</p>
               <p className="text-lg font-semibold">{entry.durationMs?.toLocaleString() || '-'}</p>
+            </div>
+
+            <div className="bg-white border border-gray-200 p-4 rounded-lg">
+              <p className="text-sm text-gray-600 mb-1">RMS Value</p>
+              <p className="text-lg font-semibold">{entry.rmsValue?.toFixed(3) || '-'}</p>
+            </div>
+
+            <div className="bg-white border border-gray-200 p-4 rounded-lg">
+              <p className="text-sm text-gray-600 mb-1">Longest Pause (s)</p>
+              <p className="text-lg font-semibold">{entry.longestPause?.toFixed(3) || '-'}</p>
+            </div>
+
+            <div className="bg-white border border-gray-200 p-4 rounded-lg">
+              <p className="text-sm text-gray-600 mb-1">UTMOS Score</p>
+              <p className="text-lg font-semibold">{entry.utmosScore?.toFixed(3) || '-'}</p>
+            </div>
+
+            <div className="bg-white border border-gray-200 p-4 rounded-lg">
+              <p className="text-sm text-gray-600 mb-1">WER Score</p>
+              <p className="text-lg font-semibold">{entry.werScore?.toFixed(3) || '-'}</p>
             </div>
 
             <div className="bg-white border border-gray-200 p-4 rounded-lg">

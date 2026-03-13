@@ -5,6 +5,7 @@ import { eq } from 'drizzle-orm';
 import EditableDatasetHeader from '@/components/EditableDatasetHeader';
 import DatasetEntriesList from '@/components/DatasetEntriesList';
 import UploadDatasetEntriesModal from '@/components/UploadDatasetEntriesModal';
+import UpdateDatasetMetadataModal from '@/components/UpdateDatasetMetadataModal';
 import RemoveAllEntriesButton from '@/components/RemoveAllEntriesButton';
 import DeleteDatasetButton from '@/components/DeleteDatasetButton';
 import { requireAdmin } from '@/lib/auth';
@@ -38,7 +39,7 @@ export default async function DatasetPage({ params }: DatasetPageProps) {
   if (datasets.length === 0) {
     return (
       <div className="min-h-screen">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <div className="px-4 sm:px-6 lg:px-8 py-8">
           <Link
             href="/admin"
             className="text-blue-500 hover:text-blue-600 mb-6 inline-block"
@@ -57,7 +58,7 @@ export default async function DatasetPage({ params }: DatasetPageProps) {
 
   return (
     <div>
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <div className="px-4 sm:px-6 lg:px-8 py-8">
         <Link
           href="/admin"
           className="text-blue-500 hover:text-blue-600 mb-6 inline-block"
@@ -69,6 +70,7 @@ export default async function DatasetPage({ params }: DatasetPageProps) {
 
         <div className="flex gap-3 mb-6">
           <UploadDatasetEntriesModal datasetId={datasetId} />
+          <UpdateDatasetMetadataModal datasetId={datasetId} />
           <RemoveAllEntriesButton datasetId={datasetId} />
           <DeleteDatasetButton datasetId={datasetId} datasetName={ds.name} />
         </div>

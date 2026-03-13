@@ -16,7 +16,7 @@ export function Header() {
 
   return (
     <header className="sticky top-0 z-50 bg-gradient-to-r from-blue-600 to-blue-700 text-white shadow-lg">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div className="px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between items-center py-5">
           <Link href="/" className="text-2xl font-bold hover:text-blue-100 transition-colors">
             TTS Dialektannotations-Plattform
