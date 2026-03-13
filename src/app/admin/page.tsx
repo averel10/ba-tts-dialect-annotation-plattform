@@ -1,6 +1,7 @@
 import DatasetsList from "@/components/DatasetsList";
 import CreateDatasetModal from "@/components/CreateDatasetModal";
 import { AdminTokenForm } from "@/components/AdminTokenForm";
+import BuildInfo from "@/components/BuildInfo";
 import { requireAdmin } from "@/lib/auth";
 import { redirect } from "next/navigation";
 import Link from "next/link";
@@ -28,6 +29,10 @@ export default async function AdminPage() {
             Manage Users
           </Link>
         </div>
+      </div>
+
+      <div className="mb-8">
+        <BuildInfo />
       </div>
 
       <div className="mt-8">
