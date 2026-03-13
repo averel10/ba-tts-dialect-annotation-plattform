@@ -114,6 +114,42 @@ export default function UploadDatasetEntriesModal({
     index: number,
     queue: Array<{ file: File; status: 'pending' | 'uploading' | 'completed' | 'failed'; progress: number; message?: string }>
   ): Promise<{ tempDir: string }> {
+    const MAX_RETRIES = 3;
+
+    return (async () => {
+      let lastError: Error | null = null;
+
+      for (let attempt = 1; attempt <= MAX_RETRIES; attempt++) {
+        try {
+          const result = await uploadAttempt(file, index, queue, attempt, MAX_RETRIES);
+          return result;
+        } catch (error) {
+          lastError = error instanceof Error ? error : new Error('Unknown error');
+
+          if (attempt < MAX_RETRIES) {
+            // Exponential backoff: 1s, 2s, 4s
+            const delay = Math.pow(2, attempt - 1) * 1000;
+            queue[index].message = `Retrying in ${delay / 1000}s... (attempt ${attempt}/${MAX_RETRIES})`;
+            setUploadQueue([...queue]);
+
+            await new Promise(resolve => setTimeout(resolve, delay));
+            queue[index].progress = 0; // Reset progress for next attempt
+            setUploadQueue([...queue]);
+          }
+        }
+      }
+
+      throw lastError || new Error('Upload failed after all retries');
+    })();
+  }
+
+  function uploadAttempt(
+    file: File,
+    index: number,
+    queue: Array<{ file: File; status: 'pending' | 'uploading' | 'completed' | 'failed'; progress: number; message?: string }>,
+    attempt: number,
+    maxRetries: number
+  ): Promise<{ tempDir: string }> {
     return new Promise((resolve, reject) => {
       const formData = new FormData();
       formData.append('file', file);
@@ -126,6 +162,9 @@ export default function UploadDatasetEntriesModal({
         if (event.lengthComputable) {
           const progress = Math.round((event.loaded / event.total) * 100);
           queue[index].progress = progress;
+          if (attempt > 1) {
+            queue[index].message = `Uploading (retry ${attempt}/${maxRetries})`;
+          }
           setUploadQueue([...queue]);
         }
       });
@@ -153,7 +192,7 @@ export default function UploadDatasetEntriesModal({
       });
 
       xhr.addEventListener('error', () => {
-        reject(new Error('Upload failed'));
+        reject(new Error('Network error'));
       });
 
       xhr.addEventListener('abort', () => {
