@@ -70,7 +70,7 @@ export default function CreateDatasetModal() {
           },
           {
             label: loading ? 'Creating...' : 'Create',
-            onClick: (e) => {
+            onClick: () => {
               const form = document.getElementById('datasetForm') as HTMLFormElement;
               form?.dispatchEvent(new Event('submit', { bubbles: true }));
             },

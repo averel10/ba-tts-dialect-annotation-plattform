@@ -77,13 +77,7 @@ Open [http://localhost:3000](http://localhost:3000) in your browser.
    - Check the generated SQL file in `drizzle/` to ensure correctness
    - Make manual adjustments if needed
 
-4. **Apply Migration to Database**
-   ```bash
-   npm run db:push
-   ```
-   This applies the migration to your local database.
-
-5. **Update Server Actions** (if needed)
+4. **Update Server Actions** (if needed)
    - Update or create server actions in `src/app/actions/` to handle the new fields/tables
 
 ### Example: Adding a New Field
