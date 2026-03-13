@@ -5,6 +5,7 @@ import { createDataset } from '@/app/actions/datasets';
 
 export default function CreateDatasetForm() {
   const [name, setName] = useState('');
+  const [description, setDescription] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState(false);
@@ -21,8 +22,12 @@ export default function CreateDatasetForm() {
 
     setLoading(true);
     try {
-      await createDataset({ name: name.trim() });
+      await createDataset({ 
+        name: name.trim(),
+        description: description.trim() || undefined
+      });
       setName('');
+      setDescription('');
       setSuccess(true);
       setTimeout(() => setSuccess(false), 3000);
       // Refresh the page to show the new dataset
@@ -49,6 +54,21 @@ export default function CreateDatasetForm() {
             onChange={(e) => setName(e.target.value)}
             placeholder="Enter dataset name"
             className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+            disabled={loading}
+          />
+        </div>
+
+        <div className="mb-4">
+          <label htmlFor="description" className="block text-sm font-medium mb-2">
+            Description (Optional)
+          </label>
+          <textarea
+            id="description"
+            value={description}
+            onChange={(e) => setDescription(e.target.value)}
+            placeholder="Enter dataset description"
+            rows={3}
+            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 resize-none"
             disabled={loading}
           />
         </div>

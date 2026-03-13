@@ -21,6 +21,7 @@ export default async function DatasetsList() {
               className="border border-gray-300 rounded-lg p-4 bg-white shadow-sm hover:shadow-md transition-shadow block cursor-pointer"
             >
               <h3 className="text-lg font-semibold">{ds.name}</h3>
+              <p className="text-md text-gray-600">{ds.description}</p>
               <p className="text-sm text-gray-600 mt-2">
                 ID: {ds.id}
               </p>

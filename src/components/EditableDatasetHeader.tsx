@@ -13,6 +13,7 @@ export default function EditableDatasetHeader({
 }: EditableDatasetHeaderProps) {
   const [isEditing, setIsEditing] = useState(false);
   const [name, setName] = useState(dataset.name);
+  const [description, setDescription] = useState(dataset.description || '');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -26,7 +27,10 @@ export default function EditableDatasetHeader({
     setError(null);
 
     try {
-      await updateDataset(dataset.id, { name: name.trim() });
+      await updateDataset(dataset.id, { 
+        name: name.trim(),
+        description: description.trim() || undefined
+      });
       setIsEditing(false);
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to update dataset');
@@ -37,6 +41,7 @@ export default function EditableDatasetHeader({
 
   function handleCancel() {
     setName(dataset.name);
+    setDescription(dataset.description || '');
     setError(null);
     setIsEditing(false);
   }
@@ -54,6 +59,18 @@ export default function EditableDatasetHeader({
             value={name}
             onChange={(e) => setName(e.target.value)}
             className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 mb-4"
+            disabled={loading}
+          />
+
+          <label htmlFor="description" className="block text-sm font-medium mb-2">
+            Description (Optional)
+          </label>
+          <textarea
+            id="description"
+            value={description}
+            onChange={(e) => setDescription(e.target.value)}
+            rows={3}
+            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 mb-4 resize-none"
             disabled={loading}
           />
 
@@ -91,6 +108,9 @@ export default function EditableDatasetHeader({
               Edit
             </button>
           </div>
+          {dataset.description && (
+            <p className="text-gray-700 mb-4">{dataset.description}</p>
+          )}
           <div className="grid grid-cols-2 gap-4">
             <div>
               <p className="text-sm text-gray-600">Dataset ID</p>

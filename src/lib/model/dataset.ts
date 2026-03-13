@@ -6,6 +6,7 @@ import { dataset_entry } from './dataset_entry';
 export const dataset = sqliteTable('dataset', {
   id: integer('id').primaryKey({ autoIncrement: true }),
   name: text('name').notNull(),
+  description: text('description'),
   createdAt: integer('created_at', { mode: 'timestamp' })
     .notNull()
     .default(sql`(unixepoch())`),

@@ -6,7 +6,7 @@ import { eq } from 'drizzle-orm';
 import { revalidatePath } from 'next/cache';
 import { requireAdmin } from '@/lib/auth';
 
-export async function createDataset({ name }: { name: string }) {
+export async function createDataset({ name, description }: { name: string; description?: string }) {
   const result = await requireAdmin();
   if (!result.authenticated || !result.admin) {
     throw new Error('Unauthorized');
@@ -17,7 +17,10 @@ export async function createDataset({ name }: { name: string }) {
   }
 
   try {
-    const result = await db.insert(dataset).values({ name: name.trim() });
+    const result = await db.insert(dataset).values({ 
+      name: name.trim(),
+      description: description?.trim() || null
+    });
     revalidatePath('/admin');
     return result;
   } catch (error) {
@@ -28,7 +31,7 @@ export async function createDataset({ name }: { name: string }) {
 
 export async function updateDataset(
   id: number,
-  updates: { name?: string }
+  updates: { name?: string; description?: string }
 ) {
   const result = await requireAdmin();
   if (!result.authenticated || !result.admin) {
@@ -40,12 +43,18 @@ export async function updateDataset(
   }
 
   try {
+    const updateData: any = {};
+    if (updates.name !== undefined) {
+      updateData.name = updates.name.trim();
+    }
+    if (updates.description !== undefined) {
+      updateData.description = updates.description.trim() || null;
+    }
+    updateData.updatedAt = new Date();
+
     const result = await db
       .update(dataset)
-      .set({
-        name: updates.name?.trim(),
-        updatedAt: new Date(),
-      })
+      .set(updateData)
       .where(eq(dataset.id, id));
     revalidatePath(`/admin/datasets/${id}`);
     revalidatePath('/admin');
