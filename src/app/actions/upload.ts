@@ -136,6 +136,7 @@ export async function processDatasetEntries(
           fileName: relativePath,
           dialect: row.dialect,
           iteration: parseInt(row.iteration, 10),
+          durationMs: row.duration_ms ? parseInt(row.duration_ms, 10) : undefined,
         });
       }
     }

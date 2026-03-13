@@ -1,0 +1,1 @@
+ALTER TABLE `dataset_entry` ADD `duration_ms` integer;

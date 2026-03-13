@@ -66,7 +66,7 @@ export async function downloadFilteredEntries(
     const row = [
       `"${entry.externalId}"`,
       entry.fileName,
-      '',
+      entry.durationMs?.toString() || '',
       entry.utteranceId || '',
       `"${(entry.utteranceText || '').replace(/"/g, '""')}"`,
       entry.speakerId,

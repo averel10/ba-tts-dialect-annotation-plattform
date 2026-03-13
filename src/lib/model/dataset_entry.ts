@@ -15,6 +15,7 @@ export const dataset_entry = sqliteTable('dataset_entry', {
   fileName: text('file_name').notNull(),
   dialect: text('dialect').notNull(),
   iteration: integer('iteration').notNull(),
+  durationMs: integer('duration_ms'),
   createdAt: integer('created_at', { mode: 'timestamp' })
     .notNull()
     .default(sql`(unixepoch())`),

@@ -118,6 +118,11 @@ export default async function DatasetEntryPage({ params }: DatasetEntryPageProps
             </div>
 
             <div className="bg-white border border-gray-200 p-4 rounded-lg">
+              <p className="text-sm text-gray-600 mb-1">Duration (ms)</p>
+              <p className="text-lg font-semibold">{entry.durationMs?.toLocaleString() || '-'}</p>
+            </div>
+
+            <div className="bg-white border border-gray-200 p-4 rounded-lg">
               <p className="text-sm text-gray-600 mb-1">Created</p>
               <p className="text-lg font-semibold">
                 {new Date(entry.createdAt).toLocaleDateString()}
