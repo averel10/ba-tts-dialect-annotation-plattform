@@ -4,6 +4,7 @@ import db from '@/lib/db';
 import { dataset } from '@/lib/model/dataset';
 import { eq } from 'drizzle-orm';
 import { revalidatePath } from 'next/cache';
+import { removeAllDatasetEntries } from './remove-dataset-entries';
 import { requireAdmin } from '@/lib/auth';
 
 export async function createDataset({ name, description }: { name: string; description?: string }) {
@@ -62,5 +63,26 @@ export async function updateDataset(
   } catch (error) {
     console.error('Error updating dataset:', error);
     throw new Error('Failed to update dataset');
+  }
+}
+
+export async function deleteDataset(id: number) {
+  const result = await requireAdmin();
+  if (!result.authenticated || !result.admin) {
+    throw new Error('Unauthorized');
+  }
+
+  try {
+    // Remove all entries and their files using the existing action
+    await removeAllDatasetEntries(id);
+
+    // Then delete the dataset itself
+    await db.delete(dataset).where(eq(dataset.id, id));
+
+    revalidatePath('/admin');
+    return { success: true };
+  } catch (error) {
+    console.error('Error deleting dataset:', error);
+    throw new Error('Failed to delete dataset');
   }
 }

@@ -6,6 +6,7 @@ import EditableDatasetHeader from '@/components/EditableDatasetHeader';
 import DatasetEntriesList from '@/components/DatasetEntriesList';
 import UploadDatasetEntriesModal from '@/components/UploadDatasetEntriesModal';
 import RemoveAllEntriesButton from '@/components/RemoveAllEntriesButton';
+import DeleteDatasetButton from '@/components/DeleteDatasetButton';
 import { requireAdmin } from '@/lib/auth';
 import { redirect } from 'next/navigation';
 
@@ -69,6 +70,7 @@ export default async function DatasetPage({ params }: DatasetPageProps) {
         <div className="flex gap-3 mb-6">
           <UploadDatasetEntriesModal datasetId={datasetId} />
           <RemoveAllEntriesButton datasetId={datasetId} />
+          <DeleteDatasetButton datasetId={datasetId} datasetName={ds.name} />
         </div>
 
         <DatasetEntriesList datasetId={datasetId} />
