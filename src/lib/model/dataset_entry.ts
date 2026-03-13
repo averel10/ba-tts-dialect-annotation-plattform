@@ -7,6 +7,8 @@ export const dataset_entry = sqliteTable('dataset_entry', {
   externalId: text('external_id').notNull(),
   speakerId: text('speaker_id').notNull(),
   modelName: text('model_name').notNull(),
+  utteranceId: text('utterance_id'),
+  utteranceText: text('utterance_text'),
   datasetId: integer('dataset_id')
     .notNull()
     .references(() => dataset.id),

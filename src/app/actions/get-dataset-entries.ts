@@ -11,6 +11,7 @@ interface FilterParams {
   modelName?: string;
   dialect?: string;
   iteration?: number;
+  utteranceId?: string;
 }
 
 export async function getDatasetEntries(
@@ -37,6 +38,10 @@ export async function getDatasetEntries(
 
   if (filters?.iteration !== undefined) {
     conditions.push(eq(dataset_entry.iteration, filters.iteration));
+  }
+
+  if (filters?.utteranceId) {
+    conditions.push(like(dataset_entry.utteranceId, `%${filters.utteranceId}%`));
   }
 
   const whereClause = and(...conditions);

@@ -88,6 +88,11 @@ export default async function DatasetEntryPage({ params }: DatasetEntryPageProps
             </div>
 
             <div className="bg-white border border-gray-200 p-4 rounded-lg">
+              <p className="text-sm text-gray-600 mb-1">Utterance ID</p>
+              <p className="text-lg font-semibold">{entry.utteranceId || '-'}</p>
+            </div>
+
+            <div className="bg-white border border-gray-200 p-4 rounded-lg">
               <p className="text-sm text-gray-600 mb-1">Dialect</p>
               <p className="text-lg font-semibold">{entry.dialect}</p>
             </div>
@@ -100,6 +105,11 @@ export default async function DatasetEntryPage({ params }: DatasetEntryPageProps
             <div className="col-span-2 bg-white border border-gray-200 p-4 rounded-lg">
               <p className="text-sm text-gray-600 mb-1">File Name</p>
               <p className="text-lg font-semibold break-all">{entry.fileName}</p>
+            </div>
+
+            <div className="col-span-2 bg-white border border-gray-200 p-4 rounded-lg">
+              <p className="text-sm text-gray-600 mb-1">Utterance Text</p>
+              <p className="text-lg font-semibold break-words">{entry.utteranceText || '-'}</p>
             </div>
 
             <div className="col-span-2 bg-white border border-gray-200 p-4 rounded-lg">

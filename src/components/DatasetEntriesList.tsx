@@ -16,6 +16,8 @@ interface DatasetEntry {
   externalId: string;
   speakerId: string;
   modelName: string;
+  utteranceId: string | null;
+  utteranceText: string | null;
   fileName: string;
   dialect: string;
   iteration: number;
@@ -28,6 +30,7 @@ interface FilterOptions {
   modelNames: string[];
   dialects: string[];
   iterations: number[];
+  utteranceIds: string[];
 }
 
 export default function DatasetEntriesList({
@@ -45,6 +48,7 @@ export default function DatasetEntriesList({
     modelName: '',
     dialect: '',
     iteration: '',
+    utteranceId: '',
   });
 
   // Filter options
@@ -53,6 +57,7 @@ export default function DatasetEntriesList({
     modelNames: [],
     dialects: [],
     iterations: [],
+    utteranceIds: [],
   });
 
   // Load filter options on mount
@@ -81,6 +86,7 @@ export default function DatasetEntriesList({
         modelName: filters.modelName || undefined,
         dialect: filters.dialect || undefined,
         iteration: filters.iteration ? parseInt(filters.iteration, 10) : undefined,
+        utteranceId: filters.utteranceId || undefined,
       };
 
       const result = await getDatasetEntries(datasetId, pageNum, filterParams);
@@ -107,6 +113,7 @@ export default function DatasetEntriesList({
         modelName: filters.modelName || undefined,
         dialect: filters.dialect || undefined,
         iteration: filters.iteration ? parseInt(filters.iteration, 10) : undefined,
+        utteranceId: filters.utteranceId || undefined,
       };
 
       const result = await getDatasetEntries(datasetId, page + 1, filterParams);
@@ -134,6 +141,7 @@ export default function DatasetEntriesList({
       modelName: '',
       dialect: '',
       iteration: '',
+      utteranceId: '',
     });
   }
 
@@ -153,7 +161,7 @@ export default function DatasetEntriesList({
               Clear all
             </button>
           </div>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-6 gap-4">
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">
               Speaker ID
@@ -218,6 +226,23 @@ export default function DatasetEntriesList({
               {filterOptions.iterations.map((iter) => (
                 <option key={iter} value={iter.toString()}>
                   {iter}
+                </option>
+              ))}
+            </select>
+          </div>
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              Utterance ID
+            </label>
+            <select
+              value={filters.utteranceId}
+              onChange={(e) => handleFilterChange('utteranceId', e.target.value)}
+              className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+            >
+              <option value="">All utterance IDs</option>
+              {filterOptions.utteranceIds.map((utt) => (
+                <option key={utt} value={utt}>
+                  {utt}
                 </option>
               ))}
             </select>
@@ -245,7 +270,7 @@ export default function DatasetEntriesList({
             Clear all
           </button>
         </div>
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-6 gap-4">
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">
               Speaker ID
@@ -314,6 +339,23 @@ export default function DatasetEntriesList({
               ))}
             </select>
           </div>
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              Utterance ID
+            </label>
+            <select
+              value={filters.utteranceId}
+              onChange={(e) => handleFilterChange('utteranceId', e.target.value)}
+              className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+            >
+              <option value="">All utterance IDs</option>
+              {filterOptions.utteranceIds.map((utt) => (
+                <option key={utt} value={utt}>
+                  {utt}
+                </option>
+              ))}
+            </select>
+          </div>
         </div>
       </div>
 
@@ -331,6 +373,8 @@ export default function DatasetEntriesList({
               <th className="text-left py-3 px-4 font-semibold text-gray-700">External ID</th>
               <th className="text-left py-3 px-4 font-semibold text-gray-700">Speaker ID</th>
               <th className="text-left py-3 px-4 font-semibold text-gray-700">Model Name</th>
+              <th className="text-left py-3 px-4 font-semibold text-gray-700">Utterance ID</th>
+              <th className="text-left py-3 px-4 font-semibold text-gray-700">Utterance Text</th>
               <th className="text-left py-3 px-4 font-semibold text-gray-700">Dialect</th>
               <th className="text-left py-3 px-4 font-semibold text-gray-700">File Name</th>
               <th className="text-left py-3 px-4 font-semibold text-gray-700">Iteration</th>
@@ -352,6 +396,8 @@ export default function DatasetEntriesList({
                 </td>
                 <td className="py-3 px-4">{entry.speakerId}</td>
                 <td className="py-3 px-4">{entry.modelName}</td>
+                <td className="py-3 px-4 truncate">{entry.utteranceId || '-'}</td>
+                <td className="py-3 px-4 truncate">{entry.utteranceText || '-'}</td>
                 <td className="py-3 px-4">{entry.dialect}</td>
                 <td className="py-3 px-4 truncate">{entry.fileName}</td>
                 <td className="py-3 px-4">{entry.iteration}</td>

@@ -131,6 +131,8 @@ export async function processDatasetEntries(
           externalId: row.id,
           speakerId: row.speaker,
           modelName: row.model,
+          utteranceId: row.utt_id,
+          utteranceText: row.text,
           fileName: relativePath,
           dialect: row.dialect,
           iteration: parseInt(row.iteration, 10),
