@@ -16,7 +16,7 @@ export default function UploadDatasetEntriesModal({
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState(false);
-  const [uploadQueue, setUploadQueue] = useState<Array<{ file: File; status: 'pending' | 'uploading' | 'completed' | 'failed'; message?: string }>>([]);
+  const [uploadQueue, setUploadQueue] = useState<Array<{ file: File; status: 'pending' | 'uploading' | 'completed' | 'failed'; message?: string; progress: number }>>([]);
   const [status, setStatus] = useState<string>('');
 
   function handleFileChange(e: React.ChangeEvent<HTMLInputElement>) {
@@ -24,8 +24,8 @@ export default function UploadDatasetEntriesModal({
     if (selectedFiles.length > 0) {
       setFiles(selectedFiles);
       setError(null);
-      // Initialize queue with pending status
-      setUploadQueue(selectedFiles.map(file => ({ file, status: 'pending' })));
+      // Initialize queue with pending status and 0 progress
+      setUploadQueue(selectedFiles.map(file => ({ file, status: 'pending', progress: 0 })));
     }
   }
 
@@ -48,37 +48,23 @@ export default function UploadDatasetEntriesModal({
       for (let i = 0; i < newQueue.length; i++) {
         const item = newQueue[i];
         item.status = 'uploading';
+        item.progress = 0;
         setUploadQueue([...newQueue]);
         setStatus(`Processing file ${i + 1} of ${newQueue.length}: ${item.file.name}`);
 
         try {
-          const formData = new FormData();
-          formData.append('file', item.file);
-          formData.append('datasetId', datasetId.toString());
-
-          const uploadResponse = await fetch('/api/upload', {
-            method: 'POST',
-            body: formData,
-          });
-
-          if (!uploadResponse.ok) {
-            const errorData = await uploadResponse.json();
-            throw new Error(errorData.error || 'Failed to upload ZIP file');
-          }
-
-          const uploadResult = await uploadResponse.json();
-          
-          if (!uploadResult.success) {
-            throw new Error('Failed to upload ZIP file');
-          }
+          // Upload with progress tracking
+          const uploadResult = await uploadFileWithProgress(item.file, i, newQueue);
 
           // Process the extracted data
           const processResult = await processDatasetEntries(datasetId, uploadResult.tempDir);
 
           item.status = 'completed';
+          item.progress = 100;
           item.message = `✓ Processed (${processResult.entriesCreated} entries)`;
         } catch (err) {
           item.status = 'failed';
+          item.progress = 0;
           item.message = err instanceof Error ? err.message : 'Unknown error';
         }
 
@@ -115,6 +101,62 @@ export default function UploadDatasetEntriesModal({
     } finally {
       setLoading(false);
     }
+  }
+
+  function uploadFileWithProgress(
+    file: File,
+    index: number,
+    queue: Array<{ file: File; status: 'pending' | 'uploading' | 'completed' | 'failed'; progress: number; message?: string }>
+  ): Promise<{ tempDir: string }> {
+    return new Promise((resolve, reject) => {
+      const formData = new FormData();
+      formData.append('file', file);
+      formData.append('datasetId', datasetId.toString());
+
+      const xhr = new XMLHttpRequest();
+
+      // Track upload progress
+      xhr.upload.addEventListener('progress', (event) => {
+        if (event.lengthComputable) {
+          const progress = Math.round((event.loaded / event.total) * 100);
+          queue[index].progress = progress;
+          setUploadQueue([...queue]);
+        }
+      });
+
+      xhr.addEventListener('load', () => {
+        if (xhr.status === 200) {
+          try {
+            const result = JSON.parse(xhr.responseText);
+            if (result.success) {
+              resolve(result);
+            } else {
+              reject(new Error(result.error || 'Upload failed'));
+            }
+          } catch (error) {
+            reject(new Error('Failed to parse response'));
+          }
+        } else {
+          try {
+            const error = JSON.parse(xhr.responseText);
+            reject(new Error(error.error || `Upload failed with status ${xhr.status}`));
+          } catch {
+            reject(new Error(`Upload failed with status ${xhr.status}`));
+          }
+        }
+      });
+
+      xhr.addEventListener('error', () => {
+        reject(new Error('Upload failed'));
+      });
+
+      xhr.addEventListener('abort', () => {
+        reject(new Error('Upload aborted'));
+      });
+
+      xhr.open('POST', '/api/upload');
+      xhr.send(formData);
+    });
   }
 
   function handleClose() {
@@ -215,24 +257,47 @@ export default function UploadDatasetEntriesModal({
           </div>
 
           {uploadQueue.length > 0 && (
-            <div className="bg-gray-50 border border-gray-200 rounded-lg p-4 space-y-2">
+            <div className="bg-gray-50 border border-gray-200 rounded-lg p-4 space-y-3">
               <p className="font-semibold text-sm text-gray-700">Upload Queue:</p>
-              <div className="space-y-1 max-h-32 overflow-y-auto">
+              <div className="space-y-2 max-h-48 overflow-y-auto">
                 {uploadQueue.map((item, idx) => (
-                  <div key={idx} className="flex items-center gap-2 text-xs">
-                    <span className={`font-medium ${
-                      item.status === 'completed' ? 'text-green-600' :
-                      item.status === 'failed' ? 'text-red-600' :
-                      item.status === 'uploading' ? 'text-blue-600' :
-                      'text-gray-600'
-                    }`}>
-                      {item.status === 'completed' ? '✓' :
-                       item.status === 'failed' ? '✗' :
-                       item.status === 'uploading' ? '⟳' :
-                       '○'}
-                    </span>
-                    <span className="flex-1">{item.file.name}</span>
-                    {item.message && <span className="text-gray-500">{item.message}</span>}
+                  <div key={idx} className="space-y-1">
+                    <div className="flex items-center gap-2 text-xs">
+                      <span className={`font-medium ${
+                        item.status === 'completed' ? 'text-green-600' :
+                        item.status === 'failed' ? 'text-red-600' :
+                        item.status === 'uploading' ? 'text-blue-600' :
+                        'text-gray-600'
+                      }`}>
+                        {item.status === 'completed' ? '✓' :
+                         item.status === 'failed' ? '✗' :
+                         item.status === 'uploading' ? '⟳' :
+                         '○'}
+                      </span>
+                      <span className="flex-1 truncate">{item.file.name}</span>
+                      {item.progress > 0 && item.progress < 100 && (
+                        <span className="text-gray-500">{item.progress}%</span>
+                      )}
+                      {item.message && <span className="text-gray-500 text-xs">{item.message}</span>}
+                    </div>
+                    {item.status === 'uploading' && (
+                      <div className="w-full bg-gray-200 rounded-full h-2 overflow-hidden">
+                        <div
+                          className="bg-blue-500 h-full transition-all duration-300"
+                          style={{ width: `${item.progress}%` }}
+                        />
+                      </div>
+                    )}
+                    {item.status === 'completed' && (
+                      <div className="w-full bg-green-200 rounded-full h-2 overflow-hidden">
+                        <div className="bg-green-500 h-full w-full" />
+                      </div>
+                    )}
+                    {item.status === 'failed' && (
+                      <div className="w-full bg-red-200 rounded-full h-2 overflow-hidden">
+                        <div className="bg-red-500 h-full w-full" />
+                      </div>
+                    )}
                   </div>
                 ))}
               </div>
