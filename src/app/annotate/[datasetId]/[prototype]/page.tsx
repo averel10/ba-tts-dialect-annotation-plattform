@@ -6,20 +6,20 @@ import { getAnnotationEntries } from '@/app/actions/annotations';
 import SingleChoiceView from '@/components/AnnotationViews/SingleChoiceView';
 
 interface Props {
-  params: Promise<{ datasetId: string; prototype: string }>;
+  params: Promise<{ experimentId: string; prototype: string }>;
 }
 
 export default async function AnnotatePage({ params }: Props) {
   const session = await auth.api.getSession({ headers: await headers() });
   if (!session) redirect('/user/sign-in');
 
-  const { datasetId: datasetIdStr, prototype } = await params;
-  const datasetId = parseInt(datasetIdStr, 10);
+  const { experimentId: experimentIdStr, prototype } = await params;
+  const experimentId = parseInt(experimentIdStr, 10);
 
-  if (isNaN(datasetId)) {
+  if (isNaN(experimentId)) {
     return (
       <div className="max-w-xl mx-auto py-16 text-center">
-        <p className="text-gray-600">Ungültige Dataset-ID.</p>
+        <p className="text-gray-600">Ungültige Experiment-ID.</p>
         <Link href="/" className="text-blue-600 hover:underline mt-4 inline-block">
           ← Startseite
         </Link>
@@ -31,7 +31,7 @@ export default async function AnnotatePage({ params }: Props) {
     notFound();
   }
 
-  const entries = await getAnnotationEntries(datasetId);
+  const entries = await getAnnotationEntries(experimentId);
 
   if (entries.length === 0) {
     return (
@@ -41,7 +41,7 @@ export default async function AnnotatePage({ params }: Props) {
           Alle Samples bewertet!
         </h1>
         <p className="text-gray-600 mb-8">
-          Sie haben alle Samples in diesem Dataset bereits bewertet. Danke für Ihre Mitarbeit!
+          Sie haben alle Samples in diesem Experiment bereits bewertet. Danke für Ihre Mitarbeit!
         </p>
         <Link
           href="/"
@@ -53,5 +53,5 @@ export default async function AnnotatePage({ params }: Props) {
     );
   }
 
-  return <SingleChoiceView entries={entries} datasetId={datasetId} />;
+  return <SingleChoiceView entries={entries} experimentId={experimentId} />;
 }

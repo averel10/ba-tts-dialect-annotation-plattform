@@ -1,7 +1,7 @@
 import Link from 'next/link';
 import { headers } from 'next/headers';
 import { auth } from '@/lib/auth';
-import { getAllDatasets, getAnnotationProgress } from '@/app/actions/annotations';
+import { getAllExperiments, getAnnotationProgress } from '@/app/actions/annotations';
 
 export default async function HomePage() {
   const session = await auth.api.getSession({ headers: await headers() });
@@ -25,49 +25,49 @@ export default async function HomePage() {
     );
   }
 
-  const datasets = await getAllDatasets();
+  const experiments = await getAllExperiments();
 
-  if (datasets.length === 0) {
+  if (experiments.length === 0) {
     return (
       <div className="max-w-xl mx-auto text-center py-20">
         <h1 className="text-2xl font-bold text-gray-800 mb-3">
-          Keine Datasets verfügbar
+          Keine Experimente verfügbar
         </h1>
         <p className="text-gray-500">
-          Es wurden noch keine Datasets angelegt. Wenden Sie sich an einen Administrator.
+          Es wurden noch keine Experimente freigeschalten. Wenden Sie sich an einen Administrator.
         </p>
       </div>
     );
   }
 
-  // Fetch progress for all datasets in parallel
+  // Fetch progress for all experiments in parallel
   const progressData = await Promise.all(
-    datasets.map((ds) => getAnnotationProgress(ds.id))
+    experiments.map((exp) => getAnnotationProgress(exp.id))
   );
 
   return (
     <div className="max-w-2xl mx-auto py-8">
-      <h1 className="text-2xl font-bold text-gray-800 mb-2">Datasets</h1>
+      <h1 className="text-2xl font-bold text-gray-800 mb-2">Experimente</h1>
       <p className="text-gray-500 mb-8">
-        Wählen Sie ein Dataset aus, um mit der Annotation zu beginnen oder fortzufahren.
+        Wählen Sie ein Experiment aus, um mit der Annotation zu beginnen oder fortzufahren.
       </p>
 
       <div className="flex flex-col gap-4">
-        {datasets.map((ds, i) => {
+        {experiments.map((exp, i) => {
           const { total, done } = progressData[i];
           const pct = total > 0 ? Math.round((done / total) * 100) : 0;
           const isFinished = total > 0 && done >= total;
 
           return (
             <div
-              key={ds.id}
+              key={exp.id}
               className="bg-white border border-gray-200 rounded-xl p-5 shadow-sm"
             >
               <div className="flex items-start justify-between gap-4">
                 <div className="flex-1 min-w-0">
-                  <h2 className="font-semibold text-gray-800 truncate">{ds.name}</h2>
-                  {ds.description && (
-                    <p className="text-sm text-gray-500 mt-0.5">{ds.description}</p>
+                  <h2 className="font-semibold text-gray-800 truncate">{exp.name}</h2>
+                  {exp.description && (
+                    <p className="text-sm text-gray-500 mt-0.5">{exp.description}</p>
                   )}
 
                   {/* Progress */}
@@ -88,7 +88,7 @@ export default async function HomePage() {
                 </div>
 
                 <Link
-                  href={`/annotate/${ds.id}`}
+                  href={`/annotate/${exp.id}`}
                   className={`flex-shrink-0 px-4 py-2 rounded-lg font-medium text-sm transition-colors ${
                     isFinished
                       ? 'bg-green-100 text-green-700 hover:bg-green-200'

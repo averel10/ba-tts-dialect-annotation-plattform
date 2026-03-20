@@ -9,11 +9,13 @@ export const DIALECT_LABELS: Record<string, string> = {
   de: 'Deutsch',
 };
 
-export type AnnotationEntry = {
+export type DatasetEntryForAnnotation = {
   id: number;
   externalId: string;
   fileName: string;
   dialect: string;
   durationMs: number | null;
   datasetId: number;
+  experimentId: number;
+  annotation: number | null;
 };

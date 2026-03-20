@@ -7,44 +7,58 @@ import { annotation } from '@/lib/model/annotation';
 import { eq, and } from 'drizzle-orm';
 import { auth } from '@/lib/auth';
 import { headers } from 'next/headers';
-import type { AnnotationEntry } from '@/lib/dialects';
+import type { DatasetEntryForAnnotation } from '@/lib/dialects';
+import { experiment } from '@/lib/model/experiment';
 
 /**
  * Returns unannotated entries for the given dataset and authenticated user.
  */
-export async function getAnnotationEntries(datasetId: number): Promise<AnnotationEntry[]> {
+export async function getAnnotationEntries(experimentId: number): Promise<DatasetEntryForAnnotation[]> {
   const session = await auth.api.getSession({ headers: await headers() });
   if (!session) throw new Error('Nicht angemeldet');
 
-  const allEntries = await db
+  const currentExperiments = await db
+    .select()
+    .from(experiment)
+    .where(eq(experiment.id, experimentId))
+    .leftJoin(dataset, eq(experiment.datasetId, dataset.id))
+    .limit(1);
+
+  if (currentExperiments.length === 0) {
+    throw new Error('Experiment nicht gefunden');
+  }
+
+  if(!currentExperiments[0].dataset) {
+    throw new Error('Experiment hat kein zugeordnetes Dataset');
+  }
+
+  const allDatasetEntries = await db
     .select()
     .from(dataset_entry)
-    .where(eq(dataset_entry.datasetId, datasetId));
+    .where(eq(dataset_entry.datasetId, currentExperiments[0].dataset.id));
 
-  if (allEntries.length === 0) return [];
+  if (allDatasetEntries.length === 0) return [];
 
   // Find entries already annotated by this user in this dataset (via join)
-  const annotated = await db
-    .select({ entryId: annotation.datasetEntryId })
+  const annotationEntries = await db
+    .select()
     .from(annotation)
-    .innerJoin(dataset_entry, eq(annotation.datasetEntryId, dataset_entry.id))
     .where(
       and(
         eq(annotation.userId, session.user.id),
-        eq(dataset_entry.datasetId, datasetId)
+        eq(annotation.experimentId, experimentId)
       )
     );
 
-  const annotatedIds = new Set(annotated.map((a) => a.entryId));
-  const remaining = allEntries.filter((e) => !annotatedIds.has(e.id));
-
-  const mapped: AnnotationEntry[] = remaining.map((e) => ({
+  const mapped: DatasetEntryForAnnotation[] = allDatasetEntries.map((e) => ({
     id: e.id,
     externalId: e.externalId,
     fileName: e.fileName,
     dialect: e.dialect,
     durationMs: e.durationMs,
+    experimentId: experimentId,
     datasetId: e.datasetId,
+    annotation: annotationEntries.find((a) => a.datasetEntryId === e.id)?.rating || null,
   }));
 
   return mapped;
@@ -55,7 +69,8 @@ export async function getAnnotationEntries(datasetId: number): Promise<Annotatio
  * Silently ignores duplicates (onConflictDoNothing).
  */
 export async function saveAnnotations(
-  ratings: { entryId: number; rating: number; dialectLabel: string }[]
+  ratings: { entryId: number; rating: number; dialectLabel: string }[],
+  experimentId: number
 ): Promise<void> {
   const session = await auth.api.getSession({ headers: await headers() });
   if (!session) throw new Error('Nicht angemeldet');
@@ -65,21 +80,29 @@ export async function saveAnnotations(
   for (const { entryId, rating, dialectLabel } of ratings) {
     await db
       .insert(annotation)
-      .values({ datasetEntryId: entryId, userId: session.user.id, rating, dialectLabel })
+      .values({experimentId, datasetEntryId: entryId, userId: session.user.id, rating, dialectLabel })
       .onConflictDoNothing();
   }
 }
 
 /** Returns all datasets (for the home page). */
-export async function getAllDatasets() {
-  return db.select().from(dataset).orderBy(dataset.name);
+export async function getAllExperiments() {
+  return db.select().from(experiment).orderBy(experiment.id);
 }
 
 /** Returns annotation progress for the current user in a dataset. */
 export async function getAnnotationProgress(
-  datasetId: number
+  experimentId: number
 ): Promise<{ total: number; done: number }> {
   const session = await auth.api.getSession({ headers: await headers() });
+
+  const datasetIdResult = await db
+    .select({ datasetId: experiment.datasetId })
+    .from(experiment)
+    .where(eq(experiment.id, experimentId))
+    .limit(1);
+
+  const datasetId = datasetIdResult[0]?.datasetId;
 
   const allEntries = await db
     .select({ id: dataset_entry.id })
@@ -97,7 +120,7 @@ export async function getAnnotationProgress(
     .where(
       and(
         eq(annotation.userId, session.user.id),
-        eq(dataset_entry.datasetId, datasetId)
+        eq(annotation.experimentId, experimentId)
       )
     );
 

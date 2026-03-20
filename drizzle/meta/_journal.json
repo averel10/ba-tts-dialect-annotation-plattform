@@ -57,6 +57,20 @@
       "when": 1773410584481,
       "tag": "0007_light_spiral",
       "breakpoints": true
+    },
+    {
+      "idx": 8,
+      "version": "6",
+      "when": 1773984793043,
+      "tag": "0008_dark_gauntlet",
+      "breakpoints": true
+    },
+    {
+      "idx": 9,
+      "version": "6",
+      "when": 1773985687853,
+      "tag": "0009_mysterious_brother_voodoo",
+      "breakpoints": true
     }
   ]
 }

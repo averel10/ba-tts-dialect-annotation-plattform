@@ -4,7 +4,7 @@ import { useState, useEffect, useTransition } from 'react';
 import Link from 'next/link';
 import WaveformPlayer from '../WaveformPlayer';
 import { saveAnnotations } from '@/app/actions/annotations';
-import { type AnnotationEntry, DIALECT_LABELS } from '@/lib/dialects';
+import { type DatasetEntryForAnnotation, DIALECT_LABELS } from '@/lib/dialects';
 
 const PAGE_SIZE = 1;
 const AUTO_ADVANCE_DELAY_MS = 600;
@@ -18,11 +18,11 @@ const RATING_OPTIONS = (dialectLabel: string) => [
 ];
 
 interface SingleChoiceViewProps {
-  entries: AnnotationEntry[];
-  datasetId: number;
+  entries: DatasetEntryForAnnotation[];
+  experimentId: number;
 }
 
-export default function SingleChoiceView({ entries, datasetId }: SingleChoiceViewProps) {
+export default function SingleChoiceView({ entries, experimentId }: SingleChoiceViewProps) {
 
   const [isPending, startTransition] = useTransition();
 
@@ -46,7 +46,7 @@ export default function SingleChoiceView({ entries, datasetId }: SingleChoiceVie
     const timer = setTimeout(() => {
       const batch = pageEntries.map((e) => ({ entryId: e.id, rating: answers[e.id], dialectLabel: e.dialect }));
       startTransition(async () => {
-        await saveAnnotations(batch);
+        await saveAnnotations(batch, experimentId);
         if (currentPage + 1 >= totalPages) {
           setIsComplete(true);
         } else {
@@ -108,7 +108,7 @@ export default function SingleChoiceView({ entries, datasetId }: SingleChoiceVie
         {pageEntries.map((entry, idx) => {
           const dialectLabel = DIALECT_LABELS[entry.dialect] ?? entry.dialect;
           const fileExt = entry.fileName.substring(entry.fileName.lastIndexOf('.'));
-          const audioSrc = `/public/datasets/${datasetId}/${entry.externalId}${fileExt}`;
+          const audioSrc = `/public/datasets/${entry.datasetId}/${entry.externalId}${fileExt}`;
           const isListened = fullyPlayed.has(entry.id);
           const currentRating = answers[entry.id] ?? null;
 
