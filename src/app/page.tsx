@@ -73,7 +73,7 @@ export default async function HomePage() {
                   {/* Progress */}
                   <div className="mt-3">
                     <div className="flex justify-between text-xs text-gray-400 mb-1">
-                      <span>{done} / {total} bewertet</span>
+                      <span>{done} / {total} annotiert</span>
                       <span>{pct}%</span>
                     </div>
                     <div className="w-full bg-gray-200 rounded-full h-2">

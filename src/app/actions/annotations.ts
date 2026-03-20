@@ -66,7 +66,7 @@ export async function getAnnotationEntries(experimentId: number): Promise<Datase
 
 /**
  * Persists a batch of ratings for the authenticated user.
- * Silently ignores duplicates (onConflictDoNothing).
+ * Updates existing annotations with the same userId, experimentId, and datasetEntryId.
  */
 export async function saveAnnotations(
   ratings: { entryId: number; rating: number; dialectLabel: string }[],
@@ -81,7 +81,13 @@ export async function saveAnnotations(
     await db
       .insert(annotation)
       .values({experimentId, datasetEntryId: entryId, userId: session.user.id, rating, dialectLabel })
-      .onConflictDoNothing();
+      .onConflictDoUpdate({
+        target: [annotation.userId, annotation.experimentId, annotation.datasetEntryId],
+        set: {
+          rating,
+          dialectLabel,
+        }
+      });
   }
 }
 

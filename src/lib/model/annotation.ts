@@ -20,7 +20,10 @@ export const annotation = sqliteTable(
       .notNull()
       .default(sql`(unixepoch())`)
       .$onUpdate(() => sql`(unixepoch())`),
-  }
+  },
+  (table) => ({
+    uniqueAnnotation: uniqueIndex('unique_annotation').on(table.datasetEntryId, table.experimentId, table.userId),
+  })
 );
 
 export const annotationRelations = relations(annotation, ({ one }) => ({

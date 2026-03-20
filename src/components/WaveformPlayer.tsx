@@ -1,13 +1,12 @@
 'use client';
 
-import { useEffect, useRef, useState, useCallback } from 'react';
+import { useEffect, useRef, useState, useCallback, useMemo } from 'react';
+import { useAudio } from './AudioProvider';
 
 interface WaveformPlayerProps {
   src: string;
   durationMs?: number | null;
-  /** When false the player should stop if it was playing */
-  isActive: boolean;
-  onPlay: () => void;
+  onPlay?: () => void;
   onFullyPlayed: () => void;
 }
 
@@ -16,10 +15,15 @@ const BAR_COUNT = 120;
 export default function WaveformPlayer({
   src,
   durationMs,
-  isActive,
   onPlay,
   onFullyPlayed,
 }: WaveformPlayerProps) {
+  const { currentAudioId, setCurrentAudio } = useAudio();
+  
+  // Generate unique ID for this player instance
+  const playerId = useMemo(() => Math.random().toString(36).slice(2), []);
+  const isActive = currentAudioId === playerId;
+
   const audioRef = useRef<HTMLAudioElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const rafRef = useRef<number>(0);
@@ -38,6 +42,21 @@ export default function WaveformPlayer({
       setIsPlaying(false);
     }
   }, [isActive, isPlaying]);
+
+  // Reset state when src changes and cancel playback
+
+  useEffect(() => {
+    setPeaks([]);
+    setCurrentTime(0);
+    setDuration(durationMs ? durationMs / 1000 : 0);
+    fullyPlayedRef.current = false;
+    if (audioRef.current) {
+      audioRef.current.pause();
+      audioRef.current.currentTime = 0;
+    }
+    cancelAnimationFrame(rafRef.current);
+    setIsPlaying(false);
+  }, [src, durationMs]);
 
   // Decode audio and generate waveform peaks
   useEffect(() => {
@@ -103,7 +122,8 @@ export default function WaveformPlayer({
   const handlePlay = () => {
     const audio = audioRef.current;
     if (!audio) return;
-    onPlay();
+    setCurrentAudio(playerId);
+    onPlay?.();
     audio.play();
     setIsPlaying(true);
     rafRef.current = requestAnimationFrame(tick);
@@ -122,7 +142,7 @@ export default function WaveformPlayer({
     cancelAnimationFrame(rafRef.current);
     if (!fullyPlayedRef.current) {
       fullyPlayedRef.current = true;
-      onFullyPlayed();
+      onFullyPlayed?.();
     }
   };
 

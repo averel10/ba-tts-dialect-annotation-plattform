@@ -9,7 +9,9 @@ interface EditableExperimentHeaderProps {
 }
 
 const ANNOTATION_TOOLS = [
-  { value: 'single-choice', label: 'Single Choice' },
+  { value: 'quality-choice', label: 'Quality Choice' },
+  { value: 'binary', label: 'Binary' },
+  // Future tools can be added here
 ];
 
 export default function EditableExperimentHeader({
@@ -18,7 +20,7 @@ export default function EditableExperimentHeader({
   const [isEditing, setIsEditing] = useState(false);
   const [name, setName] = useState(experiment.name);
   const [description, setDescription] = useState(experiment.description || '');
-  const [annotationTool, setAnnotationTool] = useState(experiment.annotationTool || 'single-choice');
+  const [annotationTool, setAnnotationTool] = useState(experiment.annotationTool || 'quality-choice');
   const [published, setPublished] = useState(experiment.published || false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -49,7 +51,7 @@ export default function EditableExperimentHeader({
 
   function handleCancel() {
     setName(experiment.name);
-    setAnnotationTool(experiment.annotationTool || 'single-choice');
+    setAnnotationTool(experiment.annotationTool || 'quality-choice');
     setPublished(experiment.published || false);
     setDescription(experiment.description || '');
     setError(null);

@@ -64,6 +64,13 @@
       "when": 1773989236199,
       "tag": "0008_smiling_lady_mastermind",
       "breakpoints": true
+    },
+    {
+      "idx": 9,
+      "version": "6",
+      "when": 1773994442668,
+      "tag": "0009_useful_human_robot",
+      "breakpoints": true
     }
   ]
 }

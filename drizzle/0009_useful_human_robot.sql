@@ -1,0 +1,1 @@
+CREATE UNIQUE INDEX `unique_annotation` ON `annotation` (`dataset_entry_id`,`experiment_id`,`user_id`);
