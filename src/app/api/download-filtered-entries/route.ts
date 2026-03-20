@@ -150,7 +150,7 @@ export async function POST(request: NextRequest) {
     });
 
     // Return download URL
-    const downloadUrl = `/downloads/${fileName}`;
+    const downloadUrl = `/public/downloads/${fileName}`;
     
     return NextResponse.json({
       success: true,
