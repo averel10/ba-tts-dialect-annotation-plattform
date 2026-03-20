@@ -7,6 +7,15 @@ import { getAvailableDownloads, deleteDownload } from '@/app/actions/get-availab
 interface DownloadFile {
   name: string;
   url: string;
+  size: number;
+}
+
+function formatFileSize(bytes: number): string {
+  if (bytes === 0) return '0 B';
+  const k = 1024;
+  const sizes = ['B', 'KB', 'MB', 'GB'];
+  const i = Math.floor(Math.log(bytes) / Math.log(k));
+  return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
 }
 
 interface DatasetDownloadsModalProps {
@@ -79,7 +88,10 @@ export default function DatasetDownloadsModal({ datasetId }: DatasetDownloadsMod
                 key={download.name}
                 className="flex items-center justify-between p-3 bg-gray-50 rounded hover:bg-gray-100 transition-colors"
               >
-                <span className="text-gray-700 text-sm truncate flex-1">{download.name}</span>
+                <div className="flex-1 truncate">
+                  <div className="text-gray-700 text-sm truncate">{download.name}</div>
+                  <div className="text-gray-500 text-xs">{formatFileSize(download.size)}</div>
+                </div>
                 <div className="ml-4 flex gap-2">
                   <a
                     href={download.url}

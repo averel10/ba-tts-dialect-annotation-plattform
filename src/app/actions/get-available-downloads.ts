@@ -1,12 +1,13 @@
 'use server';
 
-import { readdirSync, unlinkSync } from 'fs';
+import { readdirSync, unlinkSync, statSync } from 'fs';
 import { join } from 'path';
 import { requireAdmin } from '@/lib/auth';
 
 interface DownloadFile {
   name: string;
   url: string;
+  size: number;
 }
 
 export async function getAvailableDownloads(datasetId: number): Promise<DownloadFile[]> {
@@ -25,10 +26,15 @@ export async function getAvailableDownloads(datasetId: number): Promise<Download
     // Sort by timestamp descending (most recent first)
     matching.sort().reverse();
     
-    return matching.map(file => ({
-      name: file,
-      url: `/public/downloads/${file}`
-    }));
+    return matching.map(file => {
+      const filePath = join(downloadsDir, file);
+      const stats = statSync(filePath);
+      return {
+        name: file,
+        url: `/public/downloads/${file}`,
+        size: stats.size
+      };
+    });
   } catch (error) {
     console.error('Error fetching available downloads:', error);
     throw new Error('Failed to fetch available downloads');
