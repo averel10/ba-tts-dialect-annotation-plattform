@@ -6,6 +6,7 @@ import { saveAnnotations } from '@/app/actions/annotations';
 import { DIALECT_LABELS, type DatasetEntryForAnnotation } from '@/lib/dialects';
 import SingleChoiceEntryView from './SingleChoiceEntryView';
 import SingleChoiceBinaryEntryView from './SingleChoiceBinaryEntryView';
+import AnnotationSidebarNavigation from './AnnotationSidebarNavigation';
 
 export interface EntryViewProps {
   entry: DatasetEntryForAnnotation;
@@ -95,6 +96,7 @@ export default function AnnotationPageView({
   }, [entries]);
 
   const [currentIndex, setCurrentIndex] = useState(startingIndex);
+  const [sidebarOpen, setSidebarOpen] = useState(false);
 
   const currentEntry = entries[currentIndex];
   const isComplete = entries.every((e) => e.annotation !== null);
@@ -127,79 +129,153 @@ export default function AnnotationPageView({
   const viewElement = getViewComponent();
   if (!viewElement) {
     return (
-      <div className="max-w-xl mx-auto py-16 text-center">
-        <p className="text-gray-600">Unbekannter Annotation-Typ: {viewType}</p>
-        <Link href="/" className="text-blue-600 hover:underline mt-4 inline-block">
-          ← Startseite
-        </Link>
+      <div className="flex flex-col h-full bg-white">
+        <div className="flex flex-1 overflow-hidden">
+          {/* Sidebar with transition */}
+          <div className={`${sidebarOpen ? 'w-64' : 'w-0'} transition-all duration-300 ease-in-out overflow-hidden`}>
+            <AnnotationSidebarNavigation
+              entries={entries}
+              currentIndex={currentIndex}
+              onSelectEntry={setCurrentIndex}
+              annotatedCount={annotatedCount}
+            />
+          </div>
+          <div className="flex-1 flex flex-col overflow-hidden">
+            {/* Toggle button */}
+            <div className="sticky top-0 z-50 bg-white border-b border-gray-200 px-4 py-2">
+              <button
+                onClick={() => setSidebarOpen(!sidebarOpen)}
+                className="hidden md:block text-sm px-3 py-1.5 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-md transition-colors"
+                title={sidebarOpen ? 'Sidebar ausblenden' : 'Sidebar anzeigen'}
+              >
+                {sidebarOpen ? '✕' : '☰'}
+              </button>
+            </div>
+            <div className="flex-1 flex items-center justify-center">
+              <div className="text-center">
+                <p className="text-gray-600">Unbekannter Annotation-Typ: {viewType}</p>
+                <Link href="/" className="text-blue-600 hover:underline mt-4 inline-block">
+                  ← Startseite
+                </Link>
+              </div>
+            </div>
+          </div>
+        </div>
       </div>
     );
   }
 
   if (isComplete) {
     return (
-      <div className="max-w-xl mx-auto text-center py-20">
-        <div className="text-5xl mb-4">✓</div>
-        <h1 className="text-3xl font-bold text-green-600 mb-3">Fertig!</h1>
-        <p className="text-gray-600 mb-8">
-          Alle Samples wurden erfolgreich bewertet. Vielen Dank!
-        </p>
-        <Link
-          href="/"
-          className="px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-lg transition-colors"
-        >
-          Zurück zur Startseite
-        </Link>
+      <div className="flex flex-col h-full bg-white">
+        <div className="flex flex-1 overflow-hidden">
+          {/* Sidebar with transition */}
+          <div className={`${sidebarOpen ? 'w-64' : 'w-0'} transition-all duration-300 ease-in-out overflow-hidden`}>
+            <AnnotationSidebarNavigation
+              entries={entries}
+              currentIndex={currentIndex}
+              onSelectEntry={setCurrentIndex}
+              annotatedCount={annotatedCount}
+            />
+          </div>
+          
+          {/* Main content area */}
+          <div className="flex-1 flex flex-col overflow-hidden">
+            {/* Toggle button */}
+            <div className="sticky top-0 z-50 bg-white border-b border-gray-200 px-4 py-2">
+              <button
+                onClick={() => setSidebarOpen(!sidebarOpen)}
+                className="hidden md:block text-sm px-3 py-1.5 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-md transition-colors"
+                title={sidebarOpen ? 'Sidebar ausblenden' : 'Sidebar anzeigen'}
+              >
+                {sidebarOpen ? '✕' : '☰'}
+              </button>
+            </div>
+            <div className="flex-1 overflow-y-auto">
+              <div className="max-w-3xl mx-auto text-center py-20">
+                <div className="text-5xl mb-4">✓</div>
+                <h1 className="text-3xl font-bold text-green-600 mb-3">Fertig!</h1>
+                <p className="text-gray-600 mb-8">
+                  Alle Samples wurden erfolgreich bewertet. Vielen Dank!
+                </p>
+                <Link
+                  href="/"
+                  className="px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-lg transition-colors"
+                >
+                  Zurück zur Startseite
+                </Link>
+              </div>
+            </div>
+          </div>
+        </div>
       </div>
     );
   }
 
   return (
-    <div className="max-w-3xl mx-auto">
-      {/* ── Top bar ─────────────────────────────────────────── */}
-      <div className="sticky top-[72px] z-40 bg-white border-b border-gray-200 pt-4 pb-3 mb-6">
-        <div className="flex items-center justify-between mb-2">
-            <Link
-              href="/"
-              className="text-sm px-3 py-1.5 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-md transition-colors"
-            >
-              ← Startseite
-            </Link>
-          <div className="flex gap-2">
-            <button
-              onClick={handlePrevious}
-              disabled={currentIndex === 0 || isPending}
-              className="text-sm px-3 py-1.5 bg-gray-100 hover:bg-gray-200 disabled:opacity-40 disabled:cursor-not-allowed text-gray-700 rounded-md transition-colors"
-            >
-              ← Zurück
-            </button>
-            <button
-              onClick={handleNext}
-              disabled={currentIndex >= entries.length - 1 || isPending}
-              className="text-sm px-3 py-1.5 bg-blue-100 hover:bg-blue-200 disabled:opacity-40 disabled:cursor-not-allowed text-blue-700 rounded-md transition-colors"
-            >
-              Weiter →
-            </button>
-
-          </div>
-        </div>
-        {/* Progress bar */}
-        <div className="w-full bg-gray-200 rounded-full h-2.5">
-          <div
-            className="bg-blue-500 h-2.5 rounded-full transition-all duration-500"
-            style={{ width: `${progressPct}%` }}
+    <div className="flex flex-col h-full bg-white">
+      <div className="flex flex-1 overflow-hidden">
+        {/* Sidebar with transition */}
+        <div className={`${sidebarOpen ? 'w-64' : 'w-0'} transition-all duration-300 ease-in-out overflow-hidden`}>
+          <AnnotationSidebarNavigation
+            entries={entries}
+            currentIndex={currentIndex}
+            onSelectEntry={setCurrentIndex}
+            annotatedCount={annotatedCount}
           />
         </div>
-        <div className="flex justify-between">
-        <div className="text-xs text-gray-400 mt-1 text-left">{annotatedCount}/{entries.length} annotiert</div>
-        <div className="text-xs text-gray-400 mt-1 text-right">{progressPct}% abgeschlossen</div>
-        </div>
-      </div>
 
-      {/* ── Sample entry ────────────────────────────────────── */}
-      <div className="flex flex-col gap-6">
-        {viewElement}
+        {/* Main content area */}
+        <div className="flex-1 flex flex-col overflow-hidden">
+          {/* Top bar */}
+          <div className="sticky top-0 z-40 bg-white border-b border-gray-200 p-4">
+            <div className="flex items-center justify-between max-w-4xl mx-auto">
+              {/* Toggle and Home buttons */}
+              <div className="flex gap-2">
+                <button
+                  onClick={() => setSidebarOpen(!sidebarOpen)}
+                  className="hidden md:block text-sm px-3 py-1.5 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-md transition-colors"
+                  title={sidebarOpen ? 'Sidebar ausblenden' : 'Sidebar anzeigen'}
+                >
+                  {sidebarOpen ? '✕' : '☰'}
+                </button>
+                <Link
+                  href="/"
+                  className="text-sm px-3 py-1.5 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-md transition-colors"
+                >
+                  ← Startseite
+                </Link>
+              </div>
+              <div className="flex gap-2">
+                <button
+                  onClick={handlePrevious}
+                  disabled={currentIndex === 0 || isPending}
+                  className="text-sm px-3 py-1.5 bg-gray-100 hover:bg-gray-200 disabled:opacity-40 disabled:cursor-not-allowed text-gray-700 rounded-md transition-colors"
+                >
+                  ← Zurück
+                </button>
+                <button
+                  onClick={handleNext}
+                  disabled={currentIndex >= entries.length - 1 || isPending}
+                  className="text-sm px-3 py-1.5 bg-blue-100 hover:bg-blue-200 disabled:opacity-40 disabled:cursor-not-allowed text-blue-700 rounded-md transition-colors"
+                >
+                  Weiter →
+                </button>
+              </div>
+            </div>
+          </div>
+
+          {/* Sample content - scrollable */}
+          <div className="flex-1 overflow-y-auto m-4">
+            <div className="max-w-4xl mx-auto">
+              <div className="flex flex-col gap-4">
+                {viewElement}
+              </div>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
   );
 }
+

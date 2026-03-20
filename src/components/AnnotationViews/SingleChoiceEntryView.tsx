@@ -72,9 +72,9 @@ export default function SingleChoiceEntryView({
 
       {/* Dialect + question */}
       <div className="mt-4 mb-3">
-        <p className="text-sm font-semibold text-gray-700">
+        <div className="text-sm font-semibold text-gray-700">
           {question}
-        </p>
+        </div>
       </div>
 
       {/* Rating buttons */}

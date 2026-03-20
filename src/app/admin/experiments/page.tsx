@@ -16,7 +16,7 @@ export default async function ExperimentsAdminPage() {
   }
 
   return (
-    <div className="px-4 sm:px-6 lg:px-8 py-8">
+    <div>
       <Link
         href="/admin"
         className="text-blue-500 hover:text-blue-600 mb-6 inline-block"

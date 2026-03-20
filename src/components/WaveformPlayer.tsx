@@ -188,17 +188,22 @@ export default function WaveformPlayer({
           )}
         </button>
 
-        {/* Waveform canvas */}
+        {/* Waveform canvas - hidden on small screens */}
         <canvas
           ref={canvasRef}
           width={480}
           height={48}
-          className="flex-1 rounded"
+          className="hidden sm:flex flex-1 rounded"
           style={{ imageRendering: 'pixelated' }}
         />
 
-        {/* Duration */}
-        <span className="flex-shrink-0 text-sm text-gray-500 w-10 text-right tabular-nums">
+        {/* Time display - shown on small screens instead of waveform */}
+        <div className="sm:hidden text-sm text-gray-500 tabular-nums">
+          {fmt(currentTime)}/{fmt(duration)}
+        </div>
+
+        {/* Duration - hidden on small screens */}
+        <span className="hidden sm:flex flex-shrink-0 text-sm text-gray-500 w-10 text-right tabular-nums">
           {fmt(duration)}
         </span>
       </div>
