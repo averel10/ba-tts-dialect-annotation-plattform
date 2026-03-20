@@ -49,7 +49,6 @@ ENV BUILD_TIME=${BUILD_TIME}
 # .next/cache/fetch-cache from being included in the final image, meaning
 # cached fetch responses from the build won't be available at runtime.
 RUN npm run build
-RUN npm run db:generate
 
 # ============================================
 # Stage 3: Run Next.js application
