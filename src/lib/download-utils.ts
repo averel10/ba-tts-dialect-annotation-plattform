@@ -24,21 +24,17 @@ export async function downloadFilteredEntriesAsZip(
 
     if (!response.ok) {
       const errorData = await response.json();
-      throw new Error(errorData.error || 'Failed to download ZIP');
+      throw new Error(errorData.error || 'Failed to prepare ZIP');
     }
 
-    // Get the ZIP blob from response
-    const blob = await response.blob();
+    const data = await response.json();
+    
+    if (!data.success || !data.downloadUrl) {
+      throw new Error('Invalid response from server');
+    }
 
-    // Trigger download
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = `dataset-${datasetId}-export-${new Date().toISOString().split('T')[0]}.zip`;
-    document.body.appendChild(a);
-    a.click();
-    document.body.removeChild(a);
-    URL.revokeObjectURL(url);
+    // Redirect to the generated ZIP file
+    window.location.href = data.downloadUrl;
   } catch (error) {
     console.error('Error downloading ZIP:', error);
     throw error;

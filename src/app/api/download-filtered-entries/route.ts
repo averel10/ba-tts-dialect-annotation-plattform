@@ -2,11 +2,45 @@ import { NextRequest, NextResponse } from 'next/server';
 import { downloadFilteredEntries } from '@/app/actions/download-filtered-entries';
 import JSZip from 'jszip';
 import { join } from 'path';
-import { readFile, existsSync } from 'fs';
+import { readFile, existsSync, writeFileSync, mkdirSync, readdirSync, unlinkSync, statSync } from 'fs';
 import { promisify } from 'util';
 import { requireAdmin } from '@/lib/auth';
 
 const readFileAsync = promisify(readFile);
+
+// Clean up old ZIP files older than 24 hours
+async function cleanupOldZips(downloadsDir: string, maxAgeHours: number = 24) {
+  try {
+    if (!existsSync(downloadsDir)) {
+      return;
+    }
+
+    const files = readdirSync(downloadsDir);
+    const now = Date.now();
+    const maxAgeMs = maxAgeHours * 60 * 60 * 1000;
+
+    for (const file of files) {
+      if (!file.startsWith('dataset-') || !file.endsWith('.zip')) {
+        continue;
+      }
+
+      const filePath = join(downloadsDir, file);
+      try {
+        const stats = statSync(filePath);
+        const fileAge = now - stats.mtimeMs;
+
+        if (fileAge > maxAgeMs) {
+          unlinkSync(filePath);
+          console.log(`Cleaned up old ZIP file: ${file} (age: ${(fileAge / (60 * 60 * 1000)).toFixed(1)} hours)`);
+        }
+      } catch (error) {
+        console.error(`Error cleaning up file ${file}:`, error);
+      }
+    }
+  } catch (error) {
+    console.error('Error during cleanup:', error);
+  }
+}
 
 interface FilterParams {
   speakerId?: string;
@@ -84,16 +118,37 @@ export async function POST(request: NextRequest) {
     // Generate ZIP blob
     const zipBuffer = await zip.generateAsync({ type: 'nodebuffer' });
 
-    // Create response with ZIP file
-    const fileName = `dataset-${datasetId}-export-${new Date().toISOString().split('T')[0]}.zip`;
+    // Save ZIP to public folder
+    const downloadsDir = join(process.cwd(), 'public', 'downloads');
+    
+    // Ensure downloads directory exists
+    try {
+      mkdirSync(downloadsDir, { recursive: true });
+    } catch (error) {
+      console.error('Error creating downloads directory:', error);
+    }
 
-    return new NextResponse(new Uint8Array(zipBuffer), {
-      status: 200,
-      headers: {
-        'Content-Type': 'application/zip',
-        'Content-Disposition': `attachment; filename="${fileName}"`,
-        'Content-Length': zipBuffer.length.toString(),
-      },
+    // Create filename with timestamp for uniqueness
+    const timestamp = Date.now();
+    const fileName = `dataset-${datasetId}-export-${new Date().toISOString().split('T')[0]}-${timestamp}.zip`;
+    const filePath = join(downloadsDir, fileName);
+
+    // Write ZIP file to disk
+    writeFileSync(filePath, zipBuffer);
+    console.log(`ZIP file saved to: ${filePath}`);
+
+    // Clean up old ZIP files in the background
+    cleanupOldZips(downloadsDir).catch(error => {
+      console.error('Cleanup failed:', error);
+    });
+
+    // Return download URL
+    const downloadUrl = `/downloads/${fileName}`;
+    
+    return NextResponse.json({
+      success: true,
+      downloadUrl,
+      fileName,
     });
   } catch (error) {
     console.error('Error creating ZIP:', error);
