@@ -61,29 +61,8 @@
     {
       "idx": 8,
       "version": "6",
-      "when": 1773984793043,
-      "tag": "0008_dark_gauntlet",
-      "breakpoints": true
-    },
-    {
-      "idx": 9,
-      "version": "6",
-      "when": 1773985687853,
-      "tag": "0009_mysterious_brother_voodoo",
-      "breakpoints": true
-    },
-    {
-      "idx": 10,
-      "version": "6",
-      "when": 1773987751513,
-      "tag": "0010_luxuriant_jigsaw",
-      "breakpoints": true
-    },
-    {
-      "idx": 11,
-      "version": "6",
-      "when": 1773989074158,
-      "tag": "0011_unique_revanche",
+      "when": 1773989236199,
+      "tag": "0008_smiling_lady_mastermind",
       "breakpoints": true
     }
   ]
