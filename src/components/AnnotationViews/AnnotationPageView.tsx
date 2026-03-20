@@ -1,19 +1,92 @@
 'use client';
 
-import { useState, useMemo, useTransition } from 'react';
+import { useState, useMemo, useTransition, JSX } from 'react';
 import Link from 'next/link';
 import { saveAnnotations } from '@/app/actions/annotations';
-import { type DatasetEntryForAnnotation } from '@/lib/dialects';
-import QualityChoiceEntryView from './QualityChoiceEntryView';
+import { DIALECT_LABELS, type DatasetEntryForAnnotation } from '@/lib/dialects';
+import SingleChoiceEntryView from './SingleChoiceEntryView';
+import SingleChoiceBinaryEntryView from './SingleChoiceBinaryEntryView';
 
-interface QualityChoiceViewProps {
-  entries: DatasetEntryForAnnotation[];
-  experimentId: number;
+export interface EntryViewProps {
+  entry: DatasetEntryForAnnotation;
+  onSave: (rating: number) => Promise<void>;
+  isSaving: boolean;
+  ratingOptions?: { value: number; label: JSX.Element | string }[];
+  question?: JSX.Element | string;
 }
 
-export default function QualityChoicePage({ entries, experimentId }: QualityChoiceViewProps) {
+interface AnnotationPageViewProps {
+  entries: DatasetEntryForAnnotation[];
+  experimentId: number;
+  viewType: string;
+}
+
+export default function AnnotationPageView({ 
+  entries, 
+  experimentId,
+  viewType,
+}: AnnotationPageViewProps) {
 
   const [isPending, startTransition] = useTransition();
+
+  const getAnnotationConfig = (dialectLabel: string) => {
+    switch (viewType) {
+      case 'quality-choice':
+        return {
+          ratingOptions: [
+            { value: 1, label: `Klingt überhaupt nicht nach ${DIALECT_LABELS[dialectLabel]}` },
+            { value: 2, label: `Klingt eher nicht nach ${DIALECT_LABELS[dialectLabel]}` },
+            { value: 3, label: 'Schwer zu beurteilen' },
+            { value: 4, label: `Klingt eher nach ${DIALECT_LABELS[dialectLabel]}` },
+            { value: 5, label: `Klingt eindeutig nach ${DIALECT_LABELS[dialectLabel]}` },
+          ],
+          question: <div>Wie authentisch klingt dieses Sample nach dem Dialekt der Region <span className="text-blue-600">{DIALECT_LABELS[dialectLabel]}</span>?</div>,
+        };
+      case 'binary':
+        return {
+          ratingOptions: [
+            { value: 0, label: 'Ja' },
+            { value: 2, label: 'Unklar' },
+            { value: 1, label: 'Nein' },
+          ],
+          question: <div>Klingt dieses Sample nach dem Dialekt der Region <span className="text-blue-600">{DIALECT_LABELS[dialectLabel]}</span>?</div>,
+        };
+      default:
+        return {
+          ratingOptions: [{ value: 1, label: '' }],
+          question: <div />,
+        };
+    }
+  };
+
+  // Determine which view component to use based on viewType
+  const getViewComponent = () => {
+  const config = getAnnotationConfig(currentEntry.dialect);
+      switch (viewType) {
+        case 'quality-choice':
+              return (
+      <SingleChoiceEntryView
+        entry={currentEntry}
+        onSave={handleSaveEntry}
+        isSaving={isPending}
+        ratingOptions={config.ratingOptions}
+        question={config.question}
+      />
+    );
+        case 'binary':
+    return (
+      <SingleChoiceBinaryEntryView
+        entry={currentEntry}
+        onSave={handleSaveEntry}
+        isSaving={isPending}
+        ratingOptions={config.ratingOptions}
+        question={config.question}
+      />
+    );
+        default:
+          return null;
+      }
+  };
 
   // Find the first unannotated entry to start from
   const startingIndex = useMemo(() => {
@@ -46,10 +119,22 @@ export default function QualityChoicePage({ entries, experimentId }: QualityChoi
       handleNext();
     });
   };
-  
   // Calculate progress: count already-annotated entries
   const annotatedCount = entries.filter((e) => e.annotation !== null).length;
   const progressPct = Math.round(((annotatedCount) / entries.length) * 100);
+
+  // Check if view type is valid
+  const viewElement = getViewComponent();
+  if (!viewElement) {
+    return (
+      <div className="max-w-xl mx-auto py-16 text-center">
+        <p className="text-gray-600">Unbekannter Annotation-Typ: {viewType}</p>
+        <Link href="/" className="text-blue-600 hover:underline mt-4 inline-block">
+          ← Startseite
+        </Link>
+      </div>
+    );
+  }
 
   if (isComplete) {
     return (
@@ -113,13 +198,7 @@ export default function QualityChoicePage({ entries, experimentId }: QualityChoi
 
       {/* ── Sample entry ────────────────────────────────────── */}
       <div className="flex flex-col gap-6">
-        {currentEntry && (
-          <QualityChoiceEntryView
-            entry={currentEntry}
-            onSave={handleSaveEntry}
-            isSaving={isPending}
-          />
-        )}
+        {viewElement}
       </div>
     </div>
   );

@@ -4,7 +4,7 @@ import Link from 'next/link';
 import { auth } from '@/lib/auth';
 import { getAnnotationEntries } from '@/app/actions/annotations';
 import { getExperimentById } from '@/app/actions/experiment';
-import QualityChoiceView from '@/components/AnnotationViews/QualityChoiceView';
+import AnnotationPageView from '@/components/AnnotationViews/AnnotationPageView';
 
 interface Props {
   params: Promise<{ experimentId: string}>;
@@ -52,25 +52,11 @@ export default async function AnnotatePage({ params }: Props) {
     );
   }
 
-  // Render based on prototype type
-  const renderAnnotationView = () => {
-    switch (prototype) {
-      case 'quality-choice':
-        return <QualityChoiceView entries={entries} experimentId={experimentId} />;
-      case 'binary':
-        //return <BinaryView entries={entries} experimentId={experimentId} />;
-        return <div/>;
-      default:
-        return (
-          <div className="max-w-xl mx-auto py-16 text-center">
-            <p className="text-gray-600">Unbekannter Annotation-Typ: {prototype}</p>
-            <Link href="/" className="text-blue-600 hover:underline mt-4 inline-block">
-              ← Startseite
-            </Link>
-          </div>
-        );
-    }
-  };
-
-  return renderAnnotationView();
+  return (
+    <AnnotationPageView 
+      entries={entries} 
+      experimentId={experimentId} 
+      viewType={prototype || ''} 
+    />
+  );
 }

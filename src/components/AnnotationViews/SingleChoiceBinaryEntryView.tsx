@@ -2,33 +2,20 @@
 
 import { useState, useEffect } from 'react';
 import WaveformPlayer from '../WaveformPlayer';
-import { type DatasetEntryForAnnotation, DIALECT_LABELS } from '@/lib/dialects';
+import { type EntryViewProps } from './AnnotationPageView';
 
 const AUTO_ADVANCE_DELAY_MS = 600;
 
-const RATING_OPTIONS = (dialectLabel: string) => [
-  { value: 1, label: `Klingt überhaupt nicht nach ${dialectLabel}` },
-  { value: 2, label: `Klingt eher nicht nach ${dialectLabel}` },
-  { value: 3, label: 'Schwer zu beurteilen' },
-  { value: 4, label: `Klingt eher nach ${dialectLabel}` },
-  { value: 5, label: `Klingt eindeutig nach ${dialectLabel}` },
-];
-
-interface QualityChoiceEntryViewProps {
-  entry: DatasetEntryForAnnotation;
-  onSave: (rating: number) => Promise<void>;
-  isSaving: boolean;
-}
-
-export default function QualityChoiceEntryView({
+export default function SingleChoiceBinaryEntryView({
   entry,
   onSave,
   isSaving,
-}: QualityChoiceEntryViewProps) {
+  ratingOptions,
+  question,
+}: EntryViewProps) {
   const [answer, setAnswer] = useState<number | null>(null);
   const [fullyPlayed, setFullyPlayed] = useState<boolean>(false);
 
-  const dialectLabel = DIALECT_LABELS[entry.dialect] ?? entry.dialect;
   const fileExt = entry.fileName.substring(entry.fileName.lastIndexOf('.'));
   const audioSrc = `/public/datasets/${entry.datasetId}/${entry.externalId}${fileExt}`;
 
@@ -85,14 +72,13 @@ export default function QualityChoiceEntryView({
       {/* Dialect + question */}
       <div className="mt-4 mb-3">
         <p className="text-sm font-semibold text-gray-700">
-          Wie authentisch klingt dieses Sample nach dem Dialekt der Region{' '}
-          <span className="text-blue-600">{dialectLabel}</span>?
+          {question}
         </p>
       </div>
 
-      {/* Rating buttons */}
-      <div className="flex flex-col gap-2">
-        {RATING_OPTIONS(dialectLabel).map(({ value, label }) => {
+      {/* Radio Select */}
+      <div className="flex items-center gap-2 bg-gray-50 p-1.5 rounded-full border border-gray-200 w-fit mt-4">
+        {ratingOptions?.map(({ value, label }) => {
           const selected = answer === value;
           const disabled = !fullyPlayed || isSaving;
           return (
@@ -100,23 +86,14 @@ export default function QualityChoiceEntryView({
               key={value}
               disabled={disabled}
               onClick={() => setAnswer(value)}
-              className={`flex items-center gap-3 w-full text-left px-4 py-2.5 rounded-lg border text-sm transition-colors ${
+              className={`px-6 py-2 rounded-full text-sm font-medium transition-all duration-200 ${
                 disabled
-                  ? 'opacity-40 cursor-not-allowed border-gray-200 bg-gray-50 text-gray-500'
+                  ? 'opacity-50 cursor-not-allowed text-gray-400'
                   : selected
-                  ? 'border-blue-500 bg-blue-50 text-blue-800 font-medium'
-                  : 'border-gray-200 hover:border-blue-300 hover:bg-blue-50 text-gray-700'
+                  ? 'bg-white text-blue-600 shadow-sm border border-blue-200'
+                  : 'text-gray-600 hover:text-gray-900'
               }`}
             >
-              <span
-                className={`flex-shrink-0 w-6 h-6 rounded-full border-2 flex items-center justify-center text-xs font-bold ${
-                  selected
-                    ? 'border-blue-500 bg-blue-500 text-white'
-                    : 'border-gray-300 text-gray-400'
-                }`}
-              >
-                {value}
-              </span>
               {label}
             </button>
           );
