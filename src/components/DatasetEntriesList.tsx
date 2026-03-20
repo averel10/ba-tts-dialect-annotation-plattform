@@ -5,7 +5,7 @@ import Link from 'next/link';
 import AudioPlayer from './AudioPlayer';
 import { getDatasetEntries } from '@/app/actions/get-dataset-entries';
 import { getFilterOptions } from '@/app/actions/get-filter-options';
-import { downloadFilteredEntriesAsZip } from '@/lib/download-utils';
+import { downloadFilteredEntriesAsZip, downloadFilteredEntriesAsCsv } from '@/lib/download-utils';
 
 interface DatasetEntriesListProps {
   datasetId: number;
@@ -45,6 +45,7 @@ export default function DatasetEntriesList({
   const [entries, setEntries] = useState<DatasetEntry[]>([]);
   const [loading, setLoading] = useState(false);
   const [downloading, setDownloading] = useState(false);
+  const [csvDownloading, setCsvDownloading] = useState(false);
   const [hasMore, setHasMore] = useState(true);
   const [page, setPage] = useState(1);
   const [total, setTotal] = useState(0);
@@ -197,6 +198,26 @@ export default function DatasetEntriesList({
     }
   }
 
+  async function handleDownloadFilteredCsv() {
+    setCsvDownloading(true);
+    try {
+      const filterParams = {
+        speakerId: filters.speakerId || undefined,
+        modelName: filters.modelName || undefined,
+        dialect: filters.dialect || undefined,
+        iteration: filters.iteration ? parseInt(filters.iteration, 10) : undefined,
+        utteranceId: filters.utteranceId || undefined,
+      };
+
+      await downloadFilteredEntriesAsCsv(datasetId, filterParams);
+    } catch (error) {
+      console.error('Error downloading CSV:', error);
+      alert('Failed to download CSV. Please try again.');
+    } finally {
+      setCsvDownloading(false);
+    }
+  }
+
   if (entries.length === 0 && !loading) {
     return (
       <div className="bg-white rounded-lg shadow p-6">
@@ -207,6 +228,13 @@ export default function DatasetEntriesList({
           <div className="flex items-center justify-between mb-4">
             <h3 className="text-lg font-semibold text-gray-700">Filters</h3>
             <div className="flex gap-3">
+              <button
+                onClick={handleDownloadFilteredCsv}
+                disabled={csvDownloading || total === 0}
+                className="text-sm px-3 py-1 bg-purple-500 text-white rounded hover:bg-purple-600 disabled:bg-gray-400 disabled:cursor-not-allowed transition-colors"
+              >
+                {csvDownloading ? 'Downloading...' : 'Download CSV'}
+              </button>
               <button
                 onClick={handleDownloadFiltered}
                 disabled={downloading || total === 0}
@@ -325,6 +353,13 @@ export default function DatasetEntriesList({
         <div className="flex items-center justify-between mb-4">
           <h3 className="text-lg font-semibold text-gray-700">Filters</h3>
           <div className="flex gap-3">
+            <button
+              onClick={handleDownloadFilteredCsv}
+              disabled={csvDownloading || total === 0}
+              className="text-sm px-3 py-1 bg-purple-500 text-white rounded hover:bg-purple-600 disabled:bg-gray-400 disabled:cursor-not-allowed transition-colors"
+            >
+              {csvDownloading ? 'Downloading...' : 'Download CSV'}
+            </button>
             <button
               onClick={handleDownloadFiltered}
               disabled={downloading || total === 0}
