@@ -3,14 +3,17 @@
 import { authClient } from '@/lib/auth-client';
 import Link from 'next/link';
 import { useState } from 'react';
+import { useRouter } from 'next/navigation';
 
 export function Header() {
+  const router = useRouter();
   const { data: session, isPending: loading } = authClient.useSession();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   const handleSignOut = async () => {
     try {
       await authClient.signOut({});
+      router.push('/');
     } catch (error) {
       console.error('Sign out failed:', error);
     }

@@ -2,10 +2,12 @@
 
 import { useState } from 'react';
 import { authClient } from '@/lib/auth-client';
+import { useRouter } from 'next/navigation';
 
 type AuthMode = 'signin' | 'signup';
 
 export function AuthForm() {
+  const router = useRouter();
   const [mode, setMode] = useState<AuthMode>('signin');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -26,6 +28,8 @@ export function AuthForm() {
         });
         if (response.error) {
           setError(response.error.message || 'Authentifizierung fehlgeschlagen');
+        } else {
+          router.push('/');
         }
       } else {
         if (password !== confirmPassword) {
@@ -40,7 +44,10 @@ export function AuthForm() {
         });
         if (response.error) {
           setError(response.error.message || 'Registrierung fehlgeschlagen');
+        } else {
+          router.push('/');
         }
+
       }
     } catch (err: any) {
       setError(err.message || 'Ein Fehler ist aufgetreten');
@@ -50,7 +57,7 @@ export function AuthForm() {
   };
 
   return (
-    <div className="flex items-center justify-center py-12">
+    <div className="flex items-center justify-center py-8 px-4">
       <div className="w-full max-w-md">
         {/* Card */}
         <div className="bg-white rounded-lg shadow-lg overflow-hidden border border-gray-200">

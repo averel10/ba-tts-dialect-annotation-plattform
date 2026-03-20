@@ -49,7 +49,7 @@ export default function AnnotationSidebarNavigation({
         <h3 className="text-xs font-semibold text-gray-700 uppercase tracking-wide mb-3 px-2 flex-shrink-0">
           Samples
         </h3>
-        <div className="space-y-1 overflow-y-auto max-h-96">
+        <div className="space-y-1 overflow-y-auto max-h-150">
           {entries.map((entry, index) => (
             <button
               ref={index === currentIndex ? activeButtonRef : null}
@@ -77,7 +77,7 @@ export default function AnnotationSidebarNavigation({
                 />
                 {/* Entry number and filename */}
                 <span className="truncate">
-                  {index + 1}. {`Sample ${index + 1}`}
+                  {`Sample ${index + 1}`}
                 </span>
               </div>
             </button>

@@ -10,10 +10,10 @@ export default function RootLayout({
 }) {
   return (
     <html>
-      <body className="flex flex-col min-h-screen md:h-screen">
+      <body className="flex flex-col min-h-screen">
         <AudioProvider>
           <Header />
-          <main className="flex-1 overflow-hidden">
+          <main className="flex-grow">
             {children}
           </main>
           <Footer />
