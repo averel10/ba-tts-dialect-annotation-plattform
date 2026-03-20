@@ -1,8 +1,8 @@
 {
   "version": "6",
   "dialect": "sqlite",
-  "id": "4773999c-10cb-4a54-b2e8-aec0988f7a7b",
-  "prevId": "a3364cec-3ada-496b-8fcb-f339074b04d7",
+  "id": "a52446c8-99ed-4294-900e-5bf90a36a26f",
+  "prevId": "071a0744-4d6e-4657-948b-7eda495b9756",
   "tables": {
     "annotation": {
       "name": "annotation",
@@ -25,7 +25,7 @@
           "name": "experiment_id",
           "type": "integer",
           "primaryKey": false,
-          "notNull": true,
+          "notNull": false,
           "autoincrement": false
         },
         "user_id": {
@@ -668,8 +668,23 @@
           "notNull": true,
           "autoincrement": false
         },
+        "published": {
+          "name": "published",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false,
+          "default": false
+        },
         "description": {
           "name": "description",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "annotation_tool": {
+          "name": "annotation_tool",
           "type": "text",
           "primaryKey": false,
           "notNull": false,
