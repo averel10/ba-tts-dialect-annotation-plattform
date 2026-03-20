@@ -7,6 +7,24 @@ import { revalidatePath } from 'next/cache';
 import { removeAllDatasetEntries } from './remove-dataset-entries';
 import { requireAdmin } from '@/lib/auth';
 
+export async function getAllDatasets() {
+  const result = await requireAdmin();
+  if (!result.authenticated || !result.admin) {
+    throw new Error('Unauthorized');
+  }
+
+  try {
+    const datasets = await db
+      .select()
+      .from(dataset)
+      .orderBy(dataset.name);
+    return datasets;
+  } catch (error) {
+    console.error('Error fetching datasets:', error);
+    throw new Error('Failed to fetch datasets');
+  }
+}
+
 export async function createDataset({ name, description }: { name: string; description?: string }) {
   const result = await requireAdmin();
   if (!result.authenticated || !result.admin) {

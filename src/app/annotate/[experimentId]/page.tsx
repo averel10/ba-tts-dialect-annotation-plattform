@@ -4,17 +4,19 @@ import Link from 'next/link';
 import { auth } from '@/lib/auth';
 import { getAnnotationEntries } from '@/app/actions/annotations';
 import SingleChoiceView from '@/components/AnnotationViews/SingleChoiceView';
+import { getExperimentById } from '@/app/actions/experiment';
 
 interface Props {
-  params: Promise<{ experimentId: string; prototype: string }>;
+  params: Promise<{ experimentId: string}>;
 }
 
 export default async function AnnotatePage({ params }: Props) {
   const session = await auth.api.getSession({ headers: await headers() });
   if (!session) redirect('/user/sign-in');
 
-  const { experimentId: experimentIdStr, prototype } = await params;
+  const { experimentId: experimentIdStr } = await params;
   const experimentId = parseInt(experimentIdStr, 10);
+  const prototype = await getExperimentById(experimentId).then(exp => exp?.annotationTool || null);
 
   if (isNaN(experimentId)) {
     return (
@@ -27,9 +29,6 @@ export default async function AnnotatePage({ params }: Props) {
     );
   }
 
-  if (prototype !== 'single-choice') {
-    notFound();
-  }
 
   const entries = await getAnnotationEntries(experimentId);
 
@@ -53,5 +52,23 @@ export default async function AnnotatePage({ params }: Props) {
     );
   }
 
-  return <SingleChoiceView entries={entries} experimentId={experimentId} />;
+  // Render based on prototype type
+  const renderAnnotationView = () => {
+    switch (prototype) {
+      case 'single-choice':
+        return <SingleChoiceView entries={entries} experimentId={experimentId} />;
+      // Add more prototypes here as needed
+      default:
+        return (
+          <div className="max-w-xl mx-auto py-16 text-center">
+            <p className="text-gray-600">Unbekannter Annotation-Typ: {prototype}</p>
+            <Link href="/" className="text-blue-600 hover:underline mt-4 inline-block">
+              ← Startseite
+            </Link>
+          </div>
+        );
+    }
+  };
+
+  return renderAnnotationView();
 }

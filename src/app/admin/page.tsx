@@ -1,5 +1,6 @@
 import DatasetsList from "@/components/DatasetsList";
 import CreateDatasetModal from "@/components/CreateDatasetModal";
+import ExperimentsList from "@/components/ExperimentsList";
 import { AdminTokenForm } from "@/components/AdminTokenForm";
 import BuildInfo from "@/components/BuildInfo";
 import { requireAdmin } from "@/lib/auth";
@@ -28,6 +29,12 @@ export default async function AdminPage() {
           >
             Manage Users
           </Link>
+          <Link
+            href="/admin/experiments"
+            className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
+          >
+            Manage Experiments
+          </Link>
         </div>
       </div>
 
@@ -39,6 +46,12 @@ export default async function AdminPage() {
         <h2 className="text-2xl font-bold mb-4">Datasets</h2>
         <CreateDatasetModal />
         <DatasetsList />
+      </div>
+
+      <div className="mt-12">
+        <h2 className="text-2xl font-bold mb-4">Experiments</h2>
+        <p className="text-gray-600 mb-4">Manage experiments globally or <Link href="/admin/experiments" className="text-blue-500 hover:text-blue-600 font-semibold">go to the experiments management page</Link></p>
+        <ExperimentsList />
       </div>
     </div>
   );

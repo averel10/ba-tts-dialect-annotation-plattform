@@ -87,7 +87,7 @@ export async function saveAnnotations(
 
 /** Returns all datasets (for the home page). */
 export async function getAllExperiments() {
-  return db.select().from(experiment).orderBy(experiment.id);
+  return db.select().from(experiment).where(eq(experiment.published, true)).orderBy(experiment.id);
 }
 
 /** Returns annotation progress for the current user in a dataset. */

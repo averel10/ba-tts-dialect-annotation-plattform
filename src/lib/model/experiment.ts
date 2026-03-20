@@ -8,7 +8,9 @@ export const experiment = sqliteTable(
   {
     id: integer('id').primaryKey({ autoIncrement: true }),
     name: text('name').notNull(),
+    published: integer('published', { mode: 'boolean' }).notNull().default(false), // 0 = draft, 1 = published
     description: text('description'),
+    annotationTool: text('annotation_tool'),
     datasetId: integer('dataset_id')
       .notNull()
       .references(() => dataset.id),
