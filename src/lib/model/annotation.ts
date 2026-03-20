@@ -9,7 +9,6 @@ export const annotation = sqliteTable(
     id: integer('id').primaryKey({ autoIncrement: true }),
     datasetEntryId: integer('dataset_entry_id').notNull().references(() => dataset_entry.id),
     experimentId: integer('experiment_id')
-      .notNull()
       .references(() => experiment.id),
     userId: text('user_id').notNull(),
     rating: integer('rating').notNull(), // 1–5
