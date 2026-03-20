@@ -1,12 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { downloadFilteredEntries } from '@/app/actions/download-filtered-entries';
-import JSZip from 'jszip';
+import archiver from 'archiver';
 import { join } from 'path';
-import { readFile, existsSync, writeFileSync, mkdirSync, readdirSync, unlinkSync, statSync } from 'fs';
-import { promisify } from 'util';
+import { existsSync, mkdirSync, readdirSync, unlinkSync, statSync, createWriteStream } from 'fs';
 import { requireAdmin } from '@/lib/auth';
-
-const readFileAsync = promisify(readFile);
 
 // Clean up old ZIP files older than 24 hours
 async function cleanupOldZips(downloadsDir: string, maxAgeHours: number = 24) {
@@ -72,53 +69,10 @@ export async function POST(request: NextRequest) {
     // Get filtered entries data from server action
     const result = await downloadFilteredEntries(datasetId, filters || {});
 
-    // Create ZIP on server
-    const zip = new JSZip();
-
-    // Add CSV file
-    zip.file('metadata.csv', result.csvContent);
-
-    // Add metadata JSON
-    zip.file('filter-metadata.json', result.metadataContent);
-
-    // Add audio files to 'audio' folder
-    if (result.entries && result.entries.length > 0) {
-      const audioFolder = zip.folder('wavs');
-      if (audioFolder) {
-        let filesAdded = 0;
-        for (const entry of result.entries) {
-          try {
-            const fileExtension = entry.fileName.substring(entry.fileName.lastIndexOf('.'));
-            const audioPath = join(
-              process.cwd(),
-              'public',
-              'datasets',
-              datasetId.toString(),
-              `${entry.id}${fileExtension}`
-            );
-
-            if (existsSync(audioPath)) {
-              const fileBuffer = await readFileAsync(audioPath);
-              zip.file(entry.fileName, fileBuffer);
-              filesAdded++;
-            } else {
-              console.warn(`Audio file not found: ${audioPath}`);
-            }
-          } catch (error) {
-            console.error(`Failed to add audio file for entry ${entry.id}:`, error);
-            // Continue with other files
-          }
-        }
-        console.log(`Added ${filesAdded}/${result.entries.length} audio files to ZIP`);
-      }
-    } else {
-      console.warn('No entries to add audio files for');
-    }
-
-    // Generate ZIP blob
-    const zipBuffer = await zip.generateAsync({ type: 'nodebuffer' });
-
-    // Save ZIP to public folder
+    // Create filename with timestamp for uniqueness
+    const timestamp = Date.now();
+    const fileName = `dataset-${datasetId}-export-${new Date().toISOString().split('T')[0]}-${timestamp}.zip`;
+    
     const downloadsDir = join(process.cwd(), 'public', 'downloads');
     
     // Ensure downloads directory exists
@@ -128,14 +82,67 @@ export async function POST(request: NextRequest) {
       console.error('Error creating downloads directory:', error);
     }
 
-    // Create filename with timestamp for uniqueness
-    const timestamp = Date.now();
-    const fileName = `dataset-${datasetId}-export-${new Date().toISOString().split('T')[0]}-${timestamp}.zip`;
     const filePath = join(downloadsDir, fileName);
 
-    // Write ZIP file to disk
-    writeFileSync(filePath, zipBuffer);
-    console.log(`ZIP file saved to: ${filePath}`);
+    // Create ZIP archive with streaming to disk
+    const output = createWriteStream(filePath);
+    const zip = archiver('zip', { zlib: { level: 9 } });
+
+    // Pipe archive to file
+    zip.pipe(output);
+
+    // Add CSV file
+    zip.append(result.csvContent, { name: 'metadata.csv' });
+
+    // Add metadata JSON
+    zip.append(result.metadataContent, { name: 'filter-metadata.json' });
+
+    // Add audio files to 'wavs' folder
+    if (result.entries && result.entries.length > 0) {
+      let filesAdded = 0;
+      for (const entry of result.entries) {
+        try {
+          const fileExtension = entry.fileName.substring(entry.fileName.lastIndexOf('.'));
+          const audioPath = join(
+            process.cwd(),
+            'public',
+            'datasets',
+            datasetId.toString(),
+            `${entry.id}${fileExtension}`
+          );
+
+          if (existsSync(audioPath)) {
+            zip.file(audioPath, { name: `wavs/${entry.fileName}` });
+            filesAdded++;
+          } else {
+            console.warn(`Audio file not found: ${audioPath}`);
+          }
+        } catch (error) {
+          console.error(`Failed to add audio file for entry ${entry.id}:`, error);
+          // Continue with other files
+        }
+      }
+      console.log(`Added ${filesAdded}/${result.entries.length} audio files to ZIP`);
+    } else {
+      console.warn('No entries to add audio files for');
+    }
+
+    // Finalize and wait for the archive to finish writing to disk
+    await new Promise<void>((resolve, reject) => {
+      output.on('close', () => {
+        console.log(`ZIP file saved to: ${filePath}`);
+        resolve();
+      });
+      zip.on('error', (error) => {
+        console.error('Archive error:', error);
+        reject(error);
+      });
+      output.on('error', (error) => {
+        console.error('Output stream error:', error);
+        reject(error);
+      });
+      zip.finalize();
+    });
 
     // Clean up old ZIP files in the background
     cleanupOldZips(downloadsDir).catch(error => {

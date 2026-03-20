@@ -13,6 +13,7 @@
     "@better-auth/drizzle-adapter": "^1.5.4",
     "@libsql/client": "^0.17.0",
     "@tailwindcss/postcss": "^4.2.1",
+    "archiver": "^7.0.0",
     "auth": "^1.5.3",
     "better-auth": "^1.4.19",
     "better-auth-localization": "^2.3.1",
