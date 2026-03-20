@@ -17,7 +17,7 @@ export async function createExperiment({
   name: string; 
   description?: string;
   datasetId: number;
-  annotationTool: string;
+  annotationTool?: string;
   published?: boolean;
 }) {
   const result = await requireAdmin();
@@ -34,7 +34,7 @@ export async function createExperiment({
       name: name.trim(),
       description: description?.trim() || null,
       datasetId,
-      annotationTool: annotationTool.trim(),
+      annotationTool: annotationTool?.trim(),
       published,
     });
     revalidatePath('/admin/experiments');
@@ -67,7 +67,7 @@ export async function updateExperiment(
       updateData.description = updates.description.trim() || null;
     }
     if (updates.annotationTool !== undefined) {
-      updateData.annotationTool = updates.annotationTool;
+      updateData.annotationTool = updates.annotationTool?.trim();
     }
     if (updates.published !== undefined) {
       updateData.published = updates.published;

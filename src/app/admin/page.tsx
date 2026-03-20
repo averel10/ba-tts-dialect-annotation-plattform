@@ -1,5 +1,4 @@
 import DatasetsList from "@/components/DatasetsList";
-import CreateDatasetModal from "@/components/CreateDatasetModal";
 import ExperimentsList from "@/components/ExperimentsList";
 import { AdminTokenForm } from "@/components/AdminTokenForm";
 import BuildInfo from "@/components/BuildInfo";
@@ -22,18 +21,24 @@ export default async function AdminPage() {
     <div className="px-4 sm:px-6 lg:px-8 py-8">
       <div className="mb-8">
         <h1 className="text-3xl font-bold mb-4">Admin Panel</h1>
-        <div className="flex gap-4">
+        <div className="flex flex-wrap gap-4">
           <Link
-            href="/admin/users"
+            href="/admin/datasets"
             className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
           >
-            Manage Users
+            Manage Datasets
           </Link>
           <Link
             href="/admin/experiments"
             className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
           >
             Manage Experiments
+          </Link>
+          <Link
+            href="/admin/users"
+            className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
+          >
+            Manage Users
           </Link>
         </div>
       </div>
@@ -42,16 +47,14 @@ export default async function AdminPage() {
         <BuildInfo />
       </div>
 
-      <div className="mt-8">
-        <h2 className="text-2xl font-bold mb-4">Datasets</h2>
-        <CreateDatasetModal />
-        <DatasetsList />
-      </div>
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mt-8">
+        <div>
+          <DatasetsList />
+        </div>
 
-      <div className="mt-12">
-        <h2 className="text-2xl font-bold mb-4">Experiments</h2>
-        <p className="text-gray-600 mb-4">Manage experiments globally or <Link href="/admin/experiments" className="text-blue-500 hover:text-blue-600 font-semibold">go to the experiments management page</Link></p>
-        <ExperimentsList />
+        <div>
+          <ExperimentsList />
+        </div>
       </div>
     </div>
   );
