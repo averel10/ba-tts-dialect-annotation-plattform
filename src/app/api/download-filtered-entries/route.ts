@@ -133,11 +133,11 @@ export async function POST(request: NextRequest) {
         console.log(`ZIP file saved to: ${filePath}`);
         resolve();
       });
-      zip.on('error', (error) => {
+      zip.on('error', (error: Error) => {
         console.error('Archive error:', error);
         reject(error);
       });
-      output.on('error', (error) => {
+      output.on('error', (error: Error) => {
         console.error('Output stream error:', error);
         reject(error);
       });
