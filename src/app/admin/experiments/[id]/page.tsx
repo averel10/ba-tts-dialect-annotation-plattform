@@ -4,6 +4,8 @@ import { experiment } from '@/lib/model/experiment';
 import { eq } from 'drizzle-orm';
 import EditableExperimentHeader from '@/components/EditableExperimentHeader';
 import DeleteExperimentButton from '@/components/DeleteExperimentButton';
+import UploadCalibrationModal from '@/components/UploadCalibrationModal';
+import CalibrationListModal from '@/components/CalibrationListModal';
 import { requireAdmin } from '@/lib/auth';
 import { redirect } from 'next/navigation';
 
@@ -66,6 +68,8 @@ export default async function ExperimentPage({ params }: ExperimentPageProps) {
 
         <div className="flex gap-3 mb-6">
           <DeleteExperimentButton experimentId={experimentId} experimentName={exp.name} />
+          <UploadCalibrationModal experimentId={experimentId} />
+          <CalibrationListModal experimentId={experimentId} />
         </div>
 
         <div className="bg-white rounded-lg shadow p-6">

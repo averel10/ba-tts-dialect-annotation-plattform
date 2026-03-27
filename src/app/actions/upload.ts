@@ -2,6 +2,7 @@
 
 import db from '@/lib/db';
 import { dataset_entry } from '@/lib/model/dataset_entry';
+import { experiment_calibration } from '@/lib/model/experiment_calibration';
 import { parseCSVLine } from '@/lib/csv-parser';
 import { revalidatePath } from 'next/cache';
 import { eq } from 'drizzle-orm';
@@ -290,6 +291,125 @@ export async function updateDatasetEntriesMetadata(
       success: false,
       error: errorMessage,
       entriesUpdated: 0,
+    };
+  } finally {
+    // Clean up temp directory
+    try {
+      if (existsSync(tempDir)) {
+        await rm(tempDir, { recursive: true, force: true });
+      }
+    } catch (cleanupError) {
+      console.error('Error cleaning up temp directory:', cleanupError);
+    }
+  }
+}
+
+/**
+ * Process calibration audio files for an experiment
+ * Expects metadata.csv with columns: id, audio_file, dialect, order
+ * Audio files should be in a 'wavs' subfolder
+ */
+export async function processCalibrationEntries(
+  experimentId: number,
+  tempDir: string
+) {
+  try {
+    const result = await requireAdmin();
+    if (!result.authenticated || !result.admin) {
+      return {
+        success: false,
+        error: 'Unauthorized',
+        entriesCreated: 0,
+      };
+    }
+
+    const calibrationDir = join(process.cwd(), 'public', 'calibration', experimentId.toString());
+
+    // Validate temp directory exists
+    if (!existsSync(tempDir)) {
+      return {
+        success: false,
+        error: 'Temporary extraction directory not found',
+        entriesCreated: 0,
+      };
+    }
+
+    // Parse metadata from directory
+    const { rows } = await parseMetadataFromDirectory(tempDir);
+
+    const entries: typeof experiment_calibration.$inferInsert[] = [];
+
+    // Create calibration directory
+    await mkdir(calibrationDir, { recursive: true });
+
+    // Process each row
+    for (let lineIndex = 0; lineIndex < rows.length; lineIndex++) {
+      const row = rows[lineIndex];
+      const audioFile = row.audio_file as string;
+      // Audio files are in wavs subfolder
+      const audioPath = join(tempDir, audioFile);
+
+      if (existsSync(audioPath)) {
+        // Copy audio file to calibration directory, preserving filename from audio_file
+        const audioBuffer = await readFile(audioPath);
+        const filename = audioFile.split('/').pop() || audioFile;
+        const destPath = join(calibrationDir, filename);
+
+        await writeFile(destPath, audioBuffer);
+
+        entries.push({
+          experimentId,
+          dialectLabel: row.dialect,
+          order: lineIndex + 1,
+          file: `/calibration/${experimentId}/${filename}`,
+        });
+      }
+    }
+
+    if (entries.length === 0) {
+      return {
+        success: false,
+        error: 'No valid audio files found in wavs folder',
+        entriesCreated: 0,
+      };
+    }
+
+    // Check for existing calibration entries to avoid duplicates
+    const existingEntries = await db
+      .select({ file: experiment_calibration.file })
+      .from(experiment_calibration)
+      .where(eq(experiment_calibration.experimentId, experimentId));
+
+    const existingFiles = new Set(existingEntries.map(e => e.file));
+
+    // Filter out duplicates
+    const newEntries = entries.filter(entry => !existingFiles.has(entry.file));
+
+    if (newEntries.length === 0) {
+      return {
+        success: false,
+        error: 'All calibration entries already exist for this experiment',
+        entriesCreated: 0,
+      };
+    }
+
+    // Insert new entries into database
+    await db.insert(experiment_calibration).values(newEntries);
+
+    revalidatePath(`/admin/experiments/${experimentId}`);
+
+    return {
+      success: true,
+      entriesCreated: newEntries.length,
+      message: `Successfully processed and inserted ${newEntries.length} calibration entries.`,
+    };
+  } catch (error) {
+    console.error('Error processing calibration entries:', error);
+    const errorMessage = error instanceof Error ? error.message : 'Failed to process calibration entries';
+    return {
+      success: false,
+      error: errorMessage,
+      entriesCreated: 0,
     };
   } finally {
     // Clean up temp directory
