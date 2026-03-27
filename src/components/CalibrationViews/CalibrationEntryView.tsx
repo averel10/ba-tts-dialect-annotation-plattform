@@ -49,6 +49,8 @@ export default function CalibrationEntryView({
     setSelectedDialect(existingAnswer?.dialectLabel || null);
     setSelectedConfidence(existingAnswer?.confidence || null);
     setFullyPlayed(existingAnswer ? true : false);
+    // Scroll to top when entry changes with smooth animation
+    window.scrollTo({ top: 0, behavior: 'smooth' });
   }, [entry, existingAnswer]);
 
   return (
@@ -85,79 +87,82 @@ export default function CalibrationEntryView({
         </p>
       )}
 
-      {/* Dialect question */}
-      <div className="mt-6 mb-4">
-        <div className="text-sm font-semibold text-gray-700 mb-3">
-          Welcher Dialekt ist es?
-        </div>
-        <div className="flex flex-col gap-2">
-          {Object.entries(DIALECT_LABELS_WITHOUT_DE).map(([dialectKey, dialectName]) => {
-            const selected = selectedDialect === dialectKey;
-            const disabled = !fullyPlayed || isSaving;
-            return (
-              <button
-                key={dialectKey}
-                disabled={disabled}
-                onClick={() => handleDialectChange(dialectKey)}
-                className={`flex items-center gap-3 w-full text-left px-4 py-2.5 rounded-lg border text-sm transition-colors ${
-                  disabled
-                    ? 'opacity-40 cursor-not-allowed border-gray-200 bg-gray-50 text-gray-500'
-                    : selected
-                    ? 'border-blue-500 bg-blue-50 text-blue-800 font-medium'
-                    : 'border-gray-200 hover:border-blue-300 hover:bg-blue-50 text-gray-700'
-                }`}
-              >
-                <span
-                  className={`flex-shrink-0 w-6 h-6 rounded-full border-2 flex items-center justify-center text-xs font-bold ${
-                    selected
-                      ? 'border-blue-500 bg-blue-500 text-white'
-                      : 'border-gray-300 text-gray-400'
+      {/* Questions container */}
+      <div className="mt-6 flex flex-col lg:flex-row gap-6">
+        {/* Dialect question */}
+        <div className="flex-1">
+          <div className="text-sm font-semibold text-gray-700 mb-3">
+            Welcher Dialekt ist es?
+          </div>
+          <div className="flex flex-col gap-2">
+            {Object.entries(DIALECT_LABELS_WITHOUT_DE).map(([dialectKey, dialectName]) => {
+              const selected = selectedDialect === dialectKey;
+              const disabled = !fullyPlayed || isSaving;
+              return (
+                <button
+                  key={dialectKey}
+                  disabled={disabled}
+                  onClick={() => handleDialectChange(dialectKey)}
+                  className={`flex items-center gap-3 w-full text-left px-4 py-2.5 rounded-lg border text-sm transition-colors ${
+                    disabled
+                      ? 'opacity-40 cursor-not-allowed border-gray-200 bg-gray-50 text-gray-500'
+                      : selected
+                      ? 'border-blue-500 bg-blue-50 text-blue-800 font-medium'
+                      : 'border-gray-200 hover:border-blue-300 hover:bg-blue-50 text-gray-700'
                   }`}
                 >
-                  {selected ? '✓' : ''}
-                </span>
-                <span>{dialectName}</span>
-              </button>
-            );
-          })}
+                  <span
+                    className={`flex-shrink-0 w-6 h-6 rounded-full border-2 flex items-center justify-center text-xs font-bold ${
+                      selected
+                        ? 'border-blue-500 bg-blue-500 text-white'
+                        : 'border-gray-300 text-gray-400'
+                    }`}
+                  >
+                    {selected ? '✓' : ''}
+                  </span>
+                  <span>{dialectName}</span>
+                </button>
+              );
+            })}
+          </div>
         </div>
-      </div>
 
-      {/* Confidence question */}
-      <div className="mt-6">
-        <div className="text-sm font-semibold text-gray-700 mb-3">
-          Wie sicher sind Sie?
-        </div>
-        <div className="flex flex-col gap-2">
-          {CONFIDENCE_OPTIONS.map(({ value, label }) => {
-            const selected = selectedConfidence === value;
-            const disabled = !fullyPlayed || isSaving;
-            return (
-              <button
-                key={value}
-                disabled={disabled}
-                onClick={() => handleConfidenceChange(value)}
-                className={`flex items-center gap-3 w-full text-left px-4 py-2.5 rounded-lg border text-sm transition-colors ${
-                  disabled
-                    ? 'opacity-40 cursor-not-allowed border-gray-200 bg-gray-50 text-gray-500'
-                    : selected
-                    ? 'border-blue-500 bg-blue-50 text-blue-800 font-medium'
-                    : 'border-gray-200 hover:border-blue-300 hover:bg-blue-50 text-gray-700'
-                }`}
-              >
-                <span
-                  className={`flex-shrink-0 w-6 h-6 rounded-full border-2 flex items-center justify-center text-xs font-bold ${
-                    selected
-                      ? 'border-blue-500 bg-blue-500 text-white'
-                      : 'border-gray-300 text-gray-400'
+        {/* Confidence question */}
+        <div className="flex-1">
+          <div className="text-sm font-semibold text-gray-700 mb-3">
+            Wie sicher sind Sie?
+          </div>
+          <div className="flex flex-col gap-2">
+            {CONFIDENCE_OPTIONS.map(({ value, label }) => {
+              const selected = selectedConfidence === value;
+              const disabled = !fullyPlayed || isSaving;
+              return (
+                <button
+                  key={value}
+                  disabled={disabled}
+                  onClick={() => handleConfidenceChange(value)}
+                  className={`flex items-center gap-3 w-full text-left px-4 py-2.5 rounded-lg border text-sm transition-colors ${
+                    disabled
+                      ? 'opacity-40 cursor-not-allowed border-gray-200 bg-gray-50 text-gray-500'
+                      : selected
+                      ? 'border-blue-500 bg-blue-50 text-blue-800 font-medium'
+                      : 'border-gray-200 hover:border-blue-300 hover:bg-blue-50 text-gray-700'
                   }`}
                 >
-                  {selected ? '✓' : ''}
-                </span>
-                <span>{label}</span>
-              </button>
-            );
-          })}
+                  <span
+                    className={`flex-shrink-0 w-6 h-6 rounded-full border-2 flex items-center justify-center text-xs font-bold ${
+                      selected
+                        ? 'border-blue-500 bg-blue-500 text-white'
+                        : 'border-gray-300 text-gray-400'
+                    }`}
+                  >
+                    {selected ? '✓' : ''}
+                  </span>
+                  <span>{label}</span>
+                </button>
+              );
+            })}
+          </div>
         </div>
       </div>
     </div>

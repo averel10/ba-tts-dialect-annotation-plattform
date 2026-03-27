@@ -169,7 +169,7 @@ export default function CalibrationPageView({
       <div className="flex flex-col h-full bg-white">
         <div className="flex-1 flex flex-col overflow-hidden">
           <div className="flex-1 overflow-y-auto">
-            <div className="max-w-3xl mx-auto py-20 px-4">
+            <div className="max-w-3xl mx-auto px-4">
               <div className="text-center mb-12">
                 <div className="text-5xl mb-4">🎉</div>
                 <h1 className="text-3xl font-bold text-green-600 mb-3">
@@ -210,7 +210,7 @@ export default function CalibrationPageView({
     <div className="flex flex-col h-full bg-white">
       <div className="flex-1 flex flex-col overflow-hidden">
         {/* Header with progress */}
-        <div className="sticky top-0 z-50 bg-white border-b border-gray-200 px-6 py-4">
+        <div className="sticky top-0 z-10 bg-white border-b border-gray-200 px-6 pb-4">
           <div className="flex items-center justify-between mb-3">
             <h1 className="text-xl font-bold text-gray-800">Kalibrierungsphase</h1>
             <span className="text-sm text-gray-600">
@@ -241,7 +241,7 @@ export default function CalibrationPageView({
         </div>
 
         {/* Navigation footer */}
-        <div className="sticky bottom-0 bg-white border-t border-gray-200 px-6 py-4 flex gap-3 justify-between">
+        <div className="sticky bottom-0 bg-white border-t border-gray-200 px-6 pt-4 flex gap-3 justify-between">
           <button
             onClick={handlePrevious}
             disabled={currentIndex === 0 || isPending}

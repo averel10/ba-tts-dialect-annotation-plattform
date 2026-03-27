@@ -18,7 +18,7 @@ export default function CalibrationInfoView({
       <div className="flex-1 flex items-center justify-center px-4">
         <div className="max-w-2xl w-full">
           {/* Header */}
-          <div className="text-center mb-12 mt-8">
+          <div className="text-center mb-4">
             <h1 className="text-3xl font-bold text-gray-900 mb-2">Kalibrierungsphase</h1>
           </div>
 

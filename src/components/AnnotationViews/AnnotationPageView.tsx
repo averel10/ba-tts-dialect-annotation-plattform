@@ -47,6 +47,7 @@ export default function AnnotationPageView({
     loadScores();
   }, [experimentId]);
 
+
   const getAnnotationConfig = (dialectLabel: string) => {
     switch (viewType) {
       case 'quality-choice':
@@ -118,6 +119,12 @@ export default function AnnotationPageView({
   const currentEntry = entries[currentIndex];
   const isComplete = entries.every((e) => e.annotation !== null);
   
+  // Smooth scroll to top when current entry changes
+  useEffect(() => {
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }, [currentIndex]);
+
+
   const handlePrevious = () => {
     if (currentIndex > 0) {
       setCurrentIndex((i) => i - 1);
@@ -245,7 +252,7 @@ export default function AnnotationPageView({
         {/* Main content area */}
         <div className="flex-1 flex flex-col overflow-hidden">
           {/* Top bar */}
-          <div className="sticky top-0 z-40 bg-white border-b border-gray-200 p-4">
+          <div className="sticky top-0 z-40 bg-white border-b border-gray-200 pb-4 px-4">
             <div className="flex items-center justify-between max-w-4xl mx-auto">
               {/* Toggle and Home buttons */}
               <div className="flex gap-2">
