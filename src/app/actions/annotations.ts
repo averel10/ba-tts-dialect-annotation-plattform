@@ -9,6 +9,8 @@ import { auth } from '@/lib/auth';
 import { headers } from 'next/headers';
 import type { DatasetEntryForAnnotation } from '@/lib/dialects';
 import { experiment } from '@/lib/model/experiment';
+import { experiment_calibration } from '@/lib/model/experiment_calibration';
+import { participant } from '@/lib/model/participant';
 
 /**
  * Returns unannotated entries for the given dataset and authenticated user.
@@ -131,5 +133,62 @@ export async function getAnnotationProgress(
     );
 
   return { total: allEntries.length, done: annotated.length };
+}
+
+/**
+ * Checks if calibration is required and completed for the current user in an experiment.
+ * Returns true if calibration is completed or not required, false if calibration is pending.
+ */
+export async function isCalibrationDone(experimentId: number): Promise<boolean> {
+  console.log('Checking calibration status for experimentId:', experimentId);
+  const session = await auth.api.getSession({ headers: await headers() });
+  if (!session) throw new Error('Nicht angemeldet');
+
+  // Get calibration items for this experiment
+  const calibrationItems = await db
+    .select()
+    .from(experiment_calibration)
+    .where(eq(experiment_calibration.experimentId, experimentId));
+
+  // If no calibration items are defined, calibration is not required
+  if (calibrationItems.length === 0) {
+    return true;
+  }
+
+  // Check if participant exists for this user and experiment
+  const participantRecord = await db
+    .select()
+    .from(participant)
+    .where(
+      and(
+        eq(participant.experimentId, experimentId),
+        eq(participant.userId, session.user.id)
+      )
+    )
+    .limit(1);
+
+  // If no participant record exists, calibration is not done
+  if (participantRecord.length === 0) {
+    return false;
+  }
+
+  // Check if calibration answers are filled
+  const calibrationAnswers = participantRecord[0].calibrationAnswers as Record<number, { dialectLabel: string; confidence: number }> | null;
+  
+  if (!calibrationAnswers) {
+    return false;
+  }
+
+  // Verify that all calibration items have complete answers
+  for (const item of calibrationItems) {
+    const answer = calibrationAnswers[item.id];
+    
+    // Check if answer exists and has both required fields
+    if (!answer || !answer.dialectLabel || !answer.confidence) {
+      return false;
+    }
+  }
+
+  return true;
 }
 

@@ -2,9 +2,10 @@ import { redirect, notFound } from 'next/navigation';
 import { headers } from 'next/headers';
 import Link from 'next/link';
 import { auth } from '@/lib/auth';
-import { getAnnotationEntries } from '@/app/actions/annotations';
+import { getAnnotationEntries, isCalibrationDone } from '@/app/actions/annotations';
 import { getExperimentById } from '@/app/actions/experiment';
 import AnnotationPageView from '@/components/AnnotationViews/AnnotationPageView';
+import CalibrationPhase from '@/components/CalibrationViews/CalibrationPhase';
 
 interface Props {
   params: Promise<{ experimentId: string}>;
@@ -16,8 +17,7 @@ export default async function AnnotatePage({ params }: Props) {
 
   const { experimentId: experimentIdStr } = await params;
   const experimentId = parseInt(experimentIdStr, 10);
-  const prototype = await getExperimentById(experimentId).then(exp => exp?.annotationTool || null);
-
+  
   if (isNaN(experimentId)) {
     return (
       <div className="max-w-xl mx-auto py-16 text-center">
@@ -29,7 +29,13 @@ export default async function AnnotatePage({ params }: Props) {
     );
   }
 
+  // Check if calibration is required and not yet done
+  const calibrationDone = await isCalibrationDone(experimentId);
+  if (!calibrationDone) {
+    return <CalibrationPhase experimentId={experimentId} />;
+  }
 
+  const prototype = await getExperimentById(experimentId).then(exp => exp?.annotationTool || null);
   const entries = await getAnnotationEntries(experimentId);
 
   if (entries.length === 0) {
