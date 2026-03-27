@@ -2,6 +2,8 @@
 
 import db from '@/lib/db';
 import { experiment } from '@/lib/model/experiment';
+import { annotation } from '@/lib/model/annotation';
+import { participant } from '@/lib/model/participant';
 import { and, eq } from 'drizzle-orm';
 import { revalidatePath } from 'next/cache';
 import { auth, requireAdmin } from '@/lib/auth';
@@ -143,4 +145,25 @@ export async function getExperimentById(id: number) {
     console.error('Error fetching experiment:', error);
     throw new Error('Failed to fetch experiment');
   } 
+}
+
+export async function clearExperimentData(id: number) {
+  const result = await requireAdmin();
+  if (!result.authenticated || !result.admin) {
+    throw new Error('Unauthorized');
+  }
+
+  try {
+    // Delete all annotations for this experiment
+    await db.delete(annotation).where(eq(annotation.experimentId, id));
+
+    // Delete all participants for this experiment
+    await db.delete(participant).where(eq(participant.experimentId, id));
+
+    revalidatePath(`/admin/experiments/${id}`);
+    return { success: true };
+  } catch (error) {
+    console.error('Error clearing experiment data:', error);
+    throw new Error('Failed to clear experiment data');
+  }
 }
