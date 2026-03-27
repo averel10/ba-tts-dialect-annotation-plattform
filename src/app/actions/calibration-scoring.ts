@@ -1,0 +1,137 @@
+'use server';
+
+import db from '@/lib/db';
+import { experiment_calibration } from '@/lib/model/experiment_calibration';
+import { participant } from '@/lib/model/participant';
+import { eq, and } from 'drizzle-orm';
+import { auth } from '@/lib/auth';
+import { headers } from 'next/headers';
+
+/**
+ * Calculates dialect performance scores based on the participant's calibration answers.
+ * Score = (correctness × confidence) averaged per dialect
+ * Range: -1 to 1, where:
+ *   1 = perfect identification with full confidence
+ *   0 = neutral (correct but unsure, or incorrect and unsure)
+ *   -1 = completely wrong with full confidence (penalizes false confidence)
+ */
+export async function getDialectScoresFromCalibration(
+  experimentId: number
+): Promise<Record<string, number>> {
+  const session = await auth.api.getSession({ headers: await headers() });
+  if (!session) throw new Error('Nicht angemeldet');
+
+  // Fetch calibration items and participant's answers
+  const calibrationItems = await db
+    .select()
+    .from(experiment_calibration)
+    .where(eq(experiment_calibration.experimentId, experimentId));
+
+  const participantRecord = await db
+    .select()
+    .from(participant)
+    .where(
+      and(
+        eq(participant.experimentId, experimentId),
+        eq(participant.userId, session.user.id)
+      )
+    )
+    .limit(1);
+
+  // Calculate dialect scores based on calibration performance
+  const dialectScores: Record<string, number> = {};
+
+  if (participantRecord.length > 0 && participantRecord[0].calibrationAnswers) {
+    const calibrationAnswers = participantRecord[0].calibrationAnswers as Record<
+      number,
+      { dialectLabel: string; confidence: number }
+    >;
+
+    // For each dialect, calculate accuracy and average confidence
+    for (const item of calibrationItems) {
+      const answer = calibrationAnswers[item.id];
+      if (!answer) continue;
+
+      const isCorrect = answer.dialectLabel === item.dialectLabel ? 1 : -1;
+      const confidence = answer.confidence / 5; // Normalize to 0-1
+
+      // Score = correctness * confidence
+      // Correct answers: +confidence (0 to 1)
+      // Incorrect answers: -confidence (-1 to 0) - penalizes false confidence
+      const itemScore = isCorrect * confidence;
+
+      if (!dialectScores[item.dialectLabel]) {
+        dialectScores[item.dialectLabel] = 0;
+      }
+      dialectScores[item.dialectLabel] += itemScore;
+    }
+
+    // Average the scores by number of items per dialect
+    const dialectCounts: Record<string, number> = {};
+    for (const item of calibrationItems) {
+      dialectCounts[item.dialectLabel] = (dialectCounts[item.dialectLabel] || 0) + 1;
+    }
+    for (const dialect in dialectScores) {
+      dialectScores[dialect] = dialectScores[dialect] / (dialectCounts[dialect] || 1);
+    }
+  }
+
+  return dialectScores;
+}
+
+/**
+ * Checks if calibration is required and completed for the current user in an experiment.
+ * Returns true if calibration is completed or not required, false if calibration is pending.
+ */
+export async function isCalibrationDone(experimentId: number): Promise<boolean> {
+  console.log('Checking calibration status for experimentId:', experimentId);
+  const session = await auth.api.getSession({ headers: await headers() });
+  if (!session) throw new Error('Nicht angemeldet');
+
+  // Get calibration items for this experiment
+  const calibrationItems = await db
+    .select()
+    .from(experiment_calibration)
+    .where(eq(experiment_calibration.experimentId, experimentId));
+
+  // If no calibration items are defined, calibration is not required
+  if (calibrationItems.length === 0) {
+    return true;
+  }
+
+  // Check if participant exists for this user and experiment
+  const participantRecord = await db
+    .select()
+    .from(participant)
+    .where(
+      and(
+        eq(participant.experimentId, experimentId),
+        eq(participant.userId, session.user.id)
+      )
+    )
+    .limit(1);
+
+  // If no participant record exists, calibration is not done
+  if (participantRecord.length === 0) {
+    return false;
+  }
+
+  // Check if calibration answers are filled
+  const calibrationAnswers = participantRecord[0].calibrationAnswers as Record<number, { dialectLabel: string; confidence: number }> | null;
+  
+  if (!calibrationAnswers) {
+    return false;
+  }
+
+  // Verify that all calibration items have complete answers
+  for (const item of calibrationItems) {
+    const answer = calibrationAnswers[item.id];
+    
+    // Check if answer exists and has both required fields
+    if (!answer || !answer.dialectLabel || !answer.confidence) {
+      return false;
+    }
+  }
+
+  return true;
+}

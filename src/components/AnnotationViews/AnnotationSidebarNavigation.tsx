@@ -1,6 +1,6 @@
 'use client';
 
-import { DatasetEntryForAnnotation } from '@/lib/dialects';
+import { DatasetEntryForAnnotation, DIALECT_LABELS } from '@/lib/dialects';
 import { useEffect, useRef } from 'react';
 
 interface AnnotationSidebarNavigationProps {
@@ -77,7 +77,7 @@ export default function AnnotationSidebarNavigation({
                 />
                 {/* Entry number and filename */}
                 <span className="truncate">
-                  {`Sample ${index + 1}`}
+                  {`Sample ${index + 1} - ${DIALECT_LABELS[entry.dialect]}`}
                 </span>
               </div>
             </button>

@@ -9,11 +9,63 @@ import { auth } from '@/lib/auth';
 import { headers } from 'next/headers';
 import type { DatasetEntryForAnnotation } from '@/lib/dialects';
 import { experiment } from '@/lib/model/experiment';
-import { experiment_calibration } from '@/lib/model/experiment_calibration';
-import { participant } from '@/lib/model/participant';
+import { getDialectScoresFromCalibration, isCalibrationDone } from '@/app/actions/calibration-scoring';
+
+
+/**
+ * Sorts entries by weighted dialect score with fuzzy interleaving (deterministic round-robin).
+ * Higher-scoring dialects appear more frequently based on their relative performance.
+ */
+function sortEntriesByWeightedDialectScore(
+  entries: DatasetEntryForAnnotation[],
+  dialectScores: Record<string, number>
+): DatasetEntryForAnnotation[] {
+  const dialectGroups = new Map<string, DatasetEntryForAnnotation[]>();
+  
+  // Group entries by dialect
+  for (const entry of entries) {
+    if (!dialectGroups.has(entry.dialect)) {
+      dialectGroups.set(entry.dialect, []);
+    }
+    dialectGroups.get(entry.dialect)!.push(entry);
+  }
+
+  // Sort groups by dialect score (highest first)
+  const sortedGroups = Array.from(dialectGroups.entries())
+    .sort((a, b) => {
+      const aScore = dialectScores[a[0]] || 0;
+      const bScore = dialectScores[b[0]] || 0;
+      return bScore - aScore;
+    });
+
+  // Calculate weight multipliers based on scores (higher score = more samples per cycle)
+  const maxScore = Math.max(...sortedGroups.map(g => dialectScores[g[0]] || 0), 0.1);
+  const groupWeights = sortedGroups.map(([dialect, entries]) => {
+    const score = dialectScores[dialect] || 0;
+    const weight = Math.max(1, Math.round((score / maxScore) * 5)); // 1-5x multiplier based on score
+    return { dialect, entries, weight, index: 0 }; // Track current position in group
+  });
+
+  // Interleave entries with weighted round-robin for fuzzy distribution
+  const result: DatasetEntryForAnnotation[] = [];
+  const totalEntries = entries.length;
+  
+  while (result.length < totalEntries) {
+    for (const group of groupWeights) {
+      // Add 'weight' entries from this group (or until we run out)
+      for (let w = 0; w < group.weight && group.index < group.entries.length && result.length < totalEntries; w++) {
+        result.push(group.entries[group.index]);
+        group.index++;
+      }
+    }
+  }
+
+  return result;
+}
 
 /**
  * Returns unannotated entries for the given dataset and authenticated user.
+ * Sorts entries by calibration performance - dialects the user identified correctly and confidently appear first.
  */
 export async function getAnnotationEntries(experimentId: number): Promise<DatasetEntryForAnnotation[]> {
   const session = await auth.api.getSession({ headers: await headers() });
@@ -52,6 +104,9 @@ export async function getAnnotationEntries(experimentId: number): Promise<Datase
       )
     );
 
+  // Get dialect scores from calibration
+  const dialectScores = await getDialectScoresFromCalibration(experimentId);
+
   const mapped: DatasetEntryForAnnotation[] = allDatasetEntries.map((e) => ({
     id: e.id,
     externalId: e.externalId,
@@ -63,7 +118,7 @@ export async function getAnnotationEntries(experimentId: number): Promise<Datase
     annotation: annotationEntries.find((a) => a.datasetEntryId === e.id)?.rating || null,
   }));
 
-  return mapped;
+  return sortEntriesByWeightedDialectScore(mapped, dialectScores);
 }
 
 /**
@@ -133,62 +188,5 @@ export async function getAnnotationProgress(
     );
 
   return { total: allEntries.length, done: annotated.length };
-}
-
-/**
- * Checks if calibration is required and completed for the current user in an experiment.
- * Returns true if calibration is completed or not required, false if calibration is pending.
- */
-export async function isCalibrationDone(experimentId: number): Promise<boolean> {
-  console.log('Checking calibration status for experimentId:', experimentId);
-  const session = await auth.api.getSession({ headers: await headers() });
-  if (!session) throw new Error('Nicht angemeldet');
-
-  // Get calibration items for this experiment
-  const calibrationItems = await db
-    .select()
-    .from(experiment_calibration)
-    .where(eq(experiment_calibration.experimentId, experimentId));
-
-  // If no calibration items are defined, calibration is not required
-  if (calibrationItems.length === 0) {
-    return true;
-  }
-
-  // Check if participant exists for this user and experiment
-  const participantRecord = await db
-    .select()
-    .from(participant)
-    .where(
-      and(
-        eq(participant.experimentId, experimentId),
-        eq(participant.userId, session.user.id)
-      )
-    )
-    .limit(1);
-
-  // If no participant record exists, calibration is not done
-  if (participantRecord.length === 0) {
-    return false;
-  }
-
-  // Check if calibration answers are filled
-  const calibrationAnswers = participantRecord[0].calibrationAnswers as Record<number, { dialectLabel: string; confidence: number }> | null;
-  
-  if (!calibrationAnswers) {
-    return false;
-  }
-
-  // Verify that all calibration items have complete answers
-  for (const item of calibrationItems) {
-    const answer = calibrationAnswers[item.id];
-    
-    // Check if answer exists and has both required fields
-    if (!answer || !answer.dialectLabel || !answer.confidence) {
-      return false;
-    }
-  }
-
-  return true;
 }
 

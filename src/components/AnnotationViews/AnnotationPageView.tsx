@@ -1,12 +1,14 @@
 'use client';
 
-import { useState, useMemo, useTransition, JSX } from 'react';
+import { useState, useMemo, useTransition, JSX, useEffect } from 'react';
 import Link from 'next/link';
 import { saveAnnotations } from '@/app/actions/annotations';
+import { getDialectScoresFromCalibration } from '@/app/actions/calibration-scoring';
 import { DIALECT_LABELS, type DatasetEntryForAnnotation } from '@/lib/dialects';
 import SingleChoiceEntryView from './SingleChoiceEntryView';
 import SingleChoiceBinaryEntryView from './SingleChoiceBinaryEntryView';
 import AnnotationSidebarNavigation from './AnnotationSidebarNavigation';
+import CalibrationScoresModal from '@/components/CalibrationScoresModal';
 
 export interface EntryViewProps {
   entry: DatasetEntryForAnnotation;
@@ -29,6 +31,21 @@ export default function AnnotationPageView({
 }: AnnotationPageViewProps) {
 
   const [isPending, startTransition] = useTransition();
+  const [isCalibrationModalOpen, setIsCalibrationModalOpen] = useState(false);
+  const [dialectScores, setDialectScores] = useState<Record<string, number>>({});
+
+  // Load calibration scores on component mount
+  useEffect(() => {
+    const loadScores = async () => {
+      try {
+        const scores = await getDialectScoresFromCalibration(experimentId);
+        setDialectScores(scores);
+      } catch (error) {
+        console.error('Error loading calibration scores:', error);
+      }
+    };
+    loadScores();
+  }, [experimentId]);
 
   const getAnnotationConfig = (dialectLabel: string) => {
     switch (viewType) {
@@ -245,6 +262,15 @@ export default function AnnotationPageView({
                 >
                   ← Startseite
                 </Link>
+                {Object.keys(dialectScores).length > 0 && (
+                  <button
+                    onClick={() => setIsCalibrationModalOpen(true)}
+                    className="text-sm px-3 py-1.5 bg-purple-100 hover:bg-purple-200 text-purple-700 rounded-md transition-colors"
+                    title="Kalibrierungsergebnisse anzeigen"
+                  >
+                    📊 Kalibrierung
+                  </button>
+                )}
               </div>
               <div className="flex gap-2">
                 <button
@@ -275,6 +301,13 @@ export default function AnnotationPageView({
           </div>
         </div>
       </div>
+
+      {/* Calibration Scores Modal */}
+      <CalibrationScoresModal
+        isOpen={isCalibrationModalOpen}
+        onClose={() => setIsCalibrationModalOpen(false)}
+        dialectScores={dialectScores}
+      />
     </div>
   );
 }

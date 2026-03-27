@@ -3,8 +3,11 @@
 import { useState, useTransition, useMemo, useEffect } from 'react';
 import Link from 'next/link';
 import { saveCalibrationAnswers, getCalibrationAnswers } from '@/app/actions/calibration';
+import { getDialectScoresFromCalibration } from '@/app/actions/calibration-scoring';
 import { ExperimentCalibration } from '@/lib/model/experiment_calibration';
 import CalibrationEntryView from './CalibrationEntryView';
+import CalibrationScoresDisplay from '@/components/CalibrationScoresDisplay';
+import { DIALECT_LABELS } from '@/lib/dialects';
 
 interface CalibrationPageViewProps {
   entries: ExperimentCalibration[];
@@ -27,6 +30,7 @@ export default function CalibrationPageView({
   const [answers, setAnswers] = useState<CalibrationAnswers>({});
   const [isLoading, setIsLoading] = useState(true);
   const [currentIndex, setCurrentIndex] = useState(0);
+  const [dialectScores, setDialectScores] = useState<Record<string, number>>({});
 
   // Load existing answers on component mount
   useEffect(() => {
@@ -64,6 +68,21 @@ export default function CalibrationPageView({
   );
   const isComplete = entries.length > 0 && completeAnswers.length === entries.length;
   const progressPct = Math.round((completeAnswers.length / entries.length) * 100);
+
+  // Load dialect scores when calibration is complete
+  useEffect(() => {
+    if (isComplete && !isLoading) {
+      const loadScores = async () => {
+        try {
+          const scores = await getDialectScoresFromCalibration(experimentId);
+          setDialectScores(scores);
+        } catch (error) {
+          console.error('Error loading dialect scores:', error);
+        }
+      };
+      loadScores();
+    }
+  }, [isComplete, isLoading, experimentId]);
   
   // Check if current entry has complete answers
   const currentEntryComplete = currentEntry && 
@@ -142,40 +161,44 @@ export default function CalibrationPageView({
     });
   };
 
-  if (isLoading) {
-    return (
-      <div className="flex flex-col h-full bg-white">
-        <div className="flex-1 flex items-center justify-center">
-          <div className="text-center">
-            <div className="text-5xl mb-4">⏳</div>
-            <p className="text-gray-600">Laden Sie Ihre vorherigen Antworten...</p>
-          </div>
-        </div>
-      </div>
-    );
-  }
-
   if (isComplete) {
+    // Sort dialect scores from highest to lowest
+    const sortedScores = Object.entries(dialectScores).sort((a, b) => b[1] - a[1]);
+
     return (
       <div className="flex flex-col h-full bg-white">
         <div className="flex-1 flex flex-col overflow-hidden">
           <div className="flex-1 overflow-y-auto">
-            <div className="max-w-3xl mx-auto text-center py-20">
-              <div className="text-5xl mb-4">🎉</div>
-              <h1 className="text-3xl font-bold text-green-600 mb-3">
-                Kalibrierung abgeschlossen!
-              </h1>
-              <p className="text-gray-600 mb-8">
-                Sie haben alle Kalibrierungssamples bewertet. Vielen Dank! Sie können jetzt mit der
-                Annotation beginnen.
-              </p>
-              <button
-                onClick={handleCompleteCalibration}
-                disabled={isPending}
-                className="px-6 py-3 bg-blue-600 hover:bg-blue-700 disabled:bg-gray-400 text-white font-semibold rounded-lg transition-colors"
-              >
-                {isPending ? 'Wird gespeichert...' : 'Zur Annotation'}
-              </button>
+            <div className="max-w-3xl mx-auto py-20 px-4">
+              <div className="text-center mb-12">
+                <div className="text-5xl mb-4">🎉</div>
+                <h1 className="text-3xl font-bold text-green-600 mb-3">
+                  Kalibrierung abgeschlossen!
+                </h1>
+                <p className="text-gray-600 mb-8">
+                  Sie haben alle Kalibrierungssamples bewertet. Vielen Dank! Sie können jetzt mit der
+                  Annotation beginnen.
+                </p>
+              </div>
+
+              {/* Dialect Scores Summary */}
+              {sortedScores.length > 0 && (
+                <div className="mb-12">
+                <h2 className="text-lg font-semibold text-gray-900 mb-6">Ihre Kalibrierungsergebnisse</h2>
+
+                  <CalibrationScoresDisplay dialectScores={dialectScores} />
+                </div>
+              )}
+
+              <div className="text-center">
+                <button
+                  onClick={handleCompleteCalibration}
+                  disabled={isPending}
+                  className="px-6 py-3 bg-blue-600 hover:bg-blue-700 disabled:bg-gray-400 text-white font-semibold rounded-lg transition-colors"
+                >
+                  {isPending ? 'Wird gespeichert...' : 'Zur Annotation'}
+                </button>
+              </div>
             </div>
           </div>
         </div>

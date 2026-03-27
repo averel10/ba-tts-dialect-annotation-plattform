@@ -1,30 +1,41 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { getCalibrationEntries } from '@/app/actions/calibration';
+import { getCalibrationEntries, getCalibrationAnswers } from '@/app/actions/calibration';
 import { ExperimentCalibration } from '@/lib/model/experiment_calibration';
 import CalibrationPageView from './CalibrationPageView';
+import CalibrationInfoView from './CalibrationInfoView';
 
 interface CalibrationPhaseProps {
   experimentId: number;
 }
 
 export default function CalibrationPhase({ experimentId }: CalibrationPhaseProps) {
-  const [entries, setEntries] = useState<ExperimentCalibration[] | null>(null);
-  const [error, setError] = useState<string | null>(null);
+  const [entries, setEntries] = useState<ExperimentCalibration[]>([]);
+  const [showInfoPage, setShowInfoPage] = useState(true);
+  const [hasExistingAnswers, setHasExistingAnswers] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
     const load = async () => {
       try {
-        const result = await getCalibrationEntries(experimentId);
-        if (result.success && result.data) {
+        // Load calibration entries
+        const entriesResult = await getCalibrationEntries(experimentId);
+        if (entriesResult.success && entriesResult.data) {
           // Sort by order
-          const sorted = [...result.data].sort((a, b) => a.order - b.order);
+          const sorted = [...entriesResult.data].sort((a, b) => a.order - b.order);
           setEntries(sorted);
         }
+
+        // Load existing answers to check if user has seen the info page before
+        const answersResult = await getCalibrationAnswers(experimentId);
+        if (answersResult.success && answersResult.data) {
+          const answers = answersResult.data as Record<number, any> | null;
+          if (answers && Object.keys(answers).length > 0) {
+            setHasExistingAnswers(true);
+          }
+        }
       } catch (err) {
-        setError('Fehler beim Laden der Kalibrierungssamples');
         console.error(err);
       } finally {
         setIsLoading(false);
@@ -34,27 +45,28 @@ export default function CalibrationPhase({ experimentId }: CalibrationPhaseProps
     load();
   }, [experimentId]);
 
+  // Show loading view
   if (isLoading) {
     return (
-      <div className="max-w-2xl mx-auto py-16 text-center">
-        <div className="text-5xl mb-4">⏳</div>
-        <h1 className="text-2xl font-bold mb-4">Lädt Kalibrierungssamples...</h1>
-        <p className="text-gray-600">Bitte warten Sie...</p>
+      <div className="flex items-center justify-center min-h-screen">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto mb-4"></div>
+          <p className="text-gray-600">Loading calibration...</p>
+        </div>
       </div>
     );
   }
 
-  if (error || !entries || entries.length === 0) {
+  // Show info page first
+  if (showInfoPage) {
     return (
-      <div className="max-w-2xl mx-auto py-16 text-center">
-        <div className="text-5xl mb-4">❌</div>
-        <h1 className="text-2xl font-bold mb-4">Kalibrierung nicht verfügbar</h1>
-        <p className="text-gray-600 mb-8">
-          {error || 'Für dieses Experiment sind keine Kalibrierungssamples vorhanden.'}
-        </p>
-      </div>
+      <CalibrationInfoView
+        onContinue={() => setShowInfoPage(false)}
+        hasExistingAnswers={hasExistingAnswers}
+      />
     );
   }
 
+  // Show calibration page
   return <CalibrationPageView entries={entries} experimentId={experimentId} />;
 }
