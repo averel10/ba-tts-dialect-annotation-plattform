@@ -71,32 +71,8 @@ export default async function ExperimentPage({ params }: ExperimentPageProps) {
           <UploadCalibrationModal experimentId={experimentId} />
           <CalibrationListModal experimentId={experimentId} />
         </div>
-
         <div className="bg-white rounded-lg shadow p-6">
-          <h2 className="text-2xl font-bold mb-4">Experiment Details</h2>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div>
-              <p className="text-sm text-gray-600">Experiment ID</p>
-              <p className="text-lg font-semibold">{exp.id}</p>
-            </div>
-            <div>
-              <p className="text-sm text-gray-600">Dataset ID</p>
-              <p className="text-lg font-semibold">{exp.datasetId}</p>
-            </div>
-            <div>
-              <p className="text-sm text-gray-600">Created</p>
-              <p className="text-lg font-semibold">{new Date(exp.createdAt).toLocaleString()}</p>
-            </div>
-            <div>
-              <p className="text-sm text-gray-600">Last Updated</p>
-              <p className="text-lg font-semibold">{new Date(exp.updatedAt).toLocaleString()}</p>
-            </div>
-
-            <div>
-              <p className="text-sm text-gray-600">Annotation Tool</p>
-              <p className="text-lg font-semibold">{exp.annotationTool}</p>
-            </div>
-          </div>
+          Statistics
         </div>
       </div>
     </div>
