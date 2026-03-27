@@ -57,7 +57,7 @@ function sortEntriesByWeightedDialectScore(
 
   // Shuffle entries within each dialect group using userId as seed
   for (const [dialect, entries] of dialectGroups.entries()) {
-    dialectGroups.set(dialect, seededShuffle(entries, userId));
+    dialectGroups.set(dialect, seededShuffle(entries, userId+dialect));
   }
 
   // Sort groups by dialect score (highest first)
