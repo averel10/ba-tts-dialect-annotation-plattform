@@ -13,12 +13,37 @@ import { getDialectScoresFromCalibration, isCalibrationDone } from '@/app/action
 
 
 /**
+ * Deterministic random shuffle using userId as seed (Fisher-Yates).
+ */
+function seededShuffle<T>(array: T[], seed: string): T[] {
+  const arr = [...array];
+  let hash = 0;
+  for (let i = 0; i < seed.length; i++) {
+    hash = ((hash << 5) - hash) + seed.charCodeAt(i);
+    hash = hash & hash; // Convert to 32bit integer
+  }
+  
+  const prng = (index: number) => {
+    const x = Math.sin(hash + index) * 10000;
+    return x - Math.floor(x);
+  };
+
+  for (let i = arr.length - 1; i > 0; i--) {
+    const j = Math.floor(prng(i) * (i + 1));
+    [arr[i], arr[j]] = [arr[j], arr[i]];
+  }
+  return arr;
+}
+
+/**
  * Sorts entries by weighted dialect score with fuzzy interleaving (deterministic round-robin).
  * Higher-scoring dialects appear more frequently based on their relative performance.
+ * Within each dialect group, entries are shuffled deterministically using userId as seed.
  */
 function sortEntriesByWeightedDialectScore(
   entries: DatasetEntryForAnnotation[],
-  dialectScores: Record<string, number>
+  dialectScores: Record<string, number>,
+  userId: string
 ): DatasetEntryForAnnotation[] {
   const dialectGroups = new Map<string, DatasetEntryForAnnotation[]>();
   
@@ -28,6 +53,11 @@ function sortEntriesByWeightedDialectScore(
       dialectGroups.set(entry.dialect, []);
     }
     dialectGroups.get(entry.dialect)!.push(entry);
+  }
+
+  // Shuffle entries within each dialect group using userId as seed
+  for (const [dialect, entries] of dialectGroups.entries()) {
+    dialectGroups.set(dialect, seededShuffle(entries, userId));
   }
 
   // Sort groups by dialect score (highest first)
@@ -42,22 +72,32 @@ function sortEntriesByWeightedDialectScore(
   const maxScore = Math.max(...sortedGroups.map(g => dialectScores[g[0]] || 0), 0.1);
   const groupWeights = sortedGroups.map(([dialect, entries]) => {
     const score = dialectScores[dialect] || 0;
-    const weight = Math.max(1, Math.round((score / maxScore) * 5)); // 1-5x multiplier based on score
+    const weight = Math.max(1, Math.round((score / maxScore) * 8)); // 1-8x multiplier based on score
     return { dialect, entries, weight, index: 0 }; // Track current position in group
   });
 
   // Interleave entries with weighted round-robin for fuzzy distribution
   const result: DatasetEntryForAnnotation[] = [];
   const totalEntries = entries.length;
+  let round = 0;
   
   while (result.length < totalEntries) {
+    // Collect entries for this round
+    const roundEntries: DatasetEntryForAnnotation[] = [];
     for (const group of groupWeights) {
       // Add 'weight' entries from this group (or until we run out)
-      for (let w = 0; w < group.weight && group.index < group.entries.length && result.length < totalEntries; w++) {
-        result.push(group.entries[group.index]);
+      for (let w = 0; w < group.weight && group.index < group.entries.length && result.length + roundEntries.length < totalEntries; w++) {
+        roundEntries.push(group.entries[group.index]);
         group.index++;
       }
     }
+    
+    // Shuffle all entries collected in this round
+    const shuffleKey = userId + round.toString();
+    const shuffledRound = seededShuffle(roundEntries, shuffleKey);
+    result.push(...shuffledRound);
+    
+    round++;
   }
 
   return result;
@@ -118,7 +158,7 @@ export async function getAnnotationEntries(experimentId: number): Promise<Datase
     annotation: annotationEntries.find((a) => a.datasetEntryId === e.id)?.rating || null,
   }));
 
-  return sortEntriesByWeightedDialectScore(mapped, dialectScores);
+  return sortEntriesByWeightedDialectScore(mapped, dialectScores, session.user.id);
 }
 
 /**
