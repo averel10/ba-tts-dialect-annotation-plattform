@@ -4,8 +4,10 @@ import Link from 'next/link';
 import { auth } from '@/lib/auth';
 import { getAnnotationEntries} from '@/app/actions/annotations';
 import { isCalibrationDone } from '@/app/actions/calibration-scoring';
+import { isOnboardingDone } from '@/app/actions/onboarding';
 import { getExperimentById } from '@/app/actions/experiment';
 import AnnotationPageView from '@/components/AnnotationViews/AnnotationPageView';
+import OnboardingPhase from '@/components/OnboardingViews/OnboardingPhase';
 import CalibrationPhase from '@/components/CalibrationViews/CalibrationPhase';
 
 interface Props {
@@ -28,6 +30,12 @@ export default async function AnnotatePage({ params }: Props) {
         </Link>
       </div>
     );
+  }
+
+  // Check if onboarding is required and not yet done
+  const onboardingDone = await isOnboardingDone(experimentId);
+  if (!onboardingDone) {
+    return <OnboardingPhase experimentId={experimentId} />;
   }
 
   // Check if calibration is required and not yet done
