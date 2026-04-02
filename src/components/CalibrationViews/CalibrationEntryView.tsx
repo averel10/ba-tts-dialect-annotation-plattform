@@ -49,9 +49,15 @@ export default function CalibrationEntryView({
     setSelectedDialect(existingAnswer?.dialectLabel || null);
     setSelectedConfidence(existingAnswer?.confidence || null);
     setFullyPlayed(existingAnswer ? true : false);
-    // Scroll to top when entry changes with smooth animation
-    window.scrollTo({ top: 0, behavior: 'smooth' });
   }, [entry, existingAnswer]);
+
+  useEffect(() => {
+    // Scroll to top when entry changes
+    window.scrollTo({
+      top: 0,
+      behavior: 'smooth',
+    });
+  }, [entry.id]);
 
   return (
     <div

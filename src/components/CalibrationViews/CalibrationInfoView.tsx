@@ -1,5 +1,7 @@
 'use client';
 
+import { useEffect } from 'react';
+
 interface CalibrationInfoViewProps {
   onContinue: () => void;
   hasExistingAnswers: boolean;
@@ -9,6 +11,13 @@ export default function CalibrationInfoView({
   onContinue,
   hasExistingAnswers,
 }: CalibrationInfoViewProps) {
+  useEffect(() => {
+    window.scrollTo({
+      top: 0,
+      behavior: 'smooth',
+    });
+  }, []);
+
   const handleContinue = () => {
     onContinue();
   };

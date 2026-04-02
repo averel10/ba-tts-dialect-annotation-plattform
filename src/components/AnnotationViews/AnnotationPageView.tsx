@@ -34,6 +34,14 @@ export default function AnnotationPageView({
   const [isCalibrationModalOpen, setIsCalibrationModalOpen] = useState(false);
   const [dialectScores, setDialectScores] = useState<Record<string, number>>({});
 
+  // Scroll to top on component mount
+  useEffect(() => {
+    window.scrollTo({
+      top: 0,
+      behavior: 'smooth',
+    });
+  }, []);
+
   // Load calibration scores on component mount
   useEffect(() => {
     const loadScores = async () => {

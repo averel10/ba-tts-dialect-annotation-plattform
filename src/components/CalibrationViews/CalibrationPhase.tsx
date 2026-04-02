@@ -6,6 +6,13 @@ import { ExperimentCalibration } from '@/lib/model/experiment_calibration';
 import CalibrationPageView from './CalibrationPageView';
 import CalibrationInfoView from './CalibrationInfoView';
 
+const scrollToTop = () => {
+  window.scrollTo({
+    top: 0,
+    behavior: 'smooth',
+  });
+};
+
 interface CalibrationPhaseProps {
   experimentId: number;
 }
@@ -61,12 +68,14 @@ export default function CalibrationPhase({ experimentId }: CalibrationPhaseProps
   if (showInfoPage) {
     return (
       <CalibrationInfoView
-        onContinue={() => setShowInfoPage(false)}
+        onContinue={() => {
+          scrollToTop();
+          setShowInfoPage(false);
+        }}
         hasExistingAnswers={hasExistingAnswers}
       />
     );
   }
 
-  // Show calibration page
   return <CalibrationPageView entries={entries} experimentId={experimentId} />;
 }
