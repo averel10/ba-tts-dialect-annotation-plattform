@@ -1,0 +1,1 @@
+ALTER TABLE `participant` ADD `onboarding_answers` text;

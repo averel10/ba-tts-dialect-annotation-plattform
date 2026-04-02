@@ -10,6 +10,7 @@ export const participant = sqliteTable(
     experimentId: integer('experiment_id').references(() => experiment.id),
     userId: text('user_id').notNull(),
     calibrationAnswers: text('calibration_answers', { mode: 'json' }), 
+    onboardingAnswers: text('onboarding_answers', { mode: 'json' }),
     createdAt: integer('created_at', { mode: 'timestamp' })
       .notNull()
       .default(sql`(unixepoch())`),

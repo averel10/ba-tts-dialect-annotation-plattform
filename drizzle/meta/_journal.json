@@ -78,6 +78,13 @@
       "when": 1774589588224,
       "tag": "0010_hard_hairball",
       "breakpoints": true
+    },
+    {
+      "idx": 11,
+      "version": "6",
+      "when": 1775106689164,
+      "tag": "0011_loving_rumiko_fujikawa",
+      "breakpoints": true
     }
   ]
 }
