@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useTransition } from 'react';
+import { useEffect, useState, useTransition } from 'react';
 import { useRouter } from 'next/navigation';
 import { saveOnboardingAnswers } from '@/app/actions/onboarding';
 import { DIALECT_LABELS_WITHOUT_DE } from '@/lib/dialects';
@@ -44,6 +44,13 @@ export default function OnboardingFormView({ experimentId }: OnboardingFormViewP
     dialectQualities: initializeDialectQualities()
   });
   const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    window.scrollTo({
+      top: 0,
+      behavior: 'smooth',
+    });
+  }, [currentStep]);
 
   const handleChange = (field: keyof FormData, value: string) => {
     setFormData((prev) => ({

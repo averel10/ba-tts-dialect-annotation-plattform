@@ -5,6 +5,13 @@ import { getOnboardingAnswers } from '@/app/actions/onboarding';
 import OnboardingInfoView from './OnboardingInfoView';
 import OnboardingFormView from './OnboardingFormView';
 
+const scrollToTop = () => {
+  window.scrollTo({
+    top: 0,
+    behavior: 'smooth',
+  });
+};
+
 interface OnboardingPhaseProps {
   experimentId: number;
 }
@@ -49,14 +56,18 @@ export default function OnboardingPhase({ experimentId }: OnboardingPhaseProps) 
 
   // Show info page first
   if (showInfoPage) {
+    
     return (
       <OnboardingInfoView
-        onContinue={() => setShowInfoPage(false)}
+        onContinue={() => {
+          scrollToTop();
+          setShowInfoPage(false);
+        }}
         hasExistingAnswers={hasExistingAnswers}
       />
     );
   }
 
-  // Show onboarding form page
+  
   return <OnboardingFormView experimentId={experimentId} />;
 }

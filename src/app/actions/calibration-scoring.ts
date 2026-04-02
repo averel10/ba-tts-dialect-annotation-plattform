@@ -2,6 +2,7 @@
 
 import db from '@/lib/db';
 import { experiment_calibration } from '@/lib/model/experiment_calibration';
+import { experiment } from '@/lib/model/experiment';
 import { participant } from '@/lib/model/participant';
 import { eq, and } from 'drizzle-orm';
 import { auth } from '@/lib/auth';
@@ -87,6 +88,22 @@ export async function isCalibrationDone(experimentId: number): Promise<boolean> 
   console.log('Checking calibration status for experimentId:', experimentId);
   const session = await auth.api.getSession({ headers: await headers() });
   if (!session) throw new Error('Nicht angemeldet');
+
+  // Check if calibration is enabled for this experiment
+  const exp = await db
+    .select()
+    .from(experiment)
+    .where(eq(experiment.id, experimentId))
+    .limit(1);
+
+  if (exp.length === 0) {
+    throw new Error('Experiment not found');
+  }
+
+  // If calibration is not enabled, consider it done
+  if (!exp[0].calibrationEnabled) {
+    return true;
+  }
 
   // Get calibration items for this experiment
   const calibrationItems = await db

@@ -14,13 +14,17 @@ export async function createExperiment({
   description,
   datasetId,
   annotationTool,
-  published = false
+  published = false,
+  onboardingEnabled = false,
+  calibrationEnabled = false
 }: { 
   name: string; 
   description?: string;
   datasetId: number;
   annotationTool?: string;
   published?: boolean;
+  onboardingEnabled?: boolean;
+  calibrationEnabled?: boolean;
 }) {
   const result = await requireAdmin();
   if (!result.authenticated || !result.admin) {
@@ -38,6 +42,8 @@ export async function createExperiment({
       datasetId,
       annotationTool: annotationTool?.trim(),
       published,
+      onboardingEnabled,
+      calibrationEnabled,
     });
     revalidatePath('/admin/experiments');
     return result;
@@ -49,7 +55,7 @@ export async function createExperiment({
 
 export async function updateExperiment(
   id: number,
-  updates: { name?: string; description?: string, annotationTool?: string, published?: boolean }
+  updates: { name?: string; description?: string, annotationTool?: string, published?: boolean, onboardingEnabled?: boolean, calibrationEnabled?: boolean }
 ) {
   const result = await requireAdmin();
   if (!result.authenticated || !result.admin) {
@@ -73,6 +79,12 @@ export async function updateExperiment(
     }
     if (updates.published !== undefined) {
       updateData.published = updates.published;
+    }
+    if (updates.onboardingEnabled !== undefined) {
+      updateData.onboardingEnabled = updates.onboardingEnabled;
+    }
+    if (updates.calibrationEnabled !== undefined) {
+      updateData.calibrationEnabled = updates.calibrationEnabled;
     }
     updateData.updatedAt = new Date();
 

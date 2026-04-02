@@ -15,6 +15,8 @@ export default function CreateExperimentModal({ datasetId }: CreateExperimentMod
   const [name, setName] = useState('');
   const [description, setDescription] = useState('');
   const [selectedDatasetId, setSelectedDatasetId] = useState<number | ''>(datasetId || '');
+  const [onboardingEnabled, setOnboardingEnabled] = useState(false);
+  const [calibrationEnabled, setCalibrationEnabled] = useState(false);
   const [loading, setLoading] = useState(false);
   const [datasetsLoading, setDatasetsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -61,11 +63,15 @@ export default function CreateExperimentModal({ datasetId }: CreateExperimentMod
       await createExperiment({ 
         name: name.trim(),
         description: description.trim() || undefined,
-        datasetId: Number(selectedDatasetId)
+        datasetId: Number(selectedDatasetId),
+        onboardingEnabled,
+        calibrationEnabled
       });
       setName('');
       setDescription('');
       setSelectedDatasetId(datasetId || '');
+      setOnboardingEnabled(false);
+      setCalibrationEnabled(false);
       setSuccess(true);
       setTimeout(() => {
         setSuccess(false);
@@ -86,6 +92,8 @@ export default function CreateExperimentModal({ datasetId }: CreateExperimentMod
       setName('');
       setDescription('');
       setSelectedDatasetId(datasetId || '');
+      setOnboardingEnabled(false);
+      setCalibrationEnabled(false);
       setError(null);
       setSuccess(false);
     }
@@ -187,6 +195,34 @@ export default function CreateExperimentModal({ datasetId }: CreateExperimentMod
               <p className="text-xs text-gray-500 mt-1">Select the dataset for this experiment</p>
             </div>
           )}
+
+          <div className="flex items-center">
+            <input
+              id="onboardingEnabled"
+              type="checkbox"
+              checked={onboardingEnabled}
+              onChange={(e) => setOnboardingEnabled(e.target.checked)}
+              className="w-4 h-4 text-blue-500 rounded focus:ring-2 focus:ring-blue-500"
+              disabled={loading}
+            />
+            <label htmlFor="onboardingEnabled" className="ml-2 text-sm font-medium text-gray-700">
+              Enable Onboarding
+            </label>
+          </div>
+
+          <div className="flex items-center">
+            <input
+              id="calibrationEnabled"
+              type="checkbox"
+              checked={calibrationEnabled}
+              onChange={(e) => setCalibrationEnabled(e.target.checked)}
+              className="w-4 h-4 text-blue-500 rounded focus:ring-2 focus:ring-blue-500"
+              disabled={loading}
+            />
+            <label htmlFor="calibrationEnabled" className="ml-2 text-sm font-medium text-gray-700">
+              Enable Calibration
+            </label>
+          </div>
 
           {error && (
             <div className="p-3 bg-red-100 border border-red-400 text-red-700 rounded text-sm">

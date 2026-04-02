@@ -22,6 +22,8 @@ export default function EditableExperimentHeader({
   const [description, setDescription] = useState(experiment.description || '');
   const [annotationTool, setAnnotationTool] = useState(experiment.annotationTool || 'quality-choice');
   const [published, setPublished] = useState(experiment.published || false);
+  const [onboardingEnabled, setOnboardingEnabled] = useState(experiment.onboardingEnabled || false);
+  const [calibrationEnabled, setCalibrationEnabled] = useState(experiment.calibrationEnabled || false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -39,7 +41,9 @@ export default function EditableExperimentHeader({
         name: name.trim(),
         description: description.trim() || undefined,
         annotationTool: annotationTool,
-        published: published
+        published: published,
+        onboardingEnabled: onboardingEnabled,
+        calibrationEnabled: calibrationEnabled
       });
       setIsEditing(false);
     } catch (err) {
@@ -54,6 +58,8 @@ export default function EditableExperimentHeader({
     setAnnotationTool(experiment.annotationTool || 'quality-choice');
     setPublished(experiment.published || false);
     setDescription(experiment.description || '');
+    setOnboardingEnabled(experiment.onboardingEnabled || false);
+    setCalibrationEnabled(experiment.calibrationEnabled || false);
     setError(null);
     setIsEditing(false);
   }
@@ -117,6 +123,34 @@ export default function EditableExperimentHeader({
             </label>
           </div>
 
+          <div className="flex items-center mb-4">
+            <input
+              id="onboardingEnabled"
+              type="checkbox"
+              checked={onboardingEnabled}
+              onChange={(e) => setOnboardingEnabled(e.target.checked)}
+              className="w-4 h-4 text-blue-500 rounded focus:ring-2 focus:ring-blue-500"
+              disabled={loading}
+            />
+            <label htmlFor="onboardingEnabled" className="ml-2 text-sm font-medium text-gray-700">
+              Enable Onboarding
+            </label>
+          </div>
+
+          <div className="flex items-center mb-4">
+            <input
+              id="calibrationEnabled"
+              type="checkbox"
+              checked={calibrationEnabled}
+              onChange={(e) => setCalibrationEnabled(e.target.checked)}
+              className="w-4 h-4 text-blue-500 rounded focus:ring-2 focus:ring-blue-500"
+              disabled={loading}
+            />
+            <label htmlFor="calibrationEnabled" className="ml-2 text-sm font-medium text-gray-700">
+              Enable Calibration
+            </label>
+          </div>
+
           {error && (
             <div className="mb-4 p-3 bg-red-100 border border-red-400 text-red-700 rounded text-sm">
               {error}
@@ -152,6 +186,9 @@ export default function EditableExperimentHeader({
           </p>
           <p className="text-sm text-gray-500 mb-4">
             Status: {experiment.published ? 'Published' : 'Draft'}
+          </p>
+          <p className="text-sm text-gray-500 mb-4">
+            Onboarding: {experiment.onboardingEnabled ? 'Enabled' : 'Disabled'} | Calibration: {experiment.calibrationEnabled ? 'Enabled' : 'Disabled'}
           </p>
           <p className="text-sm text-gray-500 mb-4">
             Created: {new Date(experiment.createdAt).toLocaleDateString()} | 

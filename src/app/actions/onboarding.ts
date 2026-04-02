@@ -2,6 +2,7 @@
 
 import db from '@/lib/db';
 import { participant } from '@/lib/model/participant';
+import { experiment } from '@/lib/model/experiment';
 import { eq, and } from 'drizzle-orm';
 import { auth } from '@/lib/auth';
 import { headers } from 'next/headers';
@@ -11,6 +12,22 @@ export async function isOnboardingDone(experimentId: number): Promise<boolean> {
   if (!session) throw new Error('Nicht angemeldet');
 
   try {
+    // Check if onboarding is enabled for this experiment
+    const exp = await db
+      .select()
+      .from(experiment)
+      .where(eq(experiment.id, experimentId))
+      .limit(1);
+
+    if (exp.length === 0) {
+      throw new Error('Experiment not found');
+    }
+
+    // If onboarding is not enabled, consider it done
+    if (!exp[0].onboardingEnabled) {
+      return true;
+    }
+
     const participantRecord = await db
       .select()
       .from(participant)

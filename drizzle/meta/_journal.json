@@ -85,6 +85,13 @@
       "when": 1775106689164,
       "tag": "0011_loving_rumiko_fujikawa",
       "breakpoints": true
+    },
+    {
+      "idx": 12,
+      "version": "6",
+      "when": 1775109973706,
+      "tag": "0012_optimal_kabuki",
+      "breakpoints": true
     }
   ]
 }

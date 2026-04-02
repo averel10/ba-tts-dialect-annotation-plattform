@@ -11,6 +11,8 @@ export const experiment = sqliteTable(
     published: integer('published', { mode: 'boolean' }).notNull().default(false), // 0 = draft, 1 = published
     description: text('description'),
     annotationTool: text('annotation_tool'),
+    onboardingEnabled: integer('onboarding_enabled', { mode: 'boolean' }).notNull().default(false),
+    calibrationEnabled: integer('calibration_enabled', { mode: 'boolean' }).notNull().default(false),
     datasetId: integer('dataset_id')
       .notNull()
       .references(() => dataset.id),
