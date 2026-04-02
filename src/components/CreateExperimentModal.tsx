@@ -6,6 +6,12 @@ import Modal from '@/components/Modal';
 import { Dataset } from '@/lib/model/dataset';
 import { getAllDatasets } from '@/app/actions/datasets';
 
+const ANNOTATION_TOOLS = [
+  { value: 'quality-choice', label: 'Quality Choice' },
+  { value: 'binary', label: 'Binary' },
+  // Future tools can be added here
+];
+
 interface CreateExperimentModalProps {
   datasetId?: number;
 }
@@ -15,6 +21,7 @@ export default function CreateExperimentModal({ datasetId }: CreateExperimentMod
   const [name, setName] = useState('');
   const [description, setDescription] = useState('');
   const [selectedDatasetId, setSelectedDatasetId] = useState<number | ''>(datasetId || '');
+  const [annotationTool, setAnnotationTool] = useState('quality-choice');
   const [onboardingEnabled, setOnboardingEnabled] = useState(false);
   const [calibrationEnabled, setCalibrationEnabled] = useState(false);
   const [loading, setLoading] = useState(false);
@@ -64,12 +71,14 @@ export default function CreateExperimentModal({ datasetId }: CreateExperimentMod
         name: name.trim(),
         description: description.trim() || undefined,
         datasetId: Number(selectedDatasetId),
+        annotationTool,
         onboardingEnabled,
         calibrationEnabled
       });
       setName('');
       setDescription('');
       setSelectedDatasetId(datasetId || '');
+      setAnnotationTool('quality-choice');
       setOnboardingEnabled(false);
       setCalibrationEnabled(false);
       setSuccess(true);
@@ -92,6 +101,7 @@ export default function CreateExperimentModal({ datasetId }: CreateExperimentMod
       setName('');
       setDescription('');
       setSelectedDatasetId(datasetId || '');
+      setAnnotationTool('quality-choice');
       setOnboardingEnabled(false);
       setCalibrationEnabled(false);
       setError(null);
@@ -160,6 +170,25 @@ export default function CreateExperimentModal({ datasetId }: CreateExperimentMod
               rows={3}
               disabled={loading}
             />
+          </div>
+
+          <div>
+            <label htmlFor="annotationTool" className="block text-sm font-medium mb-2">
+              Annotation Tool
+            </label>
+            <select
+              id="annotationTool"
+              value={annotationTool}
+              onChange={(e) => setAnnotationTool(e.target.value)}
+              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+              disabled={loading}
+            >
+              {ANNOTATION_TOOLS.map((tool) => (
+                <option key={tool.value} value={tool.value}>
+                  {tool.label}
+                </option>
+              ))}
+            </select>
           </div>
 
           {!datasetId && (

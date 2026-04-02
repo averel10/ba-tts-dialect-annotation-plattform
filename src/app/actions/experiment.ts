@@ -2,6 +2,7 @@
 
 import db from '@/lib/db';
 import { experiment } from '@/lib/model/experiment';
+import { experiment_calibration } from '@/lib/model/experiment_calibration';
 import { annotation } from '@/lib/model/annotation';
 import { participant } from '@/lib/model/participant';
 import { and, eq } from 'drizzle-orm';
@@ -108,6 +109,9 @@ export async function deleteExperiment(id: number) {
   }
 
   try {
+    // Delete all experiment_calibration records first
+    await db.delete(experiment_calibration).where(eq(experiment_calibration.experimentId, id));
+    
     // Delete the experiment
     await db.delete(experiment).where(eq(experiment.id, id));
 
