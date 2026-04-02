@@ -26,17 +26,13 @@ export default function CalibrationScoresDisplay({
             <div key={dialect}>
               <div className="flex justify-between items-center mb-2">
                 <span className="font-medium text-gray-800">{DIALECT_LABELS[dialect]}</span>
-                <span className={`text-sm font-semibold ${
-                  isGood ? 'text-green-600' : isFair ? 'text-yellow-600' : 'text-red-600'
-                }`}>
+                <span className={`text-sm font-semibold text-blue-600`}>
                   {(score * 100).toFixed(0)}%
                 </span>
               </div>
               <div className="w-full bg-gray-200 rounded-full h-2 overflow-hidden">
                 <div
-                  className={`h-full rounded-full transition-all duration-300 ${
-                    isGood ? 'bg-green-500' : isFair ? 'bg-yellow-500' : 'bg-red-500'
-                  }`}
+                  className={`h-full rounded-full transition-all duration-300 bg-blue-500`}
                   style={{ width: `${Math.max(0, Math.min(100, percentage))}%` }}
                 />
               </div>
