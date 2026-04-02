@@ -166,7 +166,7 @@ export default function OnboardingFormView({ experimentId }: OnboardingFormViewP
 
   return (
     <div className="flex flex-col h-full bg-white">
-      <div className="flex-1 flex items-center justify-center px-4 py-8">
+      <div className="flex-1 flex items-center justify-center px-4">
         <div className="max-w-2xl w-full">
           {/* Progress Bar */}
           <div className="mb-8">
