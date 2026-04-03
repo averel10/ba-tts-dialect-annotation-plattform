@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import WaveformPlayer from '../WaveformPlayer';
-import { DIALECT_LABELS, DIALECT_LABELS_WITHOUT_DE } from '@/lib/dialects';
+import { DIALECT_LABELS_WITHOUT_DE } from '@/lib/dialects';
 import { ExperimentCalibration } from '@/lib/model/experiment_calibration';
 
 interface CalibrationEntryViewProps {
@@ -32,7 +32,7 @@ export default function CalibrationEntryView({
   const [selectedConfidence, setSelectedConfidence] = useState<number | null>(existingAnswer?.confidence || null);
   const [fullyPlayed, setFullyPlayed] = useState<boolean>(existingAnswer ? true : false);
 
-  const audioSrc = entry.file;
+  const audioSrc = "/public/" + entry.file;
 
   const handleDialectChange = async (dialect: string) => {
     setSelectedDialect(dialect);
