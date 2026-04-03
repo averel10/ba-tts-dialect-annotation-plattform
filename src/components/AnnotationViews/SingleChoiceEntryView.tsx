@@ -60,6 +60,7 @@ export default function SingleChoiceEntryView({
       <WaveformPlayer
         src={audioSrc}
         onFullyPlayed={() => setFullyPlayed(true)}
+        playMode='pause'
       />
 
       {/* Must-listen hint */}

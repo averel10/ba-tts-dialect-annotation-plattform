@@ -13,6 +13,7 @@ interface WaveformPlayerProps {
   
   // Display options
   showWaveform?: boolean; // defaults to true; if false, shows simple player button
+  playMode?: 'pause' | 'stop'; // defaults to 'pause'; determines play/pause vs play/stop behavior
 }
 
 const BAR_COUNT = 120;
@@ -22,6 +23,7 @@ export default function WaveformPlayer({
   onPlay,
   onFullyPlayed,
   showWaveform = true,
+  playMode = 'pause',
 }: WaveformPlayerProps) {
   const { currentAudioId, setCurrentAudio } = useAudio();
   
@@ -74,11 +76,14 @@ export default function WaveformPlayer({
     if (!audio) return;
     setCurrentAudio(playerId);
     onPlay?.();
-    audio.currentTime = 0;
+    // Only reset to start if in stop mode; in pause mode, resume from paused position
+    if (playMode === 'stop') {
+      audio.currentTime = 0;
+    }
     audio.play();
     setIsPlaying(true);
     rafRef.current = requestAnimationFrame(tick);
-  }, [playerId, onPlay, tick]);
+  }, [playerId, onPlay, tick, playMode]);
 
   const handlePause = useCallback(() => {
     const audio = audioRef.current;
@@ -190,19 +195,25 @@ export default function WaveformPlayer({
           onEnded={handleEnded}
         />
         <button
-          onClick={isPlaying ? handleStop : handlePlay}
+          onClick={isPlaying ? (playMode === 'stop' ? handleStop : handlePause) : handlePlay}
           className={`inline-flex items-center justify-center w-8 h-8 rounded-full transition-colors ${
             isPlaying
               ? 'bg-red-500 hover:bg-red-600 text-white'
               : 'bg-blue-500 hover:bg-blue-600 text-white'
           }`}
-          title={isPlaying ? 'Stop' : 'Play'}
+          title={isPlaying ? (playMode === 'stop' ? 'Stop' : 'Pause') : 'Play'}
         >
           {isPlaying ? (
-            <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
-              <rect x="6" y="4" width="2" height="12" />
-              <rect x="12" y="4" width="2" height="12" />
-            </svg>
+            playMode === 'stop' ? (
+              <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                <rect x="5" y="5" width="10" height="10" />
+              </svg>
+            ) : (
+              <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                <rect x="6" y="4" width="2" height="12" />
+                <rect x="12" y="4" width="2" height="12" />
+              </svg>
+            )
           ) : (
             <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
               <path d="M6.3 2.841A1.5 1.5 0 004 4.11v11.78a1.5 1.5 0 002.3 1.269l9.344-5.89a1.5 1.5 0 000-2.538L6.3 2.84z" />
@@ -226,19 +237,25 @@ export default function WaveformPlayer({
       <div className="flex items-center gap-3">
         {/* Play / Pause button */}
         <button
-          onClick={isPlaying ? handlePause : handlePlay}
+          onClick={isPlaying ? (playMode === 'stop' ? handleStop : handlePause) : handlePlay}
           className={`flex-shrink-0 inline-flex items-center justify-center w-9 h-9 rounded-full transition-colors ${
             isPlaying
               ? 'bg-red-500 hover:bg-red-600 text-white'
               : 'bg-blue-500 hover:bg-blue-600 text-white'
           }`}
-          title={isPlaying ? 'Pause' : 'Abspielen'}
+          title={isPlaying ? (playMode === 'stop' ? 'Stop' : 'Pause') : 'Abspielen'}
         >
           {isPlaying ? (
-            <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
-              <rect x="5" y="4" width="3" height="12" rx="1" />
-              <rect x="12" y="4" width="3" height="12" rx="1" />
-            </svg>
+            playMode === 'stop' ? (
+              <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                <rect x="5" y="5" width="10" height="10" />
+              </svg>
+            ) : (
+              <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                <rect x="5" y="4" width="3" height="12" rx="1" />
+                <rect x="12" y="4" width="3" height="12" rx="1" />
+              </svg>
+            )
           ) : (
             <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
               <path d="M6.3 2.841A1.5 1.5 0 004 4.11v11.78a1.5 1.5 0 002.3 1.269l9.344-5.89a1.5 1.5 0 000-2.538L6.3 2.84z" />

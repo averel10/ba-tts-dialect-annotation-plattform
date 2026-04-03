@@ -517,7 +517,7 @@ export default function DatasetEntriesList({
                   {(() => {
                     const fileExtension = entry.fileName.substring(entry.fileName.lastIndexOf('.'));
                     const src = `/public/datasets/${datasetId}/${entry.externalId}${fileExtension}`;
-                    return <WaveformPlayer src={src} showWaveform={false} />;
+                    return <WaveformPlayer src={src} showWaveform={false} playMode='stop' />;
                   })()}
                 </td>
                 <td className="py-3 px-4">

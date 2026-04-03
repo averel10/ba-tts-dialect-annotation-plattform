@@ -3,7 +3,6 @@
 import { useEffect, useState } from 'react';
 import { getAnnotationDistribution, DistributionDimension, DistributionData, DistributionItem, getAnnotatedSamples, AnnotatedSample } from '@/app/actions/annotation-stats';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
-import WaveformPlayer from './WaveformPlayer';
 
 interface AnnotationDistributionProps {
   experimentId: number;

@@ -58,8 +58,8 @@ export default function SingleChoiceBinaryEntryView({
       {/* Waveform player */}
       <WaveformPlayer
         src={audioSrc}
-        durationMs={entry.durationMs}
         onFullyPlayed={() => setFullyPlayed(true)}
+        playMode='pause'
       />
 
       {/* Must-listen hint */}

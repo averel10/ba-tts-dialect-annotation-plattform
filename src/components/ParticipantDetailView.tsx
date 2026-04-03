@@ -168,7 +168,7 @@ export default function ParticipantDetailView({ participant, experimentId }: Par
                   {(() => {
                     const fileExtension = selectedAnnotation.fileName.substring(selectedAnnotation.fileName.lastIndexOf('.'));
                     const src = `/public/datasets/${selectedAnnotation.datasetId}/${selectedAnnotation.externalId}${fileExtension}`;
-                    return <WaveformPlayer src={src} showWaveform={false} />;
+                    return <WaveformPlayer src={src} showWaveform={false} playMode='stop' />;
                   })()}
                 </div>
               </div>
