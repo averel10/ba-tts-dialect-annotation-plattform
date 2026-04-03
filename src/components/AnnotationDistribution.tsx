@@ -217,7 +217,6 @@ export default function AnnotationDistribution({ experimentId }: AnnotationDistr
                   dataKey="percentage" 
                   fill="#10b981"
                   name="Percentage (%)"
-                  barCategoryGap="5%"
                 />
               </BarChart>
             </ResponsiveContainer>
