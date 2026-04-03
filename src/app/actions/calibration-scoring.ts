@@ -89,6 +89,36 @@ export async function isCalibrationDone(experimentId: number): Promise<boolean> 
   const session = await auth.api.getSession({ headers: await headers() });
   if (!session) throw new Error('Nicht angemeldet');
 
+  // Check if participant exists for this user and experiment
+  const participantRecord = await db
+    .select()
+    .from(participant)
+    .where(
+      and(
+        eq(participant.experimentId, experimentId),
+        eq(participant.userId, session.user.id)
+      )
+    )
+    .limit(1);
+
+  // If no participant record exists, calibration is not done
+  if (participantRecord.length === 0) {
+    return false;
+  }
+
+  // Use the shared validation logic
+  return isParticipantCalibrationDone(experimentId, participantRecord[0]);
+}
+
+/**
+ * Checks if a participant has completed calibration for an experiment.
+ * This is a helper function for admin statistics that validates all calibration answers are complete.
+ * Returns true if calibration is completed for this participant.
+ */
+export async function isParticipantCalibrationDone(
+  experimentId: number,
+  participantRecord: typeof participant.$inferSelect
+): Promise<boolean> {
   // Check if calibration is enabled for this experiment
   const exp = await db
     .select()
@@ -116,26 +146,12 @@ export async function isCalibrationDone(experimentId: number): Promise<boolean> 
     return true;
   }
 
-  // Check if participant exists for this user and experiment
-  const participantRecord = await db
-    .select()
-    .from(participant)
-    .where(
-      and(
-        eq(participant.experimentId, experimentId),
-        eq(participant.userId, session.user.id)
-      )
-    )
-    .limit(1);
-
-  // If no participant record exists, calibration is not done
-  if (participantRecord.length === 0) {
-    return false;
-  }
-
   // Check if calibration answers are filled
-  const calibrationAnswers = participantRecord[0].calibrationAnswers as Record<number, { dialectLabel: string; confidence: number }> | null;
-  
+  const calibrationAnswers = participantRecord.calibrationAnswers as Record<
+    number,
+    { dialectLabel: string; confidence: number }
+  > | null;
+
   if (!calibrationAnswers) {
     return false;
   }
@@ -143,7 +159,7 @@ export async function isCalibrationDone(experimentId: number): Promise<boolean> 
   // Verify that all calibration items have complete answers
   for (const item of calibrationItems) {
     const answer = calibrationAnswers[item.id];
-    
+
     // Check if answer exists and has both required fields
     if (!answer || !answer.dialectLabel || !answer.confidence) {
       return false;

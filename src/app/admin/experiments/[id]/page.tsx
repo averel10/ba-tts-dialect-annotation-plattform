@@ -7,6 +7,7 @@ import DeleteExperimentButton from '@/components/DeleteExperimentButton';
 import ClearExperimentDataButton from '@/components/ClearExperimentDataButton';
 import UploadCalibrationModal from '@/components/UploadCalibrationModal';
 import CalibrationListModal from '@/components/CalibrationListModal';
+import ExperimentStatistics from '@/components/ExperimentStatistics';
 import { requireAdmin } from '@/lib/auth';
 import { redirect } from 'next/navigation';
 
@@ -73,9 +74,12 @@ export default async function ExperimentPage({ params }: ExperimentPageProps) {
           <UploadCalibrationModal experimentId={experimentId} />
           <CalibrationListModal experimentId={experimentId} />
         </div>
-        <div className="bg-white rounded-lg shadow p-6">
-          Statistics
-        </div>
+        
+        <ExperimentStatistics 
+          experimentId={experimentId}
+          onboardingEnabled={exp.onboardingEnabled}
+          calibrationEnabled={exp.calibrationEnabled}
+        />
       </div>
     </div>
   );
