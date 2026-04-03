@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useTransition, useMemo, useEffect } from 'react';
-import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import { saveCalibrationAnswers, getCalibrationAnswers } from '@/app/actions/calibration';
 import { getDialectScoresFromCalibration } from '@/app/actions/calibration-scoring';
 import { ExperimentCalibration } from '@/lib/model/experiment_calibration';
@@ -26,11 +26,13 @@ export default function CalibrationPageView({
   entries,
   experimentId,
 }: CalibrationPageViewProps) {
+  const router = useRouter();
   const [isPending, startTransition] = useTransition();
   const [answers, setAnswers] = useState<CalibrationAnswers>({});
   const [isLoading, setIsLoading] = useState(true);
   const [currentIndex, setCurrentIndex] = useState(0);
   const [dialectScores, setDialectScores] = useState<Record<string, number>>({});
+  const [isCompleting, setIsCompleting] = useState(false);
 
   // Load existing answers on component mount
   useEffect(() => {
@@ -154,11 +156,16 @@ export default function CalibrationPageView({
   };
 
   const handleCompleteCalibration = async () => {
-    startTransition(async () => {
-      // All answers are already saved, just trigger a page reload or redirect
-      // Reload the page to check calibration status again
-      window.location.reload();
-    });
+    setIsCompleting(true);
+
+    try {
+      await saveCalibrationAnswers(experimentId, answers);
+      router.refresh();
+    } catch (error) {
+      console.error('Error finalizing calibration:', error);
+    } finally {
+      setIsCompleting(false);
+    }
   };
 
   if (isComplete) {
@@ -192,10 +199,10 @@ export default function CalibrationPageView({
               <div className="text-center">
                 <button
                   onClick={handleCompleteCalibration}
-                  disabled={isPending}
+                  disabled={isPending || isCompleting}
                   className="px-6 py-3 bg-blue-600 hover:bg-blue-700 disabled:bg-gray-400 text-white font-semibold rounded-lg transition-colors text-lg"
                 >
-                  {isPending ? 'Wird gespeichert...' : 'Zur Bewertung'}
+                  {isPending || isCompleting ? 'Wird gespeichert...' : 'Zur Bewertung'}
                 </button>
               </div>
             </div>
