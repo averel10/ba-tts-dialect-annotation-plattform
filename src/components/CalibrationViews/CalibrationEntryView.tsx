@@ -87,7 +87,7 @@ export default function CalibrationEntryView({
 
       {/* Must-listen hint */}
       {!fullyPlayed && (
-        <p className="text-xs text-amber-600 mt-2">
+        <p className="text-xs text-gray-400 mt-2">
           Bitte die Aufnahme vollständig anhören, bevor du eine Bewertung abgibst.
         </p>
       )}
