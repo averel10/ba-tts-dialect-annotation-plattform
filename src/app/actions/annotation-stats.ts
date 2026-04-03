@@ -180,8 +180,7 @@ export async function getAnnotatedSamples(
         )
       )
       .where(eq(dataset_entry.datasetId, datasetId))
-      .groupBy(dataset_entry.id)
-      .having((group) => gt(count(annotation.id), 0));
+      .groupBy(dataset_entry.id);
 
     // Type assertion for the count
     return samples

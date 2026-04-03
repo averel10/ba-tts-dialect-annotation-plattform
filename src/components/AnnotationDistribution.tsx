@@ -68,6 +68,26 @@ export default function AnnotationDistribution({ experimentId }: AnnotationDistr
     ...item,
   })) || [];
 
+  // Calculate per-sample distribution (histogram of annotation counts)
+  const sampleDistribution: { annotationCount: number; sampleCount: number; percentage: string }[] = [];
+  const countMap = new Map<number, number>();
+  
+  samples.forEach((sample) => {
+    const count = sample.annotationCount;
+    countMap.set(count, (countMap.get(count) || 0) + 1);
+  });
+  
+  // Convert to sorted array with percentages
+  const totalSamples = samples.length;
+  Array.from(countMap.entries())
+    .map(([count, sampleCount]) => ({
+      annotationCount: count,
+      sampleCount,
+      percentage: totalSamples > 0 ? ((sampleCount / totalSamples) * 100).toFixed(1) : '0',
+    }))
+    .sort((a, b) => a.annotationCount - b.annotationCount)
+    .forEach((item) => sampleDistribution.push(item));
+
   return (
     <div className="bg-white rounded-lg shadow p-6 mb-6">
       <div className="mb-6">
@@ -153,6 +173,54 @@ export default function AnnotationDistribution({ experimentId }: AnnotationDistr
                 No annotations found for this distribution
               </div>
             )}
+          </div>
+        </div>
+      )}
+
+      {/* Sample Annotation Distribution Chart */}
+      {!samplesLoading && sampleDistribution.length > 0 && (
+        <div className="mt-8">
+          <h2 className="text-xl font-bold mb-4 text-gray-900">Sample Annotation Coverage</h2>
+          <div className="h-[400px]">
+            <ResponsiveContainer width="100%" height="100%">
+              <BarChart 
+                data={sampleDistribution}
+                margin={{ top: 20, right: 30, left: 20, bottom: 20 }}
+              >
+                <CartesianGrid strokeDasharray="3 3" />
+                <XAxis 
+                  dataKey="annotationCount"
+                  label={{ value: 'Annotations per Sample', position: 'bottom', offset: 10 }}
+                />
+                <YAxis 
+                  label={{ value: 'Percentage of Samples (%)', angle: -90, position: 'insideLeft' }} 
+                />
+                <Tooltip 
+                  content={({ active, payload }) => {
+                    if (active && payload && payload.length) {
+                      const data = payload[0].payload;
+                      return (
+                        <div className="bg-white p-3 border border-gray-300 rounded shadow-lg">
+                          <p className="font-semibold text-gray-900">
+                            {data.annotationCount} annotation{data.annotationCount !== 1 ? 's' : ''}
+                          </p>
+                          <p className="text-green-600">{data.percentage}% of samples</p>
+                          <p className="text-gray-600 text-sm">({data.sampleCount} sample{data.sampleCount !== 1 ? 's' : ''})</p>
+                        </div>
+                      );
+                    }
+                    return null;
+                  }}
+                />
+                <Legend wrapperStyle={{ paddingTop: '20px' }} />
+                <Bar 
+                  dataKey="percentage" 
+                  fill="#10b981"
+                  name="Percentage (%)"
+                  barCategoryGap="5%"
+                />
+              </BarChart>
+            </ResponsiveContainer>
           </div>
         </div>
       )}
