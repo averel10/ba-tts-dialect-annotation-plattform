@@ -5,6 +5,7 @@ import { participant } from '@/lib/model/participant';
 import { annotation } from '@/lib/model/annotation';
 import { experiment } from '@/lib/model/experiment';
 import { dataset_entry } from '@/lib/model/dataset_entry';
+import { user } from '@/lib/model/auth-schema';
 import { and, eq, count } from 'drizzle-orm';
 import { requireAdmin } from '@/lib/auth';
 import { isParticipantCalibrationDone, getDialectScoresFromCalibration } from './calibration-scoring';
@@ -13,6 +14,7 @@ export interface ParticipantListItem {
   id: number;
   experimentId: number;
   userId: string;
+  email: string;
   completedOnboarding: boolean;
   completedCalibration: boolean;
   annotationCount: number;
@@ -53,8 +55,18 @@ export async function getParticipantsList(experimentId: number): Promise<Partici
 
     // Get all participants for this experiment
     const participants = await db
-      .select()
+      .select({
+        id: participant.id,
+        experimentId: participant.experimentId,
+        userId: participant.userId,
+        email: user.email,
+        calibrationAnswers: participant.calibrationAnswers,
+        onboardingAnswers: participant.onboardingAnswers,
+        createdAt: participant.createdAt,
+        updatedAt: participant.updatedAt,
+      })
       .from(participant)
+      .leftJoin(user, eq(participant.userId, user.id))
       .where(eq(participant.experimentId, experimentId));
 
     // Build list with annotation counts
@@ -81,6 +93,7 @@ export async function getParticipantsList(experimentId: number): Promise<Partici
         id: p.id,
         experimentId: p.experimentId!,
         userId: p.userId,
+        email: p.email || 'Unknown',
         completedOnboarding: p.onboardingAnswers !== null && p.onboardingAnswers !== undefined,
         completedCalibration,
         annotationCount,
