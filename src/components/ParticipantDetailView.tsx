@@ -4,6 +4,7 @@ import { ParticipantDetail, getParticipantCalibrationScores } from '@/app/action
 import { useEffect, useState } from 'react';
 import CalibrationScoresDisplay from './CalibrationScoresDisplay';
 import AudioPlayer from './AudioPlayer';
+import ExportParticipantDataButton from './ExportParticipantDataButton';
 
 interface ParticipantDetailViewProps {
   participant: ParticipantDetail;
@@ -44,7 +45,10 @@ export default function ParticipantDetailView({ participant, experimentId }: Par
     <div className="space-y-6">
       {/* Header Card */}
       <div className="bg-white rounded-lg shadow p-6">
-        <h2 className="text-2xl font-bold text-gray-900 mb-4">{participant.userId}</h2>
+        <div className="flex justify-between items-start mb-4">
+          <h2 className="text-2xl font-bold text-gray-900">{participant.userId}</h2>
+          <ExportParticipantDataButton experimentId={experimentId} userId={participant.userId} />
+        </div>
         <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
           <div className="bg-blue-50 rounded p-4">
             <div className="text-sm text-gray-600 mb-1">Status</div>
