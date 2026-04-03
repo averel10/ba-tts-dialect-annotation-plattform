@@ -47,7 +47,7 @@ export default async function HomePage() {
 
   return (
     <div className="max-w-2xl mx-auto px-4 sm:px-6 lg:px-8">
-      <h1 className="text-2xl font-bold text-gray-800 mb-2">Experimente</h1>
+      <h1 className="text-2xl font-bold text-gray-800 mb-2 mt-4">Experimente</h1>
       <p className="text-gray-500 mb-8">
         Wählen Sie ein Experiment aus, um mit der Annotation zu beginnen oder fortzufahren.
       </p>

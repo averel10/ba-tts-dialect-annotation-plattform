@@ -69,5 +69,5 @@ export default function OnboardingPhase({ experimentId }: OnboardingPhaseProps) 
   }
 
   
-  return <OnboardingFormView experimentId={experimentId} />;
+  return <OnboardingFormView experimentId={experimentId} onBack={() => { scrollToTop(); setShowInfoPage(true); }} />;
 }

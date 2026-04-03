@@ -16,9 +16,8 @@ interface CalibrationEntryViewProps {
 const CONFIDENCE_OPTIONS = [
   { value: 1, label: 'Sehr unsicher' },
   { value: 2, label: 'Eher unsicher' },
-  { value: 3, label: 'Neutral' },
-  { value: 4, label: 'Eher sicher' },
-  { value: 5, label: 'Sehr sicher' },
+  { value: 3, label: 'Eher sicher' },
+  { value: 4, label: 'Sehr sicher' },
 ];
 
 export default function CalibrationEntryView({
@@ -70,7 +69,7 @@ export default function CalibrationEntryView({
       {/* Sample header */}
       <div className="flex items-center justify-between mb-3">
         <span className="text-xs font-medium text-gray-400 uppercase tracking-wide">
-          Kalibrierungssample - {entry.order}
+          Aufnahme {entry.order}
         </span>
         {fullyPlayed && (
           <span className="text-xs text-green-600 font-medium">
@@ -89,7 +88,7 @@ export default function CalibrationEntryView({
       {/* Must-listen hint */}
       {!fullyPlayed && (
         <p className="text-xs text-amber-600 mt-2">
-          Bitte das Sample vollständig anhören, bevor Sie eine Bewertung abgeben.
+          Bitte die Aufnahme vollständig anhören, bevor du eine Bewertung abgibst.
         </p>
       )}
 
@@ -98,7 +97,7 @@ export default function CalibrationEntryView({
         {/* Dialect question */}
         <div className="flex-1">
           <div className="text-sm font-semibold text-gray-700 mb-3">
-            Welcher Dialekt ist es?
+            Welchen Dialekt hörst du?
           </div>
           <div className="flex flex-col gap-2">
             {Object.entries(DIALECT_LABELS_WITHOUT_DE).map(([dialectKey, dialectName]) => {
@@ -136,7 +135,7 @@ export default function CalibrationEntryView({
         {/* Confidence question */}
         <div className="flex-1">
           <div className="text-sm font-semibold text-gray-700 mb-3">
-            Wie sicher sind Sie?
+            Wie sicher bist du?
           </div>
           <div className="flex flex-col gap-2">
             {CONFIDENCE_OPTIONS.map(({ value, label }) => {

@@ -26,9 +26,7 @@ export default function CalibrationScoresDisplay({
             <div key={dialect}>
               <div className="flex justify-between items-center mb-2">
                 <span className="font-medium text-gray-800">{DIALECT_LABELS[dialect]}</span>
-                <span className={`text-sm font-semibold text-blue-600`}>
-                  {(score * 100).toFixed(0)}%
-                </span>
+
               </div>
               <div className="w-full bg-gray-200 rounded-full h-2 overflow-hidden">
                 <div
@@ -41,8 +39,7 @@ export default function CalibrationScoresDisplay({
         })}
       </div>
       <p className="text-sm text-gray-500 mt-6">
-        Die Scores basieren auf der Genauigkeit und dem Vertrauen in Ihre Kalibrierergebnisse.
-        Dialekte mit höheren Scores werden zuerst in der Annotation angezeigt.
+        Die Ergebnisse basieren auf deiner Erkennungsgenauigkeit und Sicherheit. Dialekte die du gut erkennst, werden bei der Bewertungsphase häufiger angezeigt.
       </p>
     </div>
   );
