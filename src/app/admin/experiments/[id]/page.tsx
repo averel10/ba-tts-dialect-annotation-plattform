@@ -68,7 +68,13 @@ export default async function ExperimentPage({ params }: ExperimentPageProps) {
 
         <EditableExperimentHeader experiment={exp} />
 
-        <div className="flex gap-3 mb-6">
+        <div className="flex gap-3 mb-6 flex-wrap">
+          <Link
+            href={`/admin/experiments/${experimentId}/participants`}
+            className="px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 font-medium transition-colors"
+          >
+            View Participants
+          </Link>
           <DeleteExperimentButton experimentId={experimentId} experimentName={exp.name} />
           <ClearExperimentDataButton experimentId={experimentId} experimentName={exp.name} />
           <UploadCalibrationModal experimentId={experimentId} />

@@ -5,41 +5,69 @@ import { experiment_calibration } from '@/lib/model/experiment_calibration';
 import { experiment } from '@/lib/model/experiment';
 import { participant } from '@/lib/model/participant';
 import { eq, and } from 'drizzle-orm';
-import { auth } from '@/lib/auth';
+import { auth, requireAdmin } from '@/lib/auth';
 import { headers } from 'next/headers';
 
 /**
- * Calculates dialect performance scores based on the participant's calibration answers.
+ * Calculates dialect performance scores based on calibration answers.
  * Score = (correctness × confidence) averaged per dialect
  * Range: -1 to 1, where:
  *   1 = perfect identification with full confidence
  *   0 = neutral (correct but unsure, or incorrect and unsure)
  *   -1 = completely wrong with full confidence (penalizes false confidence)
+ *
+ * @param experimentId - The experiment ID
+ * @param userId - Optional user ID. If provided, requires admin privileges. If not provided, uses current user.
  */
 export async function getDialectScoresFromCalibration(
-  experimentId: number
+  experimentId: number,
+  userId?: string
 ): Promise<Record<string, number>> {
   const session = await auth.api.getSession({ headers: await headers() });
   if (!session) throw new Error('Nicht angemeldet');
 
-  // Fetch calibration items and participant's answers
+  // Determine which user to fetch scores for
+  let targetUserId = userId;
+  if (targetUserId) {
+    // Admin access required for fetching other user's scores
+    const result = await requireAdmin();
+    if (!result.authenticated || !result.admin) {
+      throw new Error('Unauthorized');
+    }
+  } else {
+    // Use current user if no userId provided
+    targetUserId = session.user.id;
+  }
+
+  // Fetch calibration items
   const calibrationItems = await db
     .select()
     .from(experiment_calibration)
     .where(eq(experiment_calibration.experimentId, experimentId));
 
+  // Fetch participant record
   const participantRecord = await db
     .select()
     .from(participant)
     .where(
       and(
         eq(participant.experimentId, experimentId),
-        eq(participant.userId, session.user.id)
+        eq(participant.userId, targetUserId)
       )
     )
     .limit(1);
 
-  // Calculate dialect scores based on calibration performance
+  // Calculate dialect scores
+  return calculateDialectScores(calibrationItems, participantRecord);
+}
+
+/**
+ * Helper function to calculate dialect scores from calibration items and answers
+ */
+function calculateDialectScores(
+  calibrationItems: typeof experiment_calibration.$inferSelect[],
+  participantRecord: (typeof participant.$inferSelect)[]
+): Record<string, number> {
   const dialectScores: Record<string, number> = {};
 
   if (participantRecord.length > 0 && participantRecord[0].calibrationAnswers) {
