@@ -1,38 +1,43 @@
 'use client';
 
-import { useEffect, useRef, useState, useCallback, useMemo } from 'react';
+import { useEffect, useRef, useState, useCallback } from 'react';
 import { useAudio } from './AudioProvider';
 
 interface WaveformPlayerProps {
+  // Audio source URL (required)
   src: string;
-  durationMs?: number | null;
+  
+  // Audio playback options
   onPlay?: () => void;
-  onFullyPlayed: () => void;
+  onFullyPlayed?: () => void;
+  
+  // Display options
+  showWaveform?: boolean; // defaults to true; if false, shows simple player button
 }
 
 const BAR_COUNT = 120;
 
 export default function WaveformPlayer({
   src,
-  durationMs,
   onPlay,
   onFullyPlayed,
+  showWaveform = true,
 }: WaveformPlayerProps) {
   const { currentAudioId, setCurrentAudio } = useAudio();
   
   // Generate unique ID for this player instance
-  const playerId = useMemo(() => Math.random().toString(36).slice(2), []);
+  const playerId = useRef(Math.random().toString(36).slice(2)).current;
   const isActive = currentAudioId === playerId;
 
   const audioRef = useRef<HTMLAudioElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const rafRef = useRef<number>(0);
+  const fullyPlayedRef = useRef(false);
 
   const [isPlaying, setIsPlaying] = useState(false);
   const [currentTime, setCurrentTime] = useState(0);
-  const [duration, setDuration] = useState<number>(durationMs ? durationMs / 1000 : 0);
+  const [duration, setDuration] = useState(0);
   const [peaks, setPeaks] = useState<number[]>([]);
-  const fullyPlayedRef = useRef(false);
 
   // Stop if another player became active
   useEffect(() => {
@@ -43,12 +48,11 @@ export default function WaveformPlayer({
     }
   }, [isActive, isPlaying]);
 
-  // Reset state when src changes and cancel playback
-
+  // Reset state when src changes
   useEffect(() => {
     setPeaks([]);
     setCurrentTime(0);
-    setDuration(durationMs ? durationMs / 1000 : 0);
+    setDuration(0);
     fullyPlayedRef.current = false;
     if (audioRef.current) {
       audioRef.current.pause();
@@ -56,10 +60,61 @@ export default function WaveformPlayer({
     }
     cancelAnimationFrame(rafRef.current);
     setIsPlaying(false);
-  }, [src, durationMs]);
+  }, [src]);
 
-  // Decode audio and generate waveform peaks
+  const tick = useCallback(() => {
+    const audio = audioRef.current;
+    if (!audio) return;
+    setCurrentTime(audio.currentTime);
+    rafRef.current = requestAnimationFrame(tick);
+  }, []);
+
+  const handlePlay = useCallback(() => {
+    const audio = audioRef.current;
+    if (!audio) return;
+    setCurrentAudio(playerId);
+    onPlay?.();
+    audio.currentTime = 0;
+    audio.play();
+    setIsPlaying(true);
+    rafRef.current = requestAnimationFrame(tick);
+  }, [playerId, onPlay, tick]);
+
+  const handlePause = useCallback(() => {
+    const audio = audioRef.current;
+    if (!audio) return;
+    audio.pause();
+    setIsPlaying(false);
+    cancelAnimationFrame(rafRef.current);
+  }, []);
+
+  const handleStop = useCallback(() => {
+    const audio = audioRef.current;
+    if (!audio) return;
+    audio.pause();
+    audio.currentTime = 0;
+    setCurrentAudio(null);
+    setIsPlaying(false);
+    cancelAnimationFrame(rafRef.current);
+  }, []);
+
+  const handleEnded = useCallback(() => {
+    setIsPlaying(false);
+    cancelAnimationFrame(rafRef.current);
+    if (!fullyPlayedRef.current) {
+      fullyPlayedRef.current = true;
+      onFullyPlayed?.();
+    }
+  }, [onFullyPlayed]);
+
+  const handleLoadedMetadata = useCallback(() => {
+    if (audioRef.current) setDuration(audioRef.current.duration);
+  }, []);
+
+  // Decode audio and generate waveform peaks (only if showWaveform is true)
   useEffect(() => {
+    if (!showWaveform) return;
+    
     let cancelled = false;
     (async () => {
       try {
@@ -87,10 +142,17 @@ export default function WaveformPlayer({
       }
     })();
     return () => { cancelled = true; };
+  }, [src, showWaveform]);
+
+  // Reset peaks when src changes
+  useEffect(() => {
+    setPeaks([]);
   }, [src]);
 
   // Draw waveform on canvas whenever peaks or playback position change
   useEffect(() => {
+    if (!showWaveform) return;
+    
     const canvas = canvasRef.current;
     if (!canvas || peaks.length === 0) return;
     const ctx = canvas.getContext('2d');
@@ -110,45 +172,7 @@ export default function WaveformPlayer({
       ctx.roundRect(x, y, barW, barH, 2);
       ctx.fill();
     });
-  }, [peaks, currentTime, duration]);
-
-  const tick = useCallback(() => {
-    const audio = audioRef.current;
-    if (!audio) return;
-    setCurrentTime(audio.currentTime);
-    rafRef.current = requestAnimationFrame(tick);
-  }, []);
-
-  const handlePlay = () => {
-    const audio = audioRef.current;
-    if (!audio) return;
-    setCurrentAudio(playerId);
-    onPlay?.();
-    audio.play();
-    setIsPlaying(true);
-    rafRef.current = requestAnimationFrame(tick);
-  };
-
-  const handlePause = () => {
-    const audio = audioRef.current;
-    if (!audio) return;
-    audio.pause();
-    setIsPlaying(false);
-    cancelAnimationFrame(rafRef.current);
-  };
-
-  const handleEnded = () => {
-    setIsPlaying(false);
-    cancelAnimationFrame(rafRef.current);
-    if (!fullyPlayedRef.current) {
-      fullyPlayedRef.current = true;
-      onFullyPlayed?.();
-    }
-  };
-
-  const handleLoadedMetadata = () => {
-    if (audioRef.current) setDuration(audioRef.current.duration);
-  };
+  }, [peaks, currentTime, duration, showWaveform]);
 
   const fmt = (s: number) => {
     const m = Math.floor(s / 60);
@@ -156,6 +180,40 @@ export default function WaveformPlayer({
     return `${m}:${sec.toString().padStart(2, '0')}`;
   };
 
+  // Simple player button (no waveform)
+  if (!showWaveform) {
+    return (
+      <div className="flex items-center gap-2">
+        <audio
+          ref={audioRef}
+          src={src}
+          onEnded={handleEnded}
+        />
+        <button
+          onClick={isPlaying ? handleStop : handlePlay}
+          className={`inline-flex items-center justify-center w-8 h-8 rounded-full transition-colors ${
+            isPlaying
+              ? 'bg-red-500 hover:bg-red-600 text-white'
+              : 'bg-blue-500 hover:bg-blue-600 text-white'
+          }`}
+          title={isPlaying ? 'Stop' : 'Play'}
+        >
+          {isPlaying ? (
+            <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+              <rect x="6" y="4" width="2" height="12" />
+              <rect x="12" y="4" width="2" height="12" />
+            </svg>
+          ) : (
+            <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+              <path d="M6.3 2.841A1.5 1.5 0 004 4.11v11.78a1.5 1.5 0 002.3 1.269l9.344-5.89a1.5 1.5 0 000-2.538L6.3 2.84z" />
+            </svg>
+          )}
+        </button>
+      </div>
+    );
+  }
+
+  // Waveform player with visualization
   return (
     <div className="flex flex-col gap-2">
       <audio

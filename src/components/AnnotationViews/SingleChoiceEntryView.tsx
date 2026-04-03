@@ -59,7 +59,6 @@ export default function SingleChoiceEntryView({
       {/* Waveform player */}
       <WaveformPlayer
         src={audioSrc}
-        durationMs={entry.durationMs}
         onFullyPlayed={() => setFullyPlayed(true)}
       />
 

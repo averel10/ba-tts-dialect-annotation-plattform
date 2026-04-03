@@ -2,7 +2,7 @@ import Link from 'next/link';
 import db from '@/lib/db';
 import { dataset_entry } from '@/lib/model/dataset_entry';
 import { eq } from 'drizzle-orm';
-import AudioPlayer from '@/components/AudioPlayer';
+import WaveformPlayer from '@/components/WaveformPlayer';
 import { requireAdmin } from '@/lib/auth';
 import { redirect } from 'next/navigation';
 
@@ -114,7 +114,11 @@ export default async function DatasetEntryPage({ params }: DatasetEntryPageProps
 
             <div className="col-span-2 bg-white border border-gray-200 p-4 rounded-lg">
               <p className="text-sm text-gray-600 mb-3">Audio Player</p>
-              <AudioPlayer datasetId={datasetIdNum} fileName={entry.fileName} externalId={entry.externalId} />
+              {(() => {
+                const fileExtension = entry.fileName.substring(entry.fileName.lastIndexOf('.'));
+                const src = `/public/datasets/${datasetIdNum}/${entry.externalId}${fileExtension}`;
+                return <WaveformPlayer src={src} showWaveform={false} />;
+              })()}
             </div>
 
             <div className="bg-white border border-gray-200 p-4 rounded-lg">

@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
-import AudioPlayer from './AudioPlayer';
+import WaveformPlayer from './WaveformPlayer';
 import { getDatasetEntries } from '@/app/actions/get-dataset-entries';
 import { getFilterOptions } from '@/app/actions/get-filter-options';
 import { downloadFilteredEntriesAsZip, downloadFilteredEntriesAsCsv } from '@/lib/download-utils';
@@ -514,7 +514,11 @@ export default function DatasetEntriesList({
             {entries.map((entry) => (
               <tr key={entry.id} className="hover:bg-blue-50 transition-colors border-b border-gray-200">
                 <td className="py-3 px-4">
-                  <AudioPlayer datasetId={datasetId} fileName={entry.fileName} externalId={entry.externalId} />
+                  {(() => {
+                    const fileExtension = entry.fileName.substring(entry.fileName.lastIndexOf('.'));
+                    const src = `/public/datasets/${datasetId}/${entry.externalId}${fileExtension}`;
+                    return <WaveformPlayer src={src} showWaveform={false} />;
+                  })()}
                 </td>
                 <td className="py-3 px-4">
                   <Link

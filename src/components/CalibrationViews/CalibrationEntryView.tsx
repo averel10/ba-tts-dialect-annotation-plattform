@@ -82,7 +82,6 @@ export default function CalibrationEntryView({
       {/* Waveform player */}
       <WaveformPlayer
         src={audioSrc}
-        durationMs={null}
         onFullyPlayed={() => setFullyPlayed(true)}
       />
 

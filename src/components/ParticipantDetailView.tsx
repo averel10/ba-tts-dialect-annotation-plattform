@@ -3,7 +3,7 @@
 import { ParticipantDetail, getParticipantCalibrationScores } from '@/app/actions/participants';
 import { useEffect, useState } from 'react';
 import CalibrationScoresDisplay from './CalibrationScoresDisplay';
-import AudioPlayer from './AudioPlayer';
+import WaveformPlayer from './WaveformPlayer';
 import ExportParticipantDataButton from './ExportParticipantDataButton';
 
 interface ParticipantDetailViewProps {
@@ -165,11 +165,11 @@ export default function ParticipantDetailView({ participant, experimentId }: Par
                 </div>
                 <div>
                   <div className="text-sm text-gray-600 mb-1">Audio</div>
-                  <AudioPlayer
-                    fileName={selectedAnnotation.fileName}
-                    datasetId={selectedAnnotation.datasetId}
-                    externalId={selectedAnnotation.externalId}
-                  />
+                  {(() => {
+                    const fileExtension = selectedAnnotation.fileName.substring(selectedAnnotation.fileName.lastIndexOf('.'));
+                    const src = `/public/datasets/${selectedAnnotation.datasetId}/${selectedAnnotation.externalId}${fileExtension}`;
+                    return <WaveformPlayer src={src} showWaveform={false} />;
+                  })()}
                 </div>
               </div>
             </div>
