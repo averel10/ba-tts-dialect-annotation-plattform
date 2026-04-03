@@ -74,7 +74,7 @@ export default function CalibrationInfoView({
           {/* Participation Section */}
           <div className="mb-8">
             <p className="text-gray-700 mb-4">
-              Die Kalibrierung umfasst 35 Aufnahmen und dauert etwa 5–10 Minuten.
+              Die Kalibrierung umfasst 28 Aufnahmen und dauert etwa 5–10 Minuten.
             </p>
           </div>
 
