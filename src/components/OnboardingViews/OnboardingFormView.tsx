@@ -7,6 +7,7 @@ import { DIALECT_LABELS_WITHOUT_DE } from '@/lib/dialects';
 
 interface OnboardingFormViewProps {
   experimentId: number;
+  onBack: () => void;
 }
 
 interface ResidenceEntry {
@@ -16,6 +17,7 @@ interface ResidenceEntry {
 
 interface FormData {
   age?: string;
+  email?: string;
   residences?: ResidenceEntry[];
   dialectQualities?: Record<string, string>;
   listeningExperience?: string;
@@ -24,22 +26,18 @@ interface FormData {
 
 type Step = 1 | 2 | 3;
 
-export default function OnboardingFormView({ experimentId }: OnboardingFormViewProps) {
+export default function OnboardingFormView({ experimentId, onBack }: OnboardingFormViewProps) {
   const router = useRouter();
   const [isPending, startTransition] = useTransition();
   const [currentStep, setCurrentStep] = useState<Step>(1);
   
-  // Initialize dialect qualities with default value of '3' for each dialect
   const initializeDialectQualities = (): Record<string, string> => {
-    const qualities: Record<string, string> = {};
-    Object.keys(DIALECT_LABELS_WITHOUT_DE).forEach(key => {
-      qualities[key] = '3';
-    });
-    return qualities;
+    return {};
   };
   
   const [formData, setFormData] = useState<FormData>({
     age: '',
+    email: '',
     residences: [{ region: '', years: '' }],
     dialectQualities: initializeDialectQualities()
   });
@@ -116,10 +114,10 @@ export default function OnboardingFormView({ experimentId }: OnboardingFormViewP
       case 3:
         const allDialects = Object.keys(DIALECT_LABELS_WITHOUT_DE);
         const hasAllDialectQualities = allDialects.every(
-          (region) => formData.dialectQualities?.[region]
+          (region) => !!formData.dialectQualities?.[region]
         );
         if (!hasAllDialectQualities) {
-          setError('Bitte bewerten Sie Ihre Fähigkeit für alle Dialekte.');
+          setError('Bitte bewerte deine Fähigkeit für alle Dialekte.');
           return false;
         }
         break;
@@ -138,7 +136,9 @@ export default function OnboardingFormView({ experimentId }: OnboardingFormViewP
 
   const handlePrevious = () => {
     setError(null);
-    if (currentStep > 1) {
+    if (currentStep === 1) {
+      onBack();
+    } else {
       setCurrentStep((currentStep - 1) as Step);
     }
   };
@@ -200,33 +200,50 @@ export default function OnboardingFormView({ experimentId }: OnboardingFormViewP
 
             {/* Step 1: Persönliche Informationen */}
             {currentStep === 1 && (
-              <div>
-                <label htmlFor="age" className="block text-sm font-medium text-gray-900 mb-2">
-                  Altersgruppe <span className="text-red-600">*</span>
-                </label>
-                <select
-                  id="age"
-                  value={formData.age}
-                  onChange={(e) => handleChange('age', e.target.value)}
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                >
-                  <option value="">-- Bitte wählen --</option>
-                  <option value="18-">Unter 18 Jahre</option>
-                  <option value="18-25">18-25 Jahre</option>
-                  <option value="26-35">26-35 Jahre</option>
-                  <option value="36-45">36-45 Jahre</option>
-                  <option value="46-55">46-55 Jahre</option>
-                  <option value="56-65">56-65 Jahre</option>
-                  <option value="66+">66+ Jahre</option>
-                </select>
+              <div className="space-y-6">
+                <div>
+                  <label htmlFor="age" className="block text-s font-medium text-gray-900 mb-2">
+                    Altersgruppe <span className="text-red-600">*</span>
+                  </label>
+                  <select
+                    id="age"
+                    value={formData.age}
+                    onChange={(e) => handleChange('age', e.target.value)}
+                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  >
+                    <option value="">-- Bitte wählen --</option>
+                    <option value="18-">Unter 18 Jahre</option>
+                    <option value="18-25">18-25 Jahre</option>
+                    <option value="26-35">26-35 Jahre</option>
+                    <option value="36-45">36-45 Jahre</option>
+                    <option value="46-55">46-55 Jahre</option>
+                    <option value="56-65">56-65 Jahre</option>
+                    <option value="66+">Über 65 Jahre</option>
+                  </select>
+                </div>
+
+                <div className="border-t border-gray-200 pt-6">
+                  <label htmlFor="email" className="block text-s font-medium text-gray-900 mb-1">
+                    E-Mail-Adresse (optional)
+                  </label>
+                  <p className="text-sm text-gray-500 mb-2">Wird nur für die Gutschein-Verlosung verwendet.</p>
+                  <input
+                    type="email"
+                    id="email"
+                    value={formData.email}
+                    onChange={(e) => handleChange('email', e.target.value)}
+                    placeholder="beispiel@email.ch"
+                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  />
+                </div>
               </div>
             )}
 
             {/* Step 2: Aufenthaltsorte */}
             {currentStep === 2 && (
               <div className="space-y-6">
-                <p className="text-sm text-gray-600 mb-4">
-                  Bitte geben Sie die Regionen an, in denen Sie länger als 1 Jahr gelebt haben, sowie die Anzahl der Jahre. Diese Informationen helfen uns, Ihre Dialektkenntnisse besser einzuschätzen.
+                <p className="text-s text-gray-600 mb-8">
+                  Bitte gib die Regionen an, in denen du länger als 1 Jahr gelebt hast, sowie die Anzahl der Jahre. So können wir deine Dialektkenntnisse besser einschätzen.
                 </p>
                 {/* Map Placeholder */}
                 <div className="bg-gray-100 border-2 border-dashed border-gray-300 rounded-lg p-12 flex items-center justify-center min-h-[300px]">
@@ -238,8 +255,8 @@ export default function OnboardingFormView({ experimentId }: OnboardingFormViewP
 
                 {/* Residence Entries */}
                 <div>
-                  <label className="block text-sm font-medium text-gray-900 mb-4">
-                    Aufenthaltsorte, die länger als 1 Jahr waren <span className="text-red-600">*</span>
+                  <label className="block text-s font-medium text-gray-900 mb-4">
+                    Aufenthaltsorte (mind. 1 Jahr) <span className="text-red-600">*</span>
                   </label>
 
                   <div className="space-y-4">
@@ -310,62 +327,71 @@ export default function OnboardingFormView({ experimentId }: OnboardingFormViewP
             {/* Step 3: Selbsteinschätzung */}
             {currentStep === 3 && (
               <div className="space-y-6">
-                <div>
-                  <p className="text-sm text-gray-600 mb-6">
-                    Bewerten Sie Ihre Fähigkeit, die folgenden Dialekte zu identifizieren, auf einer Skala von "sehr schlecht" bis "sehr gut". Diese Selbsteinschätzung hilft uns, Ihre nachfolgendenKalibrierungsergebnisse besser zu interpretieren.
-                  </p>
+                <p className="text-s text-gray-600 mb-8">
+                  Bewerte deine Fähigkeit, die folgenden Dialekte zu erkennen. Diese Selbsteinschätzung hilft uns, deine Kalibrierungsergebnisse besser zu interpretieren.
+                </p>
 
-                  <div className="space-y-5">
-                    {Object.entries(DIALECT_LABELS_WITHOUT_DE).map(([key, label]) => {
-                      const qualityLabels: Record<string, string> = {
-                        '1': 'Sehr schlecht',
-                        '2': 'Schlecht',
-                        '3': 'Weder noch',
-                        '4': 'Gut',
-                        '5': 'Sehr gut',
-                      };
-                      const currentValue = formData.dialectQualities?.[key] || '3';
+                <ul className="text-s text-gray-600 mb-8 space-y-1">
+                  <li><strong>1</strong> = Sehr schlecht</li>
+                  <li><strong>2</strong> = Schlecht</li>
+                  <li><strong>3</strong> = Gut</li>
+                  <li><strong>4</strong> = Sehr gut</li>
+                  <li><strong>N</strong> = Nicht vertraut</li>
+                </ul>
+
+                <table className="w-full border-collapse">
+                  <thead>
+                    <tr>
+                      <th className="text-sm font-medium text-gray-700 text-left pb-2"></th>
+                      <th className="w-[120px] text-xs font-medium text-gray-700 text-center pb-2">1</th>
+                      <th className="w-[120px] text-xs font-medium text-gray-700 text-center pb-2">2</th>
+                      <th className="w-[120px] text-xs font-medium text-gray-700 text-center pb-2">3</th>
+                      <th className="w-[120px] text-xs font-medium text-gray-700 text-center pb-2">4</th>
+                      <th className="w-[120px] text-xs font-medium text-gray-700 text-center pb-2 border-l border-gray-200">N</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {Object.entries(DIALECT_LABELS_WITHOUT_DE).map(([key, label], index) => {
+                      const currentValue = formData.dialectQualities?.[key] ?? '';
                       return (
-                        <div key={key}>
-                          <div className="flex justify-between items-center mb-2">
-                            <label className="text-sm font-medium text-gray-900">
-                              {label}
-                            </label>
-                            <span className="text-sm font-semibold text-blue-600 bg-blue-50 px-3 py-1 rounded-full">
-                              {qualityLabels[currentValue]}
-                            </span>
-                          </div>
-                          <div>
+                        <tr key={key} className={index % 2 === 0 ? 'bg-gray-50' : ''}>
+                          <td className="text-sm font-medium text-gray-900 py-3">{label}</td>
+                          {['1', '2', '3', '4'].map((value) => (
+                            <td key={value} className="w-[120px] text-center py-3">
+                              <input
+                                type="radio"
+                                name={key}
+                                value={value}
+                                checked={currentValue === value}
+                                onChange={() => handleDialectQualityChange(key, value)}
+                                className="cursor-pointer accent-blue-600 w-5 h-5"
+                              />
+                            </td>
+                          ))}
+                          <td className="w-[120px] text-center py-3 border-l border-gray-200">
                             <input
-                              type="range"
-                              min="1"
-                              max="5"
-                              step="1"
-                              value={currentValue}
-                              onChange={(e) =>
-                                handleDialectQualityChange(key, e.target.value)
-                              }
-                              className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-blue-600"
+                              type="radio"
+                              name={key}
+                              value="-1"
+                              checked={currentValue === '-1'}
+                              onChange={() => handleDialectQualityChange(key, '-1')}
+                              className="cursor-pointer accent-blue-600 w-5 h-5"
                             />
-                          </div>
-                          <div className="flex justify-between text-xs text-gray-600 mt-2 font-medium">
-                            <span>Sehr schlecht</span>
-                            <span>Sehr gut</span>
-                          </div>
-                        </div>
+                          </td>
+                        </tr>
                       );
                     })}
-                  </div>
-                </div>
+                  </tbody>
+                </table>
               </div>
             )}
 
             {/* Navigation Buttons */}
-            <div className="flex gap-4 justify-between pt-8">
+            <div className="flex gap-4 justify-between pt-8 mb-8">
               <button
                 type="button"
                 onClick={handlePrevious}
-                disabled={currentStep === 1 || isPending}
+                disabled={isPending}
                 className="px-6 py-3 bg-gray-300 hover:bg-gray-400 disabled:bg-gray-200 text-gray-800 font-semibold rounded-lg transition-colors"
               >
                 ← Zurück
@@ -387,18 +413,13 @@ export default function OnboardingFormView({ experimentId }: OnboardingFormViewP
                   disabled={isPending}
                   className="px-8 py-3 bg-green-600 hover:bg-green-700 disabled:bg-green-400 text-white font-semibold rounded-lg transition-colors"
                 >
-                  {isPending ? 'Wird gespeichert...' : 'Abschließen'}
+                  {isPending ? 'Wird gespeichert...' : 'Abschliessen'}
                 </button>
               )}
             </div>
           </form>
 
-          {/* Info */}
-          <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mt-8">
-            <p className="text-blue-800 text-sm">
-              Die mit <span className="text-red-600">*</span> gekennzeichneten Felder sind erforderlich.
-            </p>
-          </div>
+
         </div>
       </div>
     </div>

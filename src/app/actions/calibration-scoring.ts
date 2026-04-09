@@ -82,7 +82,7 @@ function calculateDialectScores(
       if (!answer) continue;
 
       const isCorrect = answer.dialectLabel === item.dialectLabel ? 1 : -1;
-      const confidence = answer.confidence / 5; // Normalize to 0-1
+      const confidence = answer.confidence / 4; // Normalize to 0-1
 
       // Score = correctness * confidence
       // Correct answers: +confidence (0 to 1)

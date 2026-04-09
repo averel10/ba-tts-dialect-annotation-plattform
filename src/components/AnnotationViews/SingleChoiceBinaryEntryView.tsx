@@ -8,6 +8,7 @@ const AUTO_ADVANCE_DELAY_MS = 600;
 
 export default function SingleChoiceBinaryEntryView({
   entry,
+  index,
   onSave,
   isSaving,
   ratingOptions,
@@ -39,14 +40,14 @@ export default function SingleChoiceBinaryEntryView({
 
   return (
     <div
-      className={`border rounded-xl p-5 bg-white shadow-sm transition-colors duration-300 ${
+      className={`border rounded-xl p-5 bg-white shadow-sm transition-colors duration-300 mt-4 ${
         fullyPlayed && answer !== null ? 'border-green-300' : 'border-gray-200'
       }`}
     >
       {/* Sample header */}
       <div className="flex items-center justify-between mb-3">
         <span className="text-xs font-medium text-gray-400 uppercase tracking-wide">
-          Sample - {entry.externalId}
+          Aufnahme {index + 1}
         </span>
         {fullyPlayed && (
           <span className="text-xs text-green-600 font-medium">
@@ -64,14 +65,14 @@ export default function SingleChoiceBinaryEntryView({
 
       {/* Must-listen hint */}
       {!fullyPlayed && (
-        <p className="text-xs text-amber-600 mt-2">
-          Bitte das Sample vollständig anhören, bevor Sie eine Bewertung abgeben.
+        <p className="text-xs text-gray-400 mt-2">
+          Bitte die Aufnahme vollständig anhören, bevor du eine Bewertung abgibst.
         </p>
       )}
 
       {/* Dialect + question */}
       <div className="mt-4 mb-3">
-        <div className="text-sm font-semibold text-gray-700">
+        <div className="text-s font-semibold text-gray-700">
           {question}
         </div>
       </div>
@@ -99,6 +100,11 @@ export default function SingleChoiceBinaryEntryView({
           );
         })}
       </div>
+
+      {/* Footnote */}
+      <p className="text-xs text-gray-400 mt-8 pt-3 border-t border-gray-100">
+        Vertrau deinem ersten Eindruck – klingt die Aufnahme authentisch nach diesem Dialekt? Es gibt keine richtige oder falsche Antwort.
+      </p>
     </div>
   );
 }

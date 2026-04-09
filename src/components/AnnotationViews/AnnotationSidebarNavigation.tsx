@@ -36,7 +36,7 @@ export default function AnnotationSidebarNavigation({
             />
           </div>
           <p className="text-xs text-gray-600">
-            {annotatedCount}/{entries.length} annotiert ({progressPct}%)
+            {annotatedCount}/{entries.length} bewertet ({progressPct}%)
           </p>
         </div>
       </div>
@@ -47,7 +47,7 @@ export default function AnnotationSidebarNavigation({
       {/* Entries List - scrollable middle section with max height */}
       <div className="space-y-1 flex-1 min-h-0 overflow-hidden flex flex-col">
         <h3 className="text-xs font-semibold text-gray-700 uppercase tracking-wide mb-3 px-2 flex-shrink-0">
-          Samples
+          Aufnahmen
         </h3>
         <div className="space-y-1 overflow-y-auto max-h-150">
           {entries.map((entry, index) => (
@@ -77,7 +77,7 @@ export default function AnnotationSidebarNavigation({
                 />
                 {/* Entry number and filename */}
                 <span className="truncate">
-                  {`Sample ${index + 1} - ${DIALECT_LABELS[entry.dialect]}`}
+                  {`Aufnahme ${index + 1} - ${DIALECT_LABELS[entry.dialect]}`}
                 </span>
               </div>
             </button>

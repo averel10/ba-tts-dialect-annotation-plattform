@@ -12,6 +12,7 @@ import CalibrationScoresModal from '@/components/CalibrationScoresModal';
 
 export interface EntryViewProps {
   entry: DatasetEntryForAnnotation;
+  index: number;
   onSave: (rating: number) => Promise<void>;
   isSaving: boolean;
   ratingOptions?: { value: number; label: JSX.Element | string }[];
@@ -67,7 +68,7 @@ export default function AnnotationPageView({
             { value: 4, label: `Klingt eher nach ${DIALECT_LABELS[dialectLabel]}` },
             { value: 5, label: `Klingt eindeutig nach ${DIALECT_LABELS[dialectLabel]}` },
           ],
-          question: <div>Wie authentisch klingt dieses Sample nach dem Dialekt der Region <span className="text-blue-600">{DIALECT_LABELS[dialectLabel]}</span>?</div>,
+          question: <div>Wie authentisch klingt diese Aufnahme nach dem Dialekt der Region <span className="text-blue-600">{DIALECT_LABELS[dialectLabel]}</span>?</div>,
         };
       case 'binary':
         return {
@@ -76,7 +77,7 @@ export default function AnnotationPageView({
             { value: 2, label: 'Unklar' },
             { value: 1, label: 'Nein' },
           ],
-          question: <div>Klingt dieses Sample nach dem Dialekt der Region <span className="text-blue-600">{DIALECT_LABELS[dialectLabel]}</span>?</div>,
+          question: <div>Klingt diese Aufnahme nach dem Dialekt der Region <span className="text-blue-600">{DIALECT_LABELS[dialectLabel]}</span>?</div>,
         };
       default:
         return {
@@ -94,6 +95,7 @@ export default function AnnotationPageView({
               return (
       <SingleChoiceEntryView
         entry={currentEntry}
+        index={currentIndex}
         onSave={handleSaveEntry}
         isSaving={isPending}
         ratingOptions={config.ratingOptions}
@@ -104,6 +106,7 @@ export default function AnnotationPageView({
     return (
       <SingleChoiceBinaryEntryView
         entry={currentEntry}
+        index={currentIndex}
         onSave={handleSaveEntry}
         isSaving={isPending}
         ratingOptions={config.ratingOptions}
@@ -260,10 +263,10 @@ export default function AnnotationPageView({
         {/* Main content area */}
         <div className="flex-1 flex flex-col overflow-hidden">
           {/* Top bar */}
-          <div className="sticky top-0 z-40 bg-white border-b border-gray-200 pb-4 px-4">
+          <div className="sticky top-1 z-40 bg-white border-b border-gray-200 pb-5 px-4">
             <div className="flex items-center justify-between max-w-4xl mx-auto">
               {/* Toggle and Home buttons */}
-              <div className="flex gap-2">
+              <div className="flex gap-3">
                 <button
                   onClick={() => setSidebarOpen(!sidebarOpen)}
                   className="hidden md:block text-sm px-3 py-1.5 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-md transition-colors"
@@ -287,7 +290,7 @@ export default function AnnotationPageView({
                   </button>
                 )}
               </div>
-              <div className="flex gap-2">
+              <div className="flex gap-3">
                 <button
                   onClick={handlePrevious}
                   disabled={currentIndex === 0 || isPending}

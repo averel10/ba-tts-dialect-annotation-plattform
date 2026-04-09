@@ -170,22 +170,21 @@ export default function CalibrationPageView({
         <div className="flex-1 flex flex-col overflow-hidden">
           <div className="flex-1 overflow-y-auto">
             <div className="max-w-3xl mx-auto px-4">
-              <div className="text-center mb-12">
-                <div className="text-5xl mb-4">🎉</div>
-                <h1 className="text-3xl font-bold text-green-600 mb-3">
+              <div className="text-center mb-12 mt-4">
+                <h1 className="text-3xl font-bold text-gray-900 mb-4">
                   Kalibrierung abgeschlossen!
                 </h1>
                 <p className="text-gray-600 mb-8">
-                  Sie haben alle Kalibrierungssamples bewertet. Vielen Dank! Sie können jetzt mit der
-                  Annotation beginnen.
+                  Du hast alle Aufnahmen bewertet. Vielen Dank! Du kannst jetzt mit der Bewertung beginnen.
                 </p>
               </div>
+
+
 
               {/* Dialect Scores Summary */}
               {sortedScores.length > 0 && (
                 <div className="mb-12">
-                <h2 className="text-lg font-semibold text-gray-900 mb-6">Ihre Kalibrierungsergebnisse</h2>
-
+                <h2 className="text-lg font-semibold text-gray-900 mb-4">Deine Kalibrierungsergebnisse</h2>
                   <CalibrationScoresDisplay dialectScores={dialectScores} />
                 </div>
               )}
@@ -194,9 +193,9 @@ export default function CalibrationPageView({
                 <button
                   onClick={handleCompleteCalibration}
                   disabled={isPending}
-                  className="px-6 py-3 bg-blue-600 hover:bg-blue-700 disabled:bg-gray-400 text-white font-semibold rounded-lg transition-colors"
+                  className="px-6 py-3 bg-blue-600 hover:bg-blue-700 disabled:bg-gray-400 text-white font-semibold rounded-lg transition-colors text-lg"
                 >
-                  {isPending ? 'Wird gespeichert...' : 'Zur Annotation'}
+                  {isPending ? 'Wird gespeichert...' : 'Zur Bewertung'}
                 </button>
               </div>
             </div>
