@@ -26,7 +26,7 @@ export default function OnboardingInfoView({
           <div className="bg-blue-50 border border-blue-200 rounded-lg p-8 mb-8">
             <h2 className="text-xl font-semibold text-gray-900 mb-4">Worum geht es?</h2>
             <p className="text-gray-700 mb-4">
-              Im Rahmen unserer Bachelorarbeit an der ZHAW untersuchen wir, wie authentisch ein KI-Modell Schweizerdeutsche Dialekte synthetisieren kann. Dazu sind wir auf deine Einschätzung angewiesen.
+              Im Rahmen unserer Bachelorarbeit an der ZHAW untersuchen wir, wie authentisch ein KI-Modell schweizerdeutsche Dialekte synthetisieren kann. Dazu sind wir auf deine Einschätzung angewiesen.
             </p>
             <p className="text-gray-700 mb-4">
               Deine Aufgabe ist es, kurze Audioaufnahmen anzuhören und zu bewerten, wie authentisch sie nach einem bestimmten Dialekt klingen. Es gibt dabei keine richtigen oder falschen Antworten – wichtig ist deine persönliche Einschätzung.
