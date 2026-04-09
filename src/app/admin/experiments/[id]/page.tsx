@@ -7,6 +7,8 @@ import DeleteExperimentButton from '@/components/DeleteExperimentButton';
 import ClearExperimentDataButton from '@/components/ClearExperimentDataButton';
 import UploadCalibrationModal from '@/components/UploadCalibrationModal';
 import CalibrationListModal from '@/components/CalibrationListModal';
+import ExperimentStatistics from '@/components/ExperimentStatistics';
+import ExportAllParticipantDataButton from '@/components/ExportAllParticipantDataButton';
 import { requireAdmin } from '@/lib/auth';
 import { redirect } from 'next/navigation';
 
@@ -67,15 +69,25 @@ export default async function ExperimentPage({ params }: ExperimentPageProps) {
 
         <EditableExperimentHeader experiment={exp} />
 
-        <div className="flex gap-3 mb-6">
+        <div className="flex gap-3 mb-6 flex-wrap">
+          <Link
+            href={`/admin/experiments/${experimentId}/participants`}
+            className="px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors"
+          >
+            View Participants
+          </Link>
+          <ExportAllParticipantDataButton experimentId={experimentId} />
           <DeleteExperimentButton experimentId={experimentId} experimentName={exp.name} />
           <ClearExperimentDataButton experimentId={experimentId} experimentName={exp.name} />
           <UploadCalibrationModal experimentId={experimentId} />
           <CalibrationListModal experimentId={experimentId} />
         </div>
-        <div className="bg-white rounded-lg shadow p-6">
-          Statistics
-        </div>
+        
+        <ExperimentStatistics 
+          experimentId={experimentId}
+          onboardingEnabled={exp.onboardingEnabled}
+          calibrationEnabled={exp.calibrationEnabled}
+        />
       </div>
     </div>
   );
