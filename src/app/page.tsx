@@ -9,11 +9,13 @@ export default async function HomePage() {
 
   if (!session) {
     return (
-      <div className="max-w-xl mx-auto text-center px-4 mt-4">
-        <p className="text-gray-600 mb-4">
-          Für die Teilnahme an Annotationsstudien benötigst du ein Benutzerkonto. Mit diesem Konto speichern wir deinen Fortschritt, damit du jederzeit unterbrechen und später fortsetzen kannst. Deine Daten werden vertraulich behandelt und ausschließlich für die Zwecke dieser Studien verwendet. Wir werden dir niemals E-Mails ohne deine ausdrückliche Zustimmung senden.
-        </p>
+      <div className="max-w-xl mx-auto px-4 mt-4">
         <AuthForm />
+        <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-4 mt-8">
+          <p className="text-sm text-gray-600 text-left">
+            Für die Teilnahme an der Studie benötigst du ein Konto. Damit speichern wir deinen Fortschritt, sodass du jederzeit unterbrechen und später weitermachen kannst. Deine Daten werden vertraulich behandelt und ausschliesslich für die Zwecke dieser Studie verwendet. Wir werden dir niemals E-Mails ohne deine ausdrückliche Zustimmung senden und geben deine Daten nicht an Dritte weiter.
+          </p>
+        </div>
       </div>
     );
   }
