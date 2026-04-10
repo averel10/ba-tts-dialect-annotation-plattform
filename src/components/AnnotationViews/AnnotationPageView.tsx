@@ -65,12 +65,12 @@ export default function AnnotationPageView({
       case 'quality-choice':
         return {
           ratingOptions: [
-            { value: 1, label: `Klingt überhaupt nicht nach ${DIALECT_LABELS[dialectLabel]}` },
-            { value: 2, label: `Klingt eher nicht nach ${DIALECT_LABELS[dialectLabel]}` },
-            { value: 3, label: `Klingt eher nach ${DIALECT_LABELS[dialectLabel]}` },
-            { value: 4, label: `Klingt eindeutig nach ${DIALECT_LABELS[dialectLabel]}` },
+            { value: 1, label: `Klingt nicht danach – Aussprache, Wörter und Satzstellung passen nicht zur Region` },
+            { value: 2, label: `Eher nicht – Einzelne Merkmale passen, insgesamt aber nicht überzeugend` },
+            { value: 3, label: `Eher schon – Mehrheitlich passend, aber mit kleinen Unstimmigkeiten` },
+            { value: 4, label: `Klingt eindeutig danach – Aussprache, Wörter und Satzstellung passen vollständig` },
           ],
-          question: <div>Wie authentisch klingt diese Aufnahme nach dem Dialekt der Region <span className="text-blue-600">{DIALECT_LABELS[dialectLabel]}</span>?</div>,
+          question: <div>Klingt diese Aufnahme nach dem Dialekt der Region <span className="text-blue-600">{DIALECT_LABELS[dialectLabel]}</span>?</div>,
           confidenceOptions: [
             { value: 1, label: 'Sehr unsicher' },
             { value: 2, label: 'Eher unsicher' },

@@ -42,7 +42,7 @@ export default async function HomePage() {
     <div className="max-w-2xl mx-auto px-4 sm:px-6 lg:px-8">
       <h1 className="text-3xl font-bold text-gray-900 mb-4 mt-4">Übersicht</h1>
       {<p className="text-gray-500 mb-8">
-        Hier findest du alle verfügbaren Bewertungsrunden. Wähle eine aus, um zu starten oder dort weiterzumachen, wo du aufgehört hast.
+        Hier findest du alle verfügbaren Studien.
       </p>}
 
       <div className="flex flex-col gap-4">

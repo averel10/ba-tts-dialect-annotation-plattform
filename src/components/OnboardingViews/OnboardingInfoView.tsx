@@ -28,7 +28,7 @@ export default function OnboardingInfoView({
             <p className="text-gray-700 mb-4">
               Im Rahmen unserer Bachelorarbeit an der ZHAW untersuchen wir, wie authentisch ein KI-Modell schweizerdeutsche Dialekte synthetisieren kann. Dazu sind wir auf deine Einschätzung angewiesen.
             </p>
-            <p className="text-gray-700 mb-4">
+            <p className="text-gray-700">
               Deine Aufgabe ist es, kurze Audioaufnahmen anzuhören und zu bewerten, wie authentisch sie nach einem bestimmten Dialekt klingen. Es gibt dabei keine richtigen oder falschen Antworten – wichtig ist deine persönliche Einschätzung.
             </p>
           </div>

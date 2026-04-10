@@ -115,9 +115,9 @@ export default function SingleChoiceEntryView({
                         : 'border-gray-300 text-gray-400'
                     }`}
                   >
-                    {value}
+                    {selected ? '✓' : ''}
                   </span>
-                  {label}
+                  <span>{label}</span>
                 </button>
               );
             })}

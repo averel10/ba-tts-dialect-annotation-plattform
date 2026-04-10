@@ -34,7 +34,7 @@ export default function CalibrationInfoView({
           {/* Info Section */}
           <div className="bg-blue-50 border border-blue-200 rounded-lg p-8 mb-8">
             <h2 className="text-xl font-semibold text-gray-900 mb-4">Was ist die Kalibrierungsphase?</h2>
-            <p className="text-gray-700 mb-4">
+            <p className="text-gray-700">
               In der Kalibrierungsphase hörst du echte Dialektaufnahmen und gibst an, welchen Dialekt du erkennst und wie sicher du dir dabei bist. So können wir deine Dialektkenntnisse besser einschätzen und deine späteren Bewertungen entsprechend gewichten.
             </p>
           </div>
