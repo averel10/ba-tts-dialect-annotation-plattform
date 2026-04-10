@@ -94,15 +94,6 @@ export default function AnnotationInfoView({
             </ul>
           </div>
 
-          {/* Status */}
-          {hasExistingAnswers && (
-            <div className="bg-green-50 border border-green-200 rounded-lg p-6 mb-8">
-              <p className="text-green-800 text-sm">
-                ✓ Du hast diese Einführung bereits gesehen. Du kannst direkt mit der Bewertung weitermachen.
-              </p>
-            </div>
-          )}
-
           {/* Action Button */}
           <div className="flex justify-center">
             <button
