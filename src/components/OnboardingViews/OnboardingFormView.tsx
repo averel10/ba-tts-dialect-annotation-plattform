@@ -251,12 +251,13 @@ export default function OnboardingFormView({ experimentId, onBack, userEmail }: 
                 <p className="text-s text-gray-600 mb-8">
                   Bitte gib die Regionen an, in denen du länger als 1 Jahr gelebt hast, sowie die Anzahl der Jahre. So können wir deine Dialektkenntnisse besser einschätzen.
                 </p>
-                {/* Map Placeholder */}
-                <div className="bg-gray-100 border-2 border-dashed border-gray-300 rounded-lg p-12 flex items-center justify-center min-h-[300px]">
-                  <div className="text-center">
-                    <div className="text-4xl mb-2">🗺️</div>
-                    <p className="text-gray-500 font-medium">Karte kommt hier (mit Dialektregionen)</p>
-                  </div>
+                {/* Regions Map */}
+                <div className="rounded-lg overflow-hidden border border-gray-200">
+                  <img
+                    src="/swiss_regions_map.png"
+                    alt="Schweizer Dialektregionen"
+                    className="w-full h-auto"
+                  />
                 </div>
 
                 {/* Residence Entries */}
