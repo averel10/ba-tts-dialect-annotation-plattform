@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react';
 import { getOnboardingAnswers } from '@/app/actions/onboarding';
 import OnboardingInfoView from './OnboardingInfoView';
 import OnboardingFormView from './OnboardingFormView';
+import { authClient } from '@/lib/auth-client';
 
 const scrollToTop = () => {
   window.scrollTo({
@@ -21,6 +22,9 @@ export default function OnboardingPhase({ experimentId }: OnboardingPhaseProps) 
   const [hasExistingAnswers, setHasExistingAnswers] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
 
+  const [userEmail, setUserEmail] = useState<string>('');
+
+
   useEffect(() => {
     const load = async () => {
       try {
@@ -31,6 +35,11 @@ export default function OnboardingPhase({ experimentId }: OnboardingPhaseProps) 
           if (answers && Object.keys(answers).length > 0) {
             setHasExistingAnswers(true);
           }
+        }
+        // Get user email for raffle participation
+        const session = await authClient.getSession();
+        if (session && session.data && session.data.user && session.data.user.email) {
+          setUserEmail(session.data.user.email);
         }
       } catch (err) {
         console.error(err);
@@ -69,5 +78,5 @@ export default function OnboardingPhase({ experimentId }: OnboardingPhaseProps) 
   }
 
   
-  return <OnboardingFormView experimentId={experimentId} onBack={() => { scrollToTop(); setShowInfoPage(true); }} />;
+  return <OnboardingFormView experimentId={experimentId} userEmail={userEmail} onBack={() => { scrollToTop(); setShowInfoPage(true); }} />;
 }

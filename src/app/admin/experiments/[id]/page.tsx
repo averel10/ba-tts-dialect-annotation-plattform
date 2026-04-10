@@ -22,7 +22,7 @@ export default async function ExperimentPage({ params }: ExperimentPageProps) {
   const result = await requireAdmin();
 
   if (!result.authenticated) {
-    redirect("/user/sign-in");
+    redirect("/");
   }
 
   if (!result.admin) {

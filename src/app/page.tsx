@@ -2,25 +2,18 @@ import Link from 'next/link';
 import { headers } from 'next/headers';
 import { auth } from '@/lib/auth';
 import { getAllExperiments, getAnnotationProgress } from '@/app/actions/annotations';
+import { AuthForm } from '@/components/AuthForm';
 
 export default async function HomePage() {
   const session = await auth.api.getSession({ headers: await headers() });
 
   if (!session) {
     return (
-      <div className="max-w-xl mx-auto text-center py-20">
-        <h1 className="text-3xl font-bold text-gray-800 mb-4">
-          Willkommen zur Dialektannotation
-        </h1>
-        <p className="text-gray-600 mb-8">
-          Bitte melden Sie sich an, um mit der Annotation zu beginnen.
+      <div className="max-w-xl mx-auto text-center px-4 mt-4">
+        <p className="text-gray-600 mb-4">
+          Für die Teilnahme an Annotationsstudien benötigst du ein Benutzerkonto. Mit diesem Konto speichern wir deinen Fortschritt, damit du jederzeit unterbrechen und später fortsetzen kannst. Deine Daten werden vertraulich behandelt und ausschließlich für die Zwecke dieser Studien verwendet. Wir werden dir niemals E-Mails ohne deine ausdrückliche Zustimmung senden.
         </p>
-        <Link
-          href="/user/sign-in"
-          className="px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-lg transition-colors"
-        >
-          Anmelden
-        </Link>
+        <AuthForm />
       </div>
     );
   }

@@ -8,7 +8,7 @@ export default async function ExperimentsAdminPage() {
   const result = await requireAdmin();
 
   if (!result.authenticated) {
-    redirect("/user/sign-in");
+    redirect("/");
   }
 
   if (!result.admin) {

@@ -22,7 +22,7 @@ export default async function DatasetPage({ params }: DatasetPageProps) {
   const result = await requireAdmin();
 
   if (!result.authenticated) {
-    redirect("/user/sign-in");
+    redirect("/");
   }
 
   if (!result.admin) {

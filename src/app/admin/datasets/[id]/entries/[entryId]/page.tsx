@@ -17,7 +17,7 @@ export default async function DatasetEntryPage({ params }: DatasetEntryPageProps
   const result = await requireAdmin();
 
   if (!result.authenticated) {
-    redirect("/user/sign-in");
+    redirect("/");
   }
 
   if (!result.admin) {

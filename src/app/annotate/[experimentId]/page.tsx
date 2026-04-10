@@ -16,7 +16,7 @@ interface Props {
 
 export default async function AnnotatePage({ params }: Props) {
   const session = await auth.api.getSession({ headers: await headers() });
-  if (!session) redirect('/user/sign-in');
+  if (!session) redirect("/");
 
   const { experimentId: experimentIdStr } = await params;
   const experimentId = parseInt(experimentIdStr, 10);

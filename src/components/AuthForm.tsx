@@ -57,13 +57,10 @@ export function AuthForm() {
   };
 
   return (
-    <div className="flex items-center justify-center py-8 px-4">
-      <div className="w-full max-w-md">
+    <div className="flex items-center justify-center">
+      <div className="w-full">
         {/* Card */}
         <div className="bg-white rounded-lg shadow-lg overflow-hidden border border-gray-200">
-          {/* Header */}
-          <div className="bg-gradient-to-r from-blue-600 to-blue-700 px-6 py-8">
-          </div>
 
           {/* Tabs */}
           <div className="flex border-b border-gray-200">
@@ -200,7 +197,7 @@ export function AuthForm() {
             <p className="text-center text-sm text-gray-600 mt-6">
               {mode === 'signin' ? (
                 <>
-                  Sie haben noch kein Konto?{' '}
+                  Du hast noch kein Konto?{' '}
                   <button
                     type="button"
                     onClick={() => {
@@ -214,7 +211,7 @@ export function AuthForm() {
                 </>
               ) : (
                 <>
-                  Sie haben bereits ein Konto?{' '}
+                  Du hast bereits ein Konto?{' '}
                   <button
                     type="button"
                     onClick={() => {

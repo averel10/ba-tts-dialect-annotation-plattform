@@ -8,7 +8,7 @@ export default async function DatasetsAdminPage() {
   const result = await requireAdmin();
 
   if (!result.authenticated) {
-    redirect("/user/sign-in");
+    redirect("/");
   }
 
   if (!result.admin) {

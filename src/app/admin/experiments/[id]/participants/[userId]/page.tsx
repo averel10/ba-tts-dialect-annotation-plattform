@@ -18,7 +18,7 @@ export default async function ParticipantPage({ params }: ParticipantDetailPageP
   const result = await requireAdmin();
 
   if (!result.authenticated) {
-    redirect("/user/sign-in");
+    redirect("/");
   }
 
   if (!result.admin) {

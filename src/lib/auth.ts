@@ -42,3 +42,15 @@ export async function requireAdmin() {
 
   return { authenticated: true, admin: session.user.admin, session };
 }
+
+export async function requireAuthentication() {
+  const session = await auth.api.getSession({
+    headers: await headers()
+  });
+
+  if (!session) {
+    return { authenticated: false, session: null };
+  }
+
+  return { authenticated: true, session };
+}

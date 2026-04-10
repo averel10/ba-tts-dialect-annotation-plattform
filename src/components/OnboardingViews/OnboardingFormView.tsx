@@ -8,6 +8,7 @@ import { DIALECT_LABELS_WITHOUT_DE } from '@/lib/dialects';
 interface OnboardingFormViewProps {
   experimentId: number;
   onBack: () => void;
+  userEmail: string;
 }
 
 interface ResidenceEntry {
@@ -17,7 +18,7 @@ interface ResidenceEntry {
 
 interface FormData {
   age?: string;
-  email?: string;
+  participateInRaffle?: boolean;
   residences?: ResidenceEntry[];
   dialectQualities?: Record<string, string>;
   listeningExperience?: string;
@@ -26,7 +27,7 @@ interface FormData {
 
 type Step = 1 | 2 | 3;
 
-export default function OnboardingFormView({ experimentId, onBack }: OnboardingFormViewProps) {
+export default function OnboardingFormView({ experimentId, onBack, userEmail }: OnboardingFormViewProps) {
   const router = useRouter();
   const [isPending, startTransition] = useTransition();
   const [currentStep, setCurrentStep] = useState<Step>(1);
@@ -37,7 +38,7 @@ export default function OnboardingFormView({ experimentId, onBack }: OnboardingF
   
   const [formData, setFormData] = useState<FormData>({
     age: '',
-    email: '',
+    participateInRaffle: false,
     residences: [{ region: '', years: '' }],
     dialectQualities: initializeDialectQualities()
   });
@@ -50,7 +51,7 @@ export default function OnboardingFormView({ experimentId, onBack }: OnboardingF
     });
   }, [currentStep]);
 
-  const handleChange = (field: keyof FormData, value: string) => {
+  const handleChange = (field: keyof FormData, value: string | boolean) => {
     setFormData((prev) => ({
       ...prev,
       [field]: value,
@@ -223,18 +224,23 @@ export default function OnboardingFormView({ experimentId, onBack }: OnboardingF
                 </div>
 
                 <div className="border-t border-gray-200 pt-6">
-                  <label htmlFor="email" className="block text-s font-medium text-gray-900 mb-1">
-                    E-Mail-Adresse (optional)
-                  </label>
-                  <p className="text-sm text-gray-500 mb-2">Wird nur für die Gutschein-Verlosung verwendet.</p>
-                  <input
-                    type="email"
-                    id="email"
-                    value={formData.email}
-                    onChange={(e) => handleChange('email', e.target.value)}
-                    placeholder="beispiel@email.ch"
-                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                  />
+                  <div className="flex items-start gap-3">
+                    <input
+                      type="checkbox"
+                      id="participateInRaffle"
+                      checked={formData.participateInRaffle ?? false}
+                      onChange={(e) => handleChange('participateInRaffle', e.target.checked ? true : false)}
+                      className="mt-1 w-5 h-5 cursor-pointer accent-blue-600"
+                    />
+                    <div className="flex-1">
+                      <label htmlFor="participateInRaffle" className="block text-s font-medium text-gray-900 mb-2 cursor-pointer">
+                        Ich möchte an der Gutscheinverlosung teilnehmen
+                      </label>
+                      <p className="text-sm text-gray-600 mb-2">
+                        Wir werden deine E-Mail-Adresse<strong>{userEmail && ` (${userEmail})`}</strong> verwenden, um dich im Falle eines Gewinns zu kontaktieren.
+                      </p>
+                    </div>
+                  </div>
                 </div>
               </div>
             )}
