@@ -40,10 +40,10 @@ export default async function HomePage() {
 
   return (
     <div className="max-w-2xl mx-auto px-4 sm:px-6 lg:px-8">
-      <h1 className="text-2xl font-bold text-gray-800 mb-2 mt-4">Experimente</h1>
-      <p className="text-gray-500 mb-8">
-        Wählen Sie ein Experiment aus, um mit der Annotation zu beginnen oder fortzufahren.
-      </p>
+      <h1 className="text-3xl font-bold text-gray-900 mb-4 mt-4">Übersicht</h1>
+      {<p className="text-gray-500 mb-8">
+        Hier findest du alle verfügbaren Bewertungsrunden. Wähle eine aus, um zu starten oder dort weiterzumachen, wo du aufgehört hast.
+      </p>}
 
       <div className="flex flex-col gap-4">
         {experiments.map((exp, i) => {
@@ -66,7 +66,7 @@ export default async function HomePage() {
                   {/* Progress */}
                   <div className="mt-3">
                     <div className="flex justify-between text-xs text-gray-400 mb-1">
-                      <span>{done} / {total} annotiert</span>
+                      <span>{done} / {total} bewertet</span>
                       <span>{pct}%</span>
                     </div>
                     <div className="w-full bg-gray-200 rounded-full h-2">
