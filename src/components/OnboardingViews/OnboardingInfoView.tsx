@@ -60,7 +60,7 @@ export default function OnboardingInfoView({
 
 
           {/* Participation Section */}
-          <div className="mb-8">
+          <div className="mb-12">
             <p className="text-gray-700 mb-4">
               Du entscheidest selbst, wie viele Aufnahmen du bewertest. Die gesamte Teilnahme inklusive Formular, Kalibrierung und 50 bewerteten Aufnahmen dauert etwa 30 Minuten. Unter allen Teilnehmenden, die 50 oder mehr Aufnahmen bewertet haben, <strong>verlosen wir 3x [Platzhalter]-Gutscheine im Wert von je [x].- CHF!</strong>
             </p>

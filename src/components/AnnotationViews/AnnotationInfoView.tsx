@@ -2,15 +2,15 @@
 
 import { useEffect } from 'react';
 
-interface CalibrationInfoViewProps {
+interface AnnotationInfoViewProps {
   onContinue: () => void;
   hasExistingAnswers: boolean;
 }
 
-export default function CalibrationInfoView({
+export default function AnnotationInfoView({
   onContinue,
   hasExistingAnswers,
-}: CalibrationInfoViewProps) {
+}: AnnotationInfoViewProps) {
   useEffect(() => {
     window.scrollTo({
       top: 0,
@@ -18,25 +18,35 @@ export default function CalibrationInfoView({
     });
   }, []);
 
-  const handleContinue = () => {
-    onContinue();
-  };
-
   return (
     <div className="flex flex-col h-full bg-white">
       <div className="flex-1 flex items-center justify-center px-4">
         <div className="max-w-[700px] w-full">
           {/* Header */}
           <div className="text-center mb-4">
-            <h1 className="text-3xl font-bold text-gray-900 mb-8 mt-4">Kalibrierungsphase</h1>
+            <h1 className="text-3xl font-bold text-gray-900 mb-8 mt-4">Bewertungsphase</h1>
           </div>
 
           {/* Info Section */}
           <div className="bg-blue-50 border border-blue-200 rounded-lg p-8 mb-8">
-            <h2 className="text-xl font-semibold text-gray-900 mb-4">Was ist die Kalibrierungsphase?</h2>
+            <h2 className="text-xl font-semibold text-gray-900 mb-4">Was ist deine Aufgabe?</h2>
             <p className="text-gray-700 mb-4">
-              In der Kalibrierungsphase hörst du echte Dialektaufnahmen und gibst an, welchen Dialekt du erkennst und wie sicher du dir dabei bist. So können wir deine Dialektkenntnisse besser einschätzen und deine späteren Bewertungen entsprechend gewichten.
+              Du hörst kurze Audioaufnahmen, die von einem KI-Modell generiert wurden. Pro Aufnahme bewertest du zwei Dinge:
             </p>
+            <div className="space-y-3 text-gray-700 mb-8">
+              <div>
+                <p className="font-semibold mb-1">Authentizität</p>
+                <p>Klingt es so, wie jemand aus dieser Region wirklich sprechen würde, mit der typischen Ausdrucksweise dieser Region? Oder klingt es eher wie eine Imitation?</p>
+              </div>
+              <div>
+                <p className="font-semibold mb-1 mt-4">Sicherheit</p>
+                <p>Wie sicher bist du dir bei deiner Einschätzung?</p>
+              </div>
+            </div>
+            <div className="border-t border-blue-200 pt-4 text-gray-700">
+              <p className="font-semibold mb-1 mt-1">Keine Trickfragen</p>
+              <p>Jede Aufnahme wurde tatsächlich im angegebenen Dialekt generiert.</p>
+            </div>
           </div>
 
           {/* Instructions Section */}
@@ -47,13 +57,13 @@ export default function CalibrationInfoView({
                 <span className="flex-shrink-0 w-6 h-6 bg-blue-600 text-white rounded-full flex items-center justify-center text-sm font-semibold">
                   1
                 </span>
-                <span>Du hörst eine Audioaufnahme</span>
+                <span>Du hörst eine synthetische Audioaufnahme</span>
               </li>
               <li className="flex gap-3">
                 <span className="flex-shrink-0 w-6 h-6 bg-blue-600 text-white rounded-full flex items-center justify-center text-sm font-semibold">
                   2
                 </span>
-                <span>Du wählst den Dialekt aus, den du gehört hast</span>
+                <span>Du bewertest, wie authentisch die Aufnahme nach dem angegebenen Dialekt klingt</span>
               </li>
               <li className="flex gap-3">
                 <span className="flex-shrink-0 w-6 h-6 bg-blue-600 text-white rounded-full flex items-center justify-center text-sm font-semibold">
@@ -65,26 +75,30 @@ export default function CalibrationInfoView({
                 <span className="flex-shrink-0 w-6 h-6 bg-blue-600 text-white rounded-full flex items-center justify-center text-sm font-semibold">
                   4
                 </span>
-                <span>Dies wiederholst du für alle Aufnahmen</span>
+                <span>Dies wiederholst du für weitere Aufnahmen</span>
               </li>
             </ol>
           </div>
 
-          
-          {/* Participation Section */}
+          {/* Hints Section */}
           <div className="mb-12">
-            <p className="text-gray-700 mb-4">
-              Die Kalibrierung umfasst 28 Aufnahmen und dauert etwa 5–10 Minuten.
-            </p>
+            <ul className="space-y-2 text-sm text-gray-500">
+              <li className="flex gap-2">
+                <span className="flex-shrink-0">•</span>
+                <span>Die Aufnahmen sind aufgrund deiner Kalibrierungsergebnisse sortiert – du siehst zuerst Dialekte, die du gut erkennst. Du kannst aber jederzeit vor- und zurückspringen.</span>
+              </li>
+              <li className="flex gap-2">
+                <span className="flex-shrink-0">•</span>
+                <span>Du kannst die Bewertung jederzeit unterbrechen und später dort weitermachen, wo du aufgehört hast.</span>
+              </li>
+            </ul>
           </div>
-
 
           {/* Status */}
           {hasExistingAnswers && (
             <div className="bg-green-50 border border-green-200 rounded-lg p-6 mb-8">
               <p className="text-green-800 text-sm">
-                ✓ Sie haben diese Einführung bereits gesehen. Sie können Ihre Kalibrierung
-                fortsetzen.
+                ✓ Du hast diese Einführung bereits gesehen. Du kannst direkt mit der Bewertung weitermachen.
               </p>
             </div>
           )}
@@ -92,10 +106,10 @@ export default function CalibrationInfoView({
           {/* Action Button */}
           <div className="flex justify-center">
             <button
-              onClick={handleContinue}
+              onClick={onContinue}
               className="px-8 py-3 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-lg transition-colors text-lg"
             >
-              {hasExistingAnswers ? 'Kalibrierung fortsetzen' : 'Kalibrierung starten'}
+              {hasExistingAnswers ? 'Bewertung fortsetzen' : 'Bewertung starten'}
             </button>
           </div>
         </div>

@@ -2,11 +2,11 @@ import { redirect, notFound } from 'next/navigation';
 import { headers } from 'next/headers';
 import Link from 'next/link';
 import { auth } from '@/lib/auth';
-import { getAnnotationEntries} from '@/app/actions/annotations';
+import { getAnnotationEntries, getAnnotationProgress } from '@/app/actions/annotations';
 import { isCalibrationDone } from '@/app/actions/calibration-scoring';
 import { isOnboardingDone } from '@/app/actions/onboarding';
 import { getExperimentById } from '@/app/actions/experiment';
-import AnnotationPageView from '@/components/AnnotationViews/AnnotationPageView';
+import AnnotationPhase from '@/components/AnnotationViews/AnnotationPhase';
 import OnboardingPhase from '@/components/OnboardingViews/OnboardingPhase';
 import CalibrationPhase from '@/components/CalibrationViews/CalibrationPhase';
 
@@ -44,8 +44,11 @@ export default async function AnnotatePage({ params }: Props) {
     return <CalibrationPhase experimentId={experimentId} />;
   }
 
-  const prototype = await getExperimentById(experimentId).then(exp => exp?.annotationTool || null);
-  const entries = await getAnnotationEntries(experimentId);
+  const [prototype, entries, { done }] = await Promise.all([
+    getExperimentById(experimentId).then(exp => exp?.annotationTool || null),
+    getAnnotationEntries(experimentId),
+    getAnnotationProgress(experimentId),
+  ]);
 
   if (entries.length === 0) {
     return (
@@ -68,10 +71,11 @@ export default async function AnnotatePage({ params }: Props) {
   }
 
   return (
-    <AnnotationPageView 
-      entries={entries} 
-      experimentId={experimentId} 
-      viewType={prototype || ''} 
+    <AnnotationPhase
+      entries={entries}
+      experimentId={experimentId}
+      viewType={prototype || ''}
+      hasExistingAnswers={done > 0}
     />
   );
 }
