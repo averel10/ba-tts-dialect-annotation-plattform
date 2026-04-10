@@ -28,4 +28,5 @@ export type DatasetEntryForAnnotation = {
   datasetId: number;
   experimentId: number;
   annotation: number | null;
+  utteranceText: string | null;
 };

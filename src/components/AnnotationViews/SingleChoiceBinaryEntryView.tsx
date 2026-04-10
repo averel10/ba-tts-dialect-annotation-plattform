@@ -70,6 +70,14 @@ export default function SingleChoiceBinaryEntryView({
         </p>
       )}
 
+      {/* Utterance text */}
+      {entry.utteranceText && (
+        <div className="mt-4 mb-4 p-3 bg-gray-100 rounded-lg">
+          <p className="text-xs text-gray-500 uppercase tracking-wide font-semibold mb-1">Transkription</p>
+          <p className="text-sm text-gray-800 italic">"{entry.utteranceText}"</p>
+        </div>
+      )}
+
       {/* Dialect + question */}
       <div className="mt-4 mb-3">
         <div className="text-s font-semibold text-gray-700">

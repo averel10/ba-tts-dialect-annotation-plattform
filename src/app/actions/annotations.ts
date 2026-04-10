@@ -156,6 +156,7 @@ export async function getAnnotationEntries(experimentId: number): Promise<Datase
     experimentId: experimentId,
     datasetId: e.datasetId,
     annotation: annotationEntries.find((a) => a.datasetEntryId === e.id)?.rating || null,
+    utteranceText: e.utteranceText,
   }));
 
   return sortEntriesByWeightedDialectScore(mapped, dialectScores, session.user.id);

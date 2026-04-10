@@ -92,6 +92,14 @@ export default function CalibrationEntryView({
         </p>
       )}
 
+      {/* Utterance text */}
+      {entry.utteranceText && (
+        <div className="mt-4 mb-4 p-3 bg-gray-100 rounded-lg">
+          <p className="text-xs text-gray-500 uppercase tracking-wide font-semibold mb-1">Transkription</p>
+          <p className="text-sm text-gray-800 italic">"{entry.utteranceText}"</p>
+        </div>
+      )}
+
       {/* Questions container */}
       <div className="mt-6 flex flex-col lg:flex-row gap-6">
         {/* Dialect question */}
