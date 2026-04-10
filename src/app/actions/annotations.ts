@@ -156,6 +156,7 @@ export async function getAnnotationEntries(experimentId: number): Promise<Datase
     experimentId: experimentId,
     datasetId: e.datasetId,
     annotation: annotationEntries.find((a) => a.datasetEntryId === e.id)?.rating || null,
+    confidence: annotationEntries.find((a) => a.datasetEntryId === e.id)?.confidence || null,
     utteranceText: e.utteranceText,
   }));
 
@@ -167,7 +168,7 @@ export async function getAnnotationEntries(experimentId: number): Promise<Datase
  * Updates existing annotations with the same userId, experimentId, and datasetEntryId.
  */
 export async function saveAnnotations(
-  ratings: { entryId: number; rating: number; dialectLabel: string }[],
+  ratings: { entryId: number; rating: number; dialectLabel: string; confidence: number }[],
   experimentId: number
 ): Promise<void> {
   const session = await auth.api.getSession({ headers: await headers() });
@@ -175,15 +176,16 @@ export async function saveAnnotations(
 
   if (ratings.length === 0) return;
 
-  for (const { entryId, rating, dialectLabel } of ratings) {
+  for (const { entryId, rating, dialectLabel, confidence } of ratings) {
     await db
       .insert(annotation)
-      .values({experimentId, datasetEntryId: entryId, userId: session.user.id, rating, dialectLabel })
+      .values({experimentId, datasetEntryId: entryId, userId: session.user.id, rating, dialectLabel, confidence })
       .onConflictDoUpdate({
         target: [annotation.userId, annotation.experimentId, annotation.datasetEntryId],
         set: {
           rating,
           dialectLabel,
+          confidence
         }
       });
   }

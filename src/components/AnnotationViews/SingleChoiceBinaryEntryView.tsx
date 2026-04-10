@@ -26,7 +26,7 @@ export default function SingleChoiceBinaryEntryView({
     if (answer === entry.annotation) return; // No change, don't save
 
     const timer = setTimeout(() => {
-      onSave(answer);
+      onSave(answer, -1); // Using max confidence for now, can be changed to user input if needed
     }, AUTO_ADVANCE_DELAY_MS);
 
     return () => clearTimeout(timer);

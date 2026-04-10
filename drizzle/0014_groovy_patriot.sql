@@ -1,0 +1,1 @@
+ALTER TABLE `annotation` ADD `confidence` integer NOT NULL;

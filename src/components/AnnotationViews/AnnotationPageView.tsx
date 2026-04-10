@@ -13,9 +13,10 @@ import CalibrationScoresModal from '@/components/CalibrationScoresModal';
 export interface EntryViewProps {
   entry: DatasetEntryForAnnotation;
   index: number;
-  onSave: (rating: number) => Promise<void>;
+  onSave: (rating: number, confidence: number) => Promise<void>;
   isSaving: boolean;
   ratingOptions?: { value: number; label: JSX.Element | string }[];
+  confidenceOptions?: { value: number; label: JSX.Element | string }[];
   question?: JSX.Element | string;
 }
 
@@ -68,6 +69,12 @@ export default function AnnotationPageView({
             { value: 4, label: `Klingt eindeutig nach ${DIALECT_LABELS[dialectLabel]}` },
           ],
           question: <div>Wie authentisch klingt diese Aufnahme nach dem Dialekt der Region <span className="text-blue-600">{DIALECT_LABELS[dialectLabel]}</span>?</div>,
+          confidenceOptions: [
+            { value: 1, label: 'Sehr unsicher' },
+            { value: 2, label: 'Eher unsicher' },
+            { value: 3, label: 'Eher sicher' },
+            { value: 4, label: 'Sehr sicher' },
+          ]
         };
       case 'binary':
         return {
@@ -99,6 +106,7 @@ export default function AnnotationPageView({
         isSaving={isPending}
         ratingOptions={config.ratingOptions}
         question={config.question}
+        confidenceOptions={config.confidenceOptions}
       />
     );
         case 'binary':
@@ -147,12 +155,16 @@ export default function AnnotationPageView({
     }
   };
 
-  const handleSaveEntry = async (rating: number) => {
+  const handleSaveEntry = async (rating: number, confidence: number) => {
     startTransition(async () => {
-      const batch = [{ entryId: currentEntry!.id, rating, dialectLabel: currentEntry!.dialect }];
+      const batch = [{ entryId: currentEntry!.id, rating, dialectLabel: currentEntry!.dialect, confidence }]; // Using max confidence for now, can be changed to user input if needed
       await saveAnnotations(batch, experimentId);
+      const isNewAnnotation = entries[currentIndex].annotation === null && entries[currentIndex].confidence === null; // Check if this is the first time annotating this entry
       entries[currentIndex].annotation = rating; // Update local state optimistically
-      handleNext();
+      entries[currentIndex].confidence = confidence; // Update confidence in local state
+      if (isNewAnnotation) {
+        handleNext();
+      }
     });
   };
   // Calculate progress: count already-annotated entries

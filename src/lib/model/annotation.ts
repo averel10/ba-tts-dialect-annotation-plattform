@@ -11,7 +11,8 @@ export const annotation = sqliteTable(
     experimentId: integer('experiment_id')
       .references(() => experiment.id),
     userId: text('user_id').notNull(),
-    rating: integer('rating').notNull(), // 1–5
+    rating: integer('rating').notNull(), // 1–4
+    confidence: integer('confidence').notNull(), // 1-4
     dialectLabel: text('dialect_label').notNull(), // e.g. 'ch_be', 'ch_zh', …
     createdAt: integer('created_at', { mode: 'timestamp' })
       .notNull()
