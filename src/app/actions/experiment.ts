@@ -6,7 +6,7 @@ import { experiment_calibration } from '@/lib/model/experiment_calibration';
 import { annotation } from '@/lib/model/annotation';
 import { participant } from '@/lib/model/participant';
 import { dataset_entry } from '@/lib/model/dataset_entry';
-import { and, eq, count, sql, isNotNull } from 'drizzle-orm';
+import { and, eq, count, sql } from 'drizzle-orm';
 import { revalidatePath } from 'next/cache';
 import { auth, requireAdmin } from '@/lib/auth';
 import { isParticipantCalibrationDone } from './calibration-scoring';
@@ -111,9 +111,11 @@ export async function deleteExperiment(id: number) {
   }
 
   try {
-    // Delete all experiment_calibration records first
+    // Delete all child records first (FK constraints)
+    await db.delete(annotation).where(eq(annotation.experimentId, id));
+    await db.delete(participant).where(eq(participant.experimentId, id));
     await db.delete(experiment_calibration).where(eq(experiment_calibration.experimentId, id));
-    
+
     // Delete the experiment
     await db.delete(experiment).where(eq(experiment.id, id));
 

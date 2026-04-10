@@ -113,7 +113,6 @@ function calculateDialectScores(
  * Returns true if calibration is completed or not required, false if calibration is pending.
  */
 export async function isCalibrationDone(experimentId: number): Promise<boolean> {
-  console.log('Checking calibration status for experimentId:', experimentId);
   const session = await auth.api.getSession({ headers: await headers() });
   if (!session) throw new Error('Nicht angemeldet');
 
@@ -123,11 +122,11 @@ export async function isCalibrationDone(experimentId: number): Promise<boolean> 
         .from(experiment)
         .where(eq(experiment.id, experimentId))
         .limit(1);
-  
+
       if (exp.length === 0) {
         throw new Error('Experiment not found');
       }
-  
+
       // If calibration is not enabled, consider it done
       if (!exp[0].calibrationEnabled) {
         return true;

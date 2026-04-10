@@ -189,9 +189,6 @@ export default function AnnotationPageView({
             <div className="flex-1 flex items-center justify-center">
               <div className="text-center">
                 <p className="text-gray-600">Unbekannter Annotation-Typ: {viewType}</p>
-                <Link href="/" className="text-blue-600 hover:underline mt-4 inline-block">
-                  ← Startseite
-                </Link>
               </div>
             </div>
           </div>
@@ -274,12 +271,7 @@ export default function AnnotationPageView({
                 >
                   {sidebarOpen ? '✕' : '☰'}
                 </button>
-                <Link
-                  href="/"
-                  className="text-sm px-3 py-1.5 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-md transition-colors"
-                >
-                  ← Startseite
-                </Link>
+
                 {Object.keys(dialectScores).length > 0 && (
                   <button
                     onClick={() => setIsCalibrationModalOpen(true)}
