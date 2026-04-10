@@ -29,5 +29,5 @@ export default function AnnotationPhase({
     );
   }
 
-  return <AnnotationPageView entries={entries} experimentId={experimentId} viewType={viewType} />;
+  return <AnnotationPageView entries={entries} experimentId={experimentId} viewType={viewType} onShowIntro={() => setShowInfoPage(true)} />;
 }

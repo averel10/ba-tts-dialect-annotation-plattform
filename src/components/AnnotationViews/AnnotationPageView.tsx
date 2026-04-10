@@ -24,12 +24,14 @@ interface AnnotationPageViewProps {
   entries: DatasetEntryForAnnotation[];
   experimentId: number;
   viewType: string;
+  onShowIntro?: () => void;
 }
 
-export default function AnnotationPageView({ 
-  entries, 
+export default function AnnotationPageView({
+  entries,
   experimentId,
   viewType,
+  onShowIntro,
 }: AnnotationPageViewProps) {
 
   const [isPending, startTransition] = useTransition();
@@ -286,6 +288,15 @@ export default function AnnotationPageView({
                     {sidebarOpen && <rect x="3" y="3" width="6" height="18" rx="2" fill="currentColor" stroke="none"/>}
                   </svg>
                 </button>
+
+                {onShowIntro && (
+                  <button
+                    onClick={onShowIntro}
+                    className="text-sm px-3 py-1.5 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-md transition-colors"
+                  >
+                    ← Einführung
+                  </button>
+                )}
 
                 {Object.keys(dialectScores).length > 0 && (
                   <button
