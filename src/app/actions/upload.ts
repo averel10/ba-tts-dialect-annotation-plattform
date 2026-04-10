@@ -361,6 +361,8 @@ export async function processCalibrationEntries(
           experimentId,
           dialectLabel: row.dialect,
           order: lineIndex + 1,
+          utteranceId: row.utterance_id,
+          utteranceText: row.utterance_text,
           file: `/calibration/${experimentId}/${filename}`,
         });
       }

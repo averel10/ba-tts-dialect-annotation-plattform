@@ -9,6 +9,8 @@ export const experiment_calibration = sqliteTable(
     experimentId: integer('experiment_id')
       .references(() => experiment.id),
     dialectLabel: text('dialect_label').notNull(), // e.g. 'ch_be', 'ch_zh', …
+    utteranceId: text('utterance_id'),
+    utteranceText: text('utterance_text'),
     order: integer('order').notNull(), // order of the calibration items
     file: text('file').notNull(), // path to the audio file for calibration
     createdAt: integer('created_at', { mode: 'timestamp' })
