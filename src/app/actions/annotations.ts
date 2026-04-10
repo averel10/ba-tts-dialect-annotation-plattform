@@ -9,7 +9,7 @@ import { auth } from '@/lib/auth';
 import { headers } from 'next/headers';
 import type { DatasetEntryForAnnotation } from '@/lib/dialects';
 import { experiment } from '@/lib/model/experiment';
-import { getDialectScoresFromCalibration, isCalibrationDone } from '@/app/actions/calibration-scoring';
+import { getDialectScoresFromCalibration } from '@/app/actions/calibration-scoring';
 
 
 /**

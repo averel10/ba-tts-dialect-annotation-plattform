@@ -117,6 +117,22 @@ export async function isCalibrationDone(experimentId: number): Promise<boolean> 
   const session = await auth.api.getSession({ headers: await headers() });
   if (!session) throw new Error('Nicht angemeldet');
 
+      // Check if calibration is enabled for this experiment
+      const exp = await db
+        .select()
+        .from(experiment)
+        .where(eq(experiment.id, experimentId))
+        .limit(1);
+  
+      if (exp.length === 0) {
+        throw new Error('Experiment not found');
+      }
+  
+      // If calibration is not enabled, consider it done
+      if (!exp[0].calibrationEnabled) {
+        return true;
+      }
+
   // Check if participant exists for this user and experiment
   const participantRecord = await db
     .select()
