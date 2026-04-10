@@ -64,9 +64,8 @@ export default function AnnotationPageView({
           ratingOptions: [
             { value: 1, label: `Klingt überhaupt nicht nach ${DIALECT_LABELS[dialectLabel]}` },
             { value: 2, label: `Klingt eher nicht nach ${DIALECT_LABELS[dialectLabel]}` },
-            { value: 3, label: 'Schwer zu beurteilen' },
-            { value: 4, label: `Klingt eher nach ${DIALECT_LABELS[dialectLabel]}` },
-            { value: 5, label: `Klingt eindeutig nach ${DIALECT_LABELS[dialectLabel]}` },
+            { value: 3, label: `Klingt eher nach ${DIALECT_LABELS[dialectLabel]}` },
+            { value: 4, label: `Klingt eindeutig nach ${DIALECT_LABELS[dialectLabel]}` },
           ],
           question: <div>Wie authentisch klingt diese Aufnahme nach dem Dialekt der Region <span className="text-blue-600">{DIALECT_LABELS[dialectLabel]}</span>?</div>,
         };
