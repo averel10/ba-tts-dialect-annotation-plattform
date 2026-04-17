@@ -260,7 +260,7 @@ export default function WaveformPlayer({
             </button>
             {isOnlyPlayer && (
               <div
-                className="inline-flex items-center justify-center w-5 h-5 rounded-full bg-gray-300 text-gray-700 text-xs font-bold cursor-help"
+                className="hidden md:inline-flex items-center justify-center w-5 h-5 rounded-full bg-gray-300 text-gray-700 text-xs font-bold cursor-help"
                 title="Leertaste zum Abspielen/Pausieren verwenden"
               >
                 ?
@@ -313,7 +313,7 @@ export default function WaveformPlayer({
           </button>
           {isOnlyPlayer && (
             <div
-              className="inline-flex items-center justify-center w-5 h-5 rounded-full bg-gray-300 text-gray-700 text-xs font-bold cursor-help"
+              className="hidden md:inline-flex items-center justify-center w-5 h-5 rounded-full bg-gray-300 text-gray-700 text-xs font-bold cursor-help"
               title="Leertaste zum Abspielen/Pausieren verwenden"
             >
               ?
