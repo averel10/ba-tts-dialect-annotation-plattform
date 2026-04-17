@@ -4,6 +4,7 @@ import { useEffect, useState, useTransition } from 'react';
 import { useRouter } from 'next/navigation';
 import { saveOnboardingAnswers } from '@/app/actions/onboarding';
 import { DIALECT_LABELS_WITHOUT_DE } from '@/lib/dialects';
+import mapImage from '@/assets/swiss_regions_map.png';
 
 interface OnboardingFormViewProps {
   experimentId: number;
@@ -388,9 +389,9 @@ export default function OnboardingFormView({ experimentId, onBack, userEmail }: 
 
                 <div className="flex justify-center mb-8">
                   <img
-                    src="/swiss_regions_map.png"
+                    src={mapImage.src}
                     alt="Karte der deutschschweizer Dialektregionen"
-                    className="w-full max-w-md h-auto"
+                    className="w-full h-auto"
                   />
                 </div>
 
