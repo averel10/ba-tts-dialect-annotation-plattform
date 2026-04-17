@@ -24,7 +24,7 @@ export default function AnnotationSidebarNavigation({
   }, [currentIndex]);
 
   return (
-    <aside className="hidden md:flex md:flex-col w-64 h-full bg-gray-50 border-r border-gray-200 p-4 overflow-hidden">
+    <aside className="hidden md:flex md:flex-col w-68 h-full bg-gray-50 border-r border-gray-200 p-4 overflow-hidden">
       {/* Header - fixed at top */}
       <div className="mb-6 flex-shrink-0">
         <h2 className="font-semibold text-gray-900 mb-2">Fortschritt</h2>

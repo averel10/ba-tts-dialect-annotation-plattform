@@ -180,7 +180,7 @@ export default function AnnotationPageView({
       <div className="flex flex-col h-full bg-white">
         <div className="flex flex-1 overflow-hidden">
           {/* Sidebar with transition */}
-          <div className={`${sidebarOpen ? 'w-64' : 'w-0'} transition-all duration-300 ease-in-out overflow-hidden`}>
+          <div className={`${sidebarOpen ? 'w-68' : 'w-0'} transition-all duration-300 ease-in-out overflow-hidden`}>
             <AnnotationSidebarNavigation
               entries={entries}
               currentIndex={currentIndex}
@@ -215,7 +215,7 @@ export default function AnnotationPageView({
       <div className="flex flex-col h-full bg-white">
         <div className="flex flex-1 overflow-hidden">
           {/* Sidebar with transition */}
-          <div className={`${sidebarOpen ? 'w-64' : 'w-0'} transition-all duration-300 ease-in-out overflow-hidden`}>
+          <div className={`${sidebarOpen ? 'w-68' : 'w-0'} transition-all duration-300 ease-in-out overflow-hidden`}>
             <AnnotationSidebarNavigation
               entries={entries}
               currentIndex={currentIndex}
@@ -261,7 +261,7 @@ export default function AnnotationPageView({
     <div className="flex flex-col h-full bg-white">
       <div className="flex flex-1 overflow-hidden">
         {/* Sidebar with transition */}
-        <div className={`${sidebarOpen ? 'w-64' : 'w-0'} transition-all duration-300 ease-in-out overflow-hidden`}>
+        <div className={`${sidebarOpen ? 'w-68' : 'w-0'} transition-all duration-300 ease-in-out overflow-hidden`}>
           <AnnotationSidebarNavigation
             entries={entries}
             currentIndex={currentIndex}
