@@ -286,18 +286,16 @@ export default function OnboardingFormView({ experimentId, onBack, userEmail }: 
             {/* Step 2: Aufenthaltsorte */}
             {currentStep === 2 && (
               <div className="space-y-6">
-                <p className="text-s text-gray-600 mb-8">
-                  Bitte gib an, in welchen deutschschweizer Kantonen du länger als 1 Jahr gelebt hast und wie viele Jahre insgesamt.
-                  <br />
-                  Wenn du mehrmals im gleichen Kanton gewohnt hast, zähle die Zeit zusammen und mache nur einen Eintrag pro Kanton.
-                  <br />
-                  Falls ein Kanton nicht in der Liste ist oder du im Ausland gelebt hast, wähle „Anderer Kanton/Ausland“ 
-                </p>
+                <div className="text-s text-gray-600 mb-8 space-y-2">
+                  <p>Bitte gib an, in welchen Kantonen der Deutschschweiz du länger als 1 Jahr gelebt hast.</p>
+                  <p>Falls du zeitweise weggezogen und später zurückgekehrt bist, zähle die Jahre zusammen und erstelle nur einen Eintrag pro Kanton.</p>
+                  <p>Kantone ausserhalb der Deutschschweiz oder Aufenthalte im Ausland kannst du unter „Anderer Kanton/Ausland" erfassen.</p>
+                </div>
 
                 {/* Residence Entries */}
                 <div>
                   <label className="block text-s font-medium text-gray-900 mb-4">
-                    Meine Aufenthaltsorte (mind. 1 Jahr) <span className="text-red-600">*</span>
+                    Aufenthaltsorte (mind. 1 Jahr) <span className="text-red-600">*</span>
                   </label>
 
                   <div className="space-y-4">
@@ -379,13 +377,12 @@ export default function OnboardingFormView({ experimentId, onBack, userEmail }: 
             {/* Step 3: Dialektzuordnung */}
             {currentStep === 3 && (
               <div className="space-y-6">
-                <p className="text-s text-gray-600 mb-8">
-                  Zu welcher Region würdest du deinen eigenen Dialekt am ehesten zuordnen?
-                  <br />
-                  Orientiere dich an der folgenden Karte der deutschschweizer Dialektregionen.
-                  <br />
-                  Wenn du keinen deutschschweizer Dialekt sprichst, wähle "Ich spreche keinen deutschschweizer Dialekt" aus.
-                </p>
+                <div className="text-s text-gray-600 mb-8 space-y-2">
+                  <p>Zu welcher Region würdest du deinen eigenen Dialekt am ehesten zuordnen?</p>
+                  <p>Orientiere dich an der folgenden Karte der schweizerdeutschen Dialektregionen.</p>
+                  <p>Wenn du keinen schweizerdeutschen Dialekt sprichst, wähle „Ich spreche keinen schweizerdeutschen Dialekt" aus.</p>
+                </div>
+
 
                 <div className="flex justify-center mb-8">
                   <img
@@ -394,10 +391,13 @@ export default function OnboardingFormView({ experimentId, onBack, userEmail }: 
                     className="w-full h-auto"
                   />
                 </div>
+                <p className="text-xs text-gray-500 mt-0 italic">
+                  Aargau ist keiner Dialektregion eindeutig zugeteilt. Falls du aus dem Kanton Aargau stammst, wähle die benachbarte Region, der du deinen Dialekt am ehesten zuordnen würdest.
+                </p>
 
                 <div>
                   <label htmlFor="ownDialect" className="block text-s font-medium text-gray-900 mb-4">
-                    Meine Dialektregion <span className="text-red-600">*</span>
+                    Deine Dialektregion <span className="text-red-600">*</span>
                   </label>
                   <select
                     id="ownDialect"
@@ -411,7 +411,7 @@ export default function OnboardingFormView({ experimentId, onBack, userEmail }: 
                         {label}
                       </option>
                     ))}
-                    <option value="none">Ich spreche keinen deutschschweizer Dialekt</option>
+                    <option value="none">Ich spreche keinen schweizerdeutschen Dialekt</option>
                   </select>
                 </div>
               </div>
