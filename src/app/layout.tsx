@@ -1,6 +1,5 @@
 import './globals.css';
 import { Header } from '@/components/Header';
-import { Footer } from '@/components/Footer';
 import { AudioProvider } from '@/components/AudioProvider';
 
 export default function RootLayout({
@@ -14,10 +13,9 @@ export default function RootLayout({
       <body className="flex flex-col min-h-screen">
         <AudioProvider>
           <Header />
-          <main className="flex-grow py-4">
+          <main className="flex-grow pt-4 pb-8">
             {children}
           </main>
-          <Footer />
         </AudioProvider>
       </body>
     </html>
