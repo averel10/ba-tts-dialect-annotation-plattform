@@ -108,11 +108,6 @@ export default function SingleChoiceBinaryEntryView({
           );
         })}
       </div>
-
-      {/* Footnote */}
-      <p className="text-xs text-gray-400 mt-8 pt-3 border-t border-gray-100">
-        Vertrau deinem ersten Eindruck – klingt die Aufnahme authentisch nach diesem Dialekt? Es gibt keine richtige oder falsche Antwort.
-      </p>
     </div>
   );
 }
