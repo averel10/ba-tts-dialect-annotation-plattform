@@ -295,6 +295,7 @@ export async function exportParticipantDataAsJson(
       participant: {
         id: participantDetail.id,
         userId: participantDetail.userId,
+        email: participantDetail.email,
         experimentId: participantDetail.experimentId,
         createdAt: participantDetail.createdAt,
         updatedAt: participantDetail.updatedAt,
