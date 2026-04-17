@@ -64,11 +64,10 @@ export default function SingleChoiceBinaryEntryView({
       />
 
       {/* Must-listen hint */}
-      {!fullyPlayed && (
         <p className="text-xs text-gray-400 mt-2">
           Bitte die Aufnahme vollständig anhören, bevor du eine Bewertung abgibst.
         </p>
-      )}
+      
 
       {/* Utterance text */}
       {entry.utteranceText && (
