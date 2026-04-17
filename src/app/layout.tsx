@@ -10,6 +10,7 @@ export default function RootLayout({
 }) {
   return (
     <html>
+      <title>TTS Dialektannotation</title>
       <body className="flex flex-col min-h-screen">
         <AudioProvider>
           <Header />
