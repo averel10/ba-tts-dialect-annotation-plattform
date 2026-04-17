@@ -12,7 +12,7 @@ interface OnboardingFormViewProps {
 }
 
 interface ResidenceEntry {
-  region: string;
+  canton: string;
   years: string;
 }
 
@@ -20,12 +20,37 @@ interface FormData {
   age?: string;
   participateInRaffle?: boolean;
   residences?: ResidenceEntry[];
+  ownDialectRegion?: string;
   dialectQualities?: Record<string, string>;
   listeningExperience?: string;
   additionalNotes?: string;
 }
 
-type Step = 1 | 2 | 3;
+type Step = 1 | 2 | 3 | 4;
+
+const AVAILABLE_CANTONS = {
+  ag: 'Aargau',
+  ar: 'Appenzell Ausserrhoden',
+  ai: 'Appenzell Innerrhoden',
+  bl: 'Basel-Landschaft',
+  bs: 'Basel-Stadt',
+  be: 'Bern',
+  gl: 'Glarus',
+  gr: 'Graubünden',
+  lu: 'Luzern',
+  nw: 'Nidwalden',
+  ow: 'Obwalden',
+  sh: 'Schaffhausen',
+  sz: 'Schwyz',
+  so: 'Solothurn',
+  sg: 'St. Gallen',
+  tg: 'Thurgau',
+  ur: 'Uri',
+  vs: 'Wallis',
+  zg: 'Zug',
+  zh: 'Zürich',
+  other: 'Anderer Kanton/Ausland'
+};
 
 export default function OnboardingFormView({ experimentId, onBack, userEmail }: OnboardingFormViewProps) {
   const router = useRouter();
@@ -39,7 +64,8 @@ export default function OnboardingFormView({ experimentId, onBack, userEmail }: 
   const [formData, setFormData] = useState<FormData>({
     age: '',
     participateInRaffle: false,
-    residences: [{ region: '', years: '' }],
+    residences: [{ canton: '', years: '' }],
+    ownDialectRegion: '',
     dialectQualities: initializeDialectQualities()
   });
   const [error, setError] = useState<string | null>(null);
@@ -84,7 +110,7 @@ export default function OnboardingFormView({ experimentId, onBack, userEmail }: 
   const addResidence = () => {
     setFormData((prev) => ({
       ...prev,
-      residences: [...(prev.residences || []), { region: '', years: '' }],
+      residences: [...(prev.residences || []), { canton: '', years: '' }],
     }));
   };
 
@@ -99,20 +125,27 @@ export default function OnboardingFormView({ experimentId, onBack, userEmail }: 
     switch (step) {
       case 1:
         if (!formData.age) {
-          setError('Bitte wählen Sie eine Altersgruppe aus.');
+          setError('Bitte wählen deine Altersgruppe aus.');
           return false;
         }
         break;
       case 2:
-        const hasValidResidence = formData.residences?.some(
-          (r) => r.region && r.years
-        );
-        if (!hasValidResidence) {
-          setError('Bitte fügen Sie mindestens einen Wohnort mit Jahresangabe hinzu.');
+        const allResidencesValid = formData.residences?.every((r) => {
+          const years = parseInt(r.years);
+          return r.canton && r.years && years >= 1 && years <= 100;
+        });
+        if (!allResidencesValid) {
+          setError('Bitte füllen alle deine Aufenthaltsorte vollständig aus und stelle sicher, dass die Jahres-Angaben zwischen 1 und 100 liegen.');
           return false;
         }
         break;
       case 3:
+        if (!formData.ownDialectRegion) {
+          setError('Bitte wählen deine Region deines eigenen Dialekts aus.');
+          return false;
+        }
+        break;
+      case 4:
         const allDialects = Object.keys(DIALECT_LABELS_WITHOUT_DE);
         const hasAllDialectQualities = allDialects.every(
           (region) => !!formData.dialectQualities?.[region]
@@ -129,7 +162,7 @@ export default function OnboardingFormView({ experimentId, onBack, userEmail }: 
   const handleNext = () => {
     setError(null);
     if (validateStep(currentStep)) {
-      if (currentStep < 3) {
+      if (currentStep < 4) {
         setCurrentStep((currentStep + 1) as Step);
       }
     }
@@ -145,6 +178,9 @@ export default function OnboardingFormView({ experimentId, onBack, userEmail }: 
   };
 
   const handleSubmit = () => {
+    if(!validateStep(4)) {
+      return;
+    }
     setError(null);
 
     startTransition(async () => {
@@ -161,8 +197,9 @@ export default function OnboardingFormView({ experimentId, onBack, userEmail }: 
 
   const stepTitles: Record<Step, string> = {
     1: 'Persönliche Informationen',
-    2: 'Aufenthaltsorte',
-    3: 'Selbsteinschätzung',
+    2: 'Aufenthaltsorte in der Deutschschweiz',
+    3: 'Dialektzuordnung',
+    4: 'Selbsteinschätzung',
   };
 
   return (
@@ -173,14 +210,14 @@ export default function OnboardingFormView({ experimentId, onBack, userEmail }: 
           <div className="mb-8">
             <div className="flex justify-between items-center mb-2">
               <h2 className="text-sm font-semibold text-gray-600">
-                Schritt {currentStep} von 3
+                Schritt {currentStep} von 4
               </h2>
-              <div className="text-sm text-gray-500">{Math.round((currentStep / 3) * 100)}%</div>
+              <div className="text-sm text-gray-500">{Math.round((currentStep / 4) * 100)}%</div>
             </div>
             <div className="w-full h-2 bg-gray-200 rounded-full overflow-hidden">
               <div
                 className="h-full bg-blue-600 transition-all duration-300"
-                style={{ width: `${(currentStep / 3) * 100}%` }}
+                style={{ width: `${(currentStep / 4) * 100}%` }}
               />
             </div>
           </div>
@@ -204,7 +241,7 @@ export default function OnboardingFormView({ experimentId, onBack, userEmail }: 
               <div className="space-y-6">
                 <div>
                   <label htmlFor="age" className="block text-s font-medium text-gray-900 mb-2">
-                    Altersgruppe <span className="text-red-600">*</span>
+                    Meine Altersgruppe <span className="text-red-600">*</span>
                   </label>
                   <select
                     id="age"
@@ -249,21 +286,17 @@ export default function OnboardingFormView({ experimentId, onBack, userEmail }: 
             {currentStep === 2 && (
               <div className="space-y-6">
                 <p className="text-s text-gray-600 mb-8">
-                  Bitte gib die Regionen an, in denen du länger als 1 Jahr gelebt hast, sowie die Anzahl der Jahre. So können wir deine Dialektkenntnisse besser einschätzen.
+                  Bitte gib an, in welchen deutschschweizer Kantonen du länger als 1 Jahr gelebt hast und wie viele Jahre insgesamt.
+                  <br />
+                  Wenn du mehrmals im gleichen Kanton gewohnt hast, zähle die Zeit zusammen und mache nur einen Eintrag pro Kanton.
+                  <br />
+                  Falls ein Kanton nicht in der Liste ist oder du im Ausland gelebt hast, wähle „Anderer Kanton/Ausland“ 
                 </p>
-                {/* Regions Map */}
-                <div className="rounded-lg overflow-hidden border border-gray-200">
-                  <img
-                    src="/swiss_regions_map.png"
-                    alt="Schweizer Dialektregionen"
-                    className="w-full h-auto"
-                  />
-                </div>
 
                 {/* Residence Entries */}
                 <div>
                   <label className="block text-s font-medium text-gray-900 mb-4">
-                    Aufenthaltsorte (mind. 1 Jahr) <span className="text-red-600">*</span>
+                    Meine Aufenthaltsorte (mind. 1 Jahr) <span className="text-red-600">*</span>
                   </label>
 
                   <div className="space-y-4">
@@ -271,22 +304,33 @@ export default function OnboardingFormView({ experimentId, onBack, userEmail }: 
                       <div key={index} className="flex gap-3 items-end">
                         <div className="flex-1">
                           <label className="block text-xs font-medium text-gray-700 mb-1">
-                            Region
+                            Kanton
                           </label>
                           <select
-                            value={residence.region}
+                            value={residence.canton}
                             onChange={(e) =>
-                              handleResidenceChange(index, 'region', e.target.value)
+                              handleResidenceChange(index, 'canton', e.target.value)
                             }
                             className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm"
                           >
                             <option value="">-- Wählen --</option>
-                            {Object.entries(DIALECT_LABELS_WITHOUT_DE).map(
-                              ([key, label]) => (
-                                <option key={key} value={key}>
-                                  {label}
-                                </option>
-                              )
+                            {Object.entries(AVAILABLE_CANTONS).map(
+                              ([key, label]) => {
+                                // Hide cantons already selected in other residence entries
+                                const isSelectedElsewhere = formData.residences?.some(
+                                  (r, i) => i !== index && r.canton === key
+                                );
+                                
+                                if (isSelectedElsewhere) {
+                                  return null;
+                                }
+                                
+                                return (
+                                  <option key={key} value={key}>
+                                    {label}
+                                  </option>
+                                );
+                              }
                             )}
                           </select>
                         </div>
@@ -312,7 +356,7 @@ export default function OnboardingFormView({ experimentId, onBack, userEmail }: 
                           type="button"
                           onClick={() => removeResidence(index)}
                           disabled={(formData.residences?.length || 0) <= 1}
-                          className="px-3 py-2 bg-red-100 hover:bg-red-200 disabled:bg-gray-100 text-red-600 disabled:text-gray-400 font-medium rounded-lg transition-colors text-sm"
+                          className="px-3 py-2 bg-blue-100 hover:bg-blue-200 disabled:bg-gray-100 text-blue-600 disabled:text-gray-400 font-medium rounded-lg transition-colors text-sm"
                         >
                           ✕
                         </button>
@@ -331,11 +375,52 @@ export default function OnboardingFormView({ experimentId, onBack, userEmail }: 
               </div>
             )}
 
-            {/* Step 3: Selbsteinschätzung */}
+            {/* Step 3: Dialektzuordnung */}
             {currentStep === 3 && (
               <div className="space-y-6">
                 <p className="text-s text-gray-600 mb-8">
-                  Bewerte deine Fähigkeit, die folgenden Dialekte zu erkennen. Diese Selbsteinschätzung hilft uns, deine Kalibrierungsergebnisse besser zu interpretieren.
+                  Zu welcher Region würdest du deinen eigenen Dialekt am ehesten zuordnen?
+                  <br />
+                  Orientiere dich an der folgenden Karte der deutschschweizer Dialektregionen.
+                  <br />
+                  Wenn du keinen deutschschweizer Dialekt sprichst, wähle "Ich spreche keinen deutschschweizer Dialekt" aus.
+                </p>
+
+                <div className="flex justify-center mb-8">
+                  <img
+                    src="/swiss_regions_map.png"
+                    alt="Karte der deutschschweizer Dialektregionen"
+                    className="w-full max-w-md h-auto"
+                  />
+                </div>
+
+                <div>
+                  <label htmlFor="ownDialect" className="block text-s font-medium text-gray-900 mb-4">
+                    Meine Dialektregion <span className="text-red-600">*</span>
+                  </label>
+                  <select
+                    id="ownDialect"
+                    value={formData.ownDialectRegion || ''}
+                    onChange={(e) => handleChange('ownDialectRegion', e.target.value)}
+                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  >
+                    <option value="">-- Bitte wählen --</option>
+                    {Object.entries(DIALECT_LABELS_WITHOUT_DE).map(([key, label]) => (
+                      <option key={key} value={key}>
+                        {label}
+                      </option>
+                    ))}
+                    <option value="none">Ich spreche keinen deutschschweizer Dialekt</option>
+                  </select>
+                </div>
+              </div>
+            )}
+
+            {/* Step 4: Selbsteinschätzung */}
+            {currentStep === 4 && (
+              <div className="space-y-6">
+                <p className="text-s text-gray-600 mb-8">
+                  Bewerte deine Fähigkeit, die folgenden deutschschweizer Dialekte zu erkennen. Diese Selbsteinschätzung hilft uns, deine Kalibrierungsergebnisse besser zu interpretieren.
                 </p>
 
                 <ul className="text-s text-gray-600 mb-8 space-y-1">
@@ -404,7 +489,7 @@ export default function OnboardingFormView({ experimentId, onBack, userEmail }: 
                 ← Zurück
               </button>
 
-              {currentStep < 3 ? (
+              {currentStep < 4 ? (
                 <button
                   type="button"
                   onClick={handleNext}
