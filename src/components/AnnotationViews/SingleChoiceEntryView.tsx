@@ -87,7 +87,7 @@ export default function SingleChoiceEntryView({
       {/* Questions container */}
       <div className="mt-6 flex flex-col lg:flex-row gap-6">
         {/* Rating question */}
-        <div className="flex-1">
+        <div className="flex-3">
           <div className="text-sm font-semibold text-gray-700 mb-3">
             {question}
           </div>

@@ -39,7 +39,7 @@ export default function CalibrationScoresDisplay({
         })}
       </div>
       <p className="text-sm text-gray-500 mt-6">
-        Die Ergebnisse basieren auf deiner Erkennungsgenauigkeit und Sicherheit. Dialekte die du gut erkennst, werden bei der Bewertungsphase häufiger angezeigt.
+        Dialekte die du gut erkennst, werden bei der Bewertungsphase häufiger angezeigt.
       </p>
     </div>
   );

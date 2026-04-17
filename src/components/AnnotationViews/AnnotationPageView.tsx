@@ -137,7 +137,6 @@ export default function AnnotationPageView({
   const [sidebarOpen, setSidebarOpen] = useState(false);
 
   const currentEntry = entries[currentIndex];
-  const isComplete = entries.every((e) => e.annotation !== null);
   
   // Smooth scroll to top when current entry changes
   useEffect(() => {
@@ -210,53 +209,6 @@ export default function AnnotationPageView({
     );
   }
 
-  if (isComplete) {
-    return (
-      <div className="flex flex-col h-full bg-white">
-        <div className="flex flex-1 overflow-hidden">
-          {/* Sidebar with transition */}
-          <div className={`${sidebarOpen ? 'w-68' : 'w-0'} transition-all duration-300 ease-in-out overflow-hidden`}>
-            <AnnotationSidebarNavigation
-              entries={entries}
-              currentIndex={currentIndex}
-              onSelectEntry={setCurrentIndex}
-              annotatedCount={annotatedCount}
-            />
-          </div>
-          
-          {/* Main content area */}
-          <div className="flex-1 flex flex-col overflow-hidden">
-            {/* Toggle button */}
-            <div className="sticky top-0 z-50 bg-white border-b border-gray-200 px-4 py-2">
-              <button
-                onClick={() => setSidebarOpen(!sidebarOpen)}
-                className="hidden md:block text-sm px-3 py-1.5 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-md transition-colors"
-                title={sidebarOpen ? 'Sidebar ausblenden' : 'Sidebar anzeigen'}
-              >
-                {sidebarOpen ? '✕' : '☰'}
-              </button>
-            </div>
-            <div className="flex-1 overflow-y-auto">
-              <div className="max-w-3xl mx-auto text-center py-20">
-                <div className="text-5xl mb-4">✓</div>
-                <h1 className="text-3xl font-bold text-green-600 mb-3">Fertig!</h1>
-                <p className="text-gray-600 mb-8">
-                  Alle Samples wurden erfolgreich bewertet. Vielen Dank!
-                </p>
-                <Link
-                  href="/"
-                  className="px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-lg transition-colors"
-                >
-                  Zurück zur Startseite
-                </Link>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-    );
-  }
-
   return (
     <div className="flex flex-col h-full bg-white">
       <div className="flex flex-1 overflow-hidden">
@@ -306,19 +258,9 @@ export default function AnnotationPageView({
                 {onShowIntro && (
                   <button
                     onClick={onShowIntro}
-                    className="text-sm px-3 py-1.5 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-md transition-colors"
+                    className="text-sm px-3 py-1.5  bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-md transition-colors"
                   >
                     ← Einführung
-                  </button>
-                )}
-
-                {Object.keys(dialectScores).length > 0 && (
-                  <button
-                    onClick={() => setIsCalibrationModalOpen(true)}
-                    className="text-sm px-3 py-1.5 bg-purple-100 hover:bg-purple-200 text-purple-700 rounded-md transition-colors"
-                    title="Kalibrierungsergebnisse anzeigen"
-                  >
-                    📊 Kalibrierung
                   </button>
                 )}
               </div>

@@ -57,25 +57,25 @@ export default function AnnotationInfoView({
                 <span className="flex-shrink-0 w-6 h-6 bg-blue-600 text-white rounded-full flex items-center justify-center text-sm font-semibold">
                   1
                 </span>
-                <span>Du hörst eine synthetische Audioaufnahme</span>
+                <span>Du hörst eine synthetische Audioaufnahme.</span>
               </li>
               <li className="flex gap-3">
                 <span className="flex-shrink-0 w-6 h-6 bg-blue-600 text-white rounded-full flex items-center justify-center text-sm font-semibold">
                   2
                 </span>
-                <span>Du bewertest, wie authentisch die Aufnahme nach dem angegebenen Dialekt klingt</span>
+                <span>Du bewertest, wie überzeugend die Aufnahme nach dem angegebenen Dialekt klingt.</span>
               </li>
               <li className="flex gap-3">
                 <span className="flex-shrink-0 w-6 h-6 bg-blue-600 text-white rounded-full flex items-center justify-center text-sm font-semibold">
                   3
                 </span>
-                <span>Du gibst an, wie sicher du dir bei deiner Wahl bist</span>
+                <span>Du gibst an, wie sicher du dir bei deiner Wahl bist.</span>
               </li>
               <li className="flex gap-3">
                 <span className="flex-shrink-0 w-6 h-6 bg-blue-600 text-white rounded-full flex items-center justify-center text-sm font-semibold">
                   4
                 </span>
-                <span>Dies wiederholst du für weitere Aufnahmen</span>
+                <span>Dies wiederholst du für weitere Aufnahmen.</span>
               </li>
             </ol>
           </div>

@@ -175,7 +175,7 @@ export default function CalibrationPageView({
                   Kalibrierung abgeschlossen!
                 </h1>
                 <p className="text-gray-600 mb-8">
-                  Du hast alle Aufnahmen bewertet. Vielen Dank! Du kannst jetzt mit der Bewertung beginnen.
+                  Vielen Dank! Du kannst jetzt mit der Bewertung beginnen.
                 </p>
               </div>
 
@@ -246,7 +246,7 @@ export default function CalibrationPageView({
             disabled={currentIndex === 0 || isPending}
             className="px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
           >
-            ← Vorherige
+            ← Zurück
           </button>
           <button
             onClick={handleNext}
@@ -254,7 +254,7 @@ export default function CalibrationPageView({
             title={!currentEntryComplete ? 'Bitte beantworten Sie beide Fragen, bevor Sie fortfahren' : ''}
             className="px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
           >
-            {currentIndex === entries.length - 1 ? 'Fertig' : 'Nächste →'}
+            {currentIndex === entries.length - 1 ? 'Abschliessen' : 'Weiter →'}
           </button>
         </div>
       </div>

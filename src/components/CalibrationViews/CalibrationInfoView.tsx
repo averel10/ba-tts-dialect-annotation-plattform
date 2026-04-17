@@ -47,35 +47,49 @@ export default function CalibrationInfoView({
                 <span className="flex-shrink-0 w-6 h-6 bg-blue-600 text-white rounded-full flex items-center justify-center text-sm font-semibold">
                   1
                 </span>
-                <span>Du hörst eine Audioaufnahme</span>
+                <span>Du hörst eine Audioaufnahme.</span>
               </li>
               <li className="flex gap-3">
                 <span className="flex-shrink-0 w-6 h-6 bg-blue-600 text-white rounded-full flex items-center justify-center text-sm font-semibold">
                   2
                 </span>
-                <span>Du wählst den Dialekt aus, den du gehört hast</span>
+                <span>Du wählst den Dialekt aus, den du gehört hast.</span>
               </li>
               <li className="flex gap-3">
                 <span className="flex-shrink-0 w-6 h-6 bg-blue-600 text-white rounded-full flex items-center justify-center text-sm font-semibold">
                   3
                 </span>
-                <span>Du gibst an, wie sicher du dir bei deiner Wahl bist</span>
+                <span>Du gibst an, wie sicher du dir bei deiner Wahl bist.</span>
               </li>
               <li className="flex gap-3">
                 <span className="flex-shrink-0 w-6 h-6 bg-blue-600 text-white rounded-full flex items-center justify-center text-sm font-semibold">
                   4
                 </span>
-                <span>Dies wiederholst du für alle Aufnahmen</span>
+                <span>Dies wiederholst du für alle Aufnahmen.</span>
               </li>
             </ol>
           </div>
 
           
           {/* Participation Section */}
-          <div className="mb-12">
+          <div className="mb-8">
             <p className="text-gray-700 mb-4">
               Die Kalibrierung umfasst 28 Aufnahmen und dauert etwa 5–10 Minuten.
             </p>
+          </div>
+
+          {/* Hints Section */}
+          <div className="mb-12">
+            <ul className="space-y-2 text-sm text-gray-500">
+              <li className="flex gap-2">
+                <span className="flex-shrink-0">•</span>
+                <span>Diese Aufnahmen gehören nicht zur eigentlichen Bewertung.</span>
+              </li>
+              <li className="flex gap-2">
+                <span className="flex-shrink-0">•</span>
+                <span>Du kannst die Kalibrierung jederzeit unterbrechen und später dort weitermachen, wo du aufgehört hast.</span>
+              </li>
+            </ul>
           </div>
 
 

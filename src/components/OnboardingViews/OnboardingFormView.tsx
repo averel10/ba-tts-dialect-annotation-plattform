@@ -126,7 +126,7 @@ export default function OnboardingFormView({ experimentId, onBack, userEmail }: 
     switch (step) {
       case 1:
         if (!formData.age) {
-          setError('Bitte wählen deine Altersgruppe aus.');
+          setError('Bitte wähle deine Altersgruppe aus.');
           return false;
         }
         break;
@@ -136,7 +136,7 @@ export default function OnboardingFormView({ experimentId, onBack, userEmail }: 
           return r.canton && r.years && years >= 1 && years <= 100;
         });
         if (!allResidencesValid) {
-          setError('Bitte füllen alle deine Aufenthaltsorte vollständig aus und stelle sicher, dass die Jahres-Angaben zwischen 1 und 100 liegen.');
+          setError('Bitte füllen alle deine Aufenthaltsorte vollständig aus und stelle sicher, dass die Jahresangaben zwischen 1 und 100 liegen.');
           return false;
         }
         break;
@@ -242,7 +242,7 @@ export default function OnboardingFormView({ experimentId, onBack, userEmail }: 
               <div className="space-y-6">
                 <div>
                   <label htmlFor="age" className="block text-s font-medium text-gray-900 mb-2">
-                    Meine Altersgruppe <span className="text-red-600">*</span>
+                    Deine Altersgruppe <span className="text-red-600">*</span>
                   </label>
                   <select
                     id="age"
@@ -295,7 +295,7 @@ export default function OnboardingFormView({ experimentId, onBack, userEmail }: 
                 {/* Residence Entries */}
                 <div>
                   <label className="block text-s font-medium text-gray-900 mb-4">
-                    Aufenthaltsorte (mind. 1 Jahr) <span className="text-red-600">*</span>
+                    Deine Aufenthaltsorte (mind. 1 Jahr) <span className="text-red-600">*</span>
                   </label>
 
                   <div className="space-y-4">
@@ -312,7 +312,7 @@ export default function OnboardingFormView({ experimentId, onBack, userEmail }: 
                             }
                             className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm"
                           >
-                            <option value="">-- Wählen --</option>
+                            <option value="">-- Bitte wählen --</option>
                             {Object.entries(AVAILABLE_CANTONS).map(
                               ([key, label]) => {
                                 // Hide cantons already selected in other residence entries
