@@ -29,7 +29,7 @@ export default function OnboardingInfoView({
               Im Rahmen unserer Bachelorarbeit an der ZHAW untersuchen wir, wie authentisch ein KI-Modell schweizerdeutsche Dialekte synthetisieren kann. Dazu sind wir auf deine Einschätzung angewiesen.
             </p>
             <p className="text-gray-700">
-              Deine Aufgabe ist es, kurze Audioaufnahmen anzuhören und zu bewerten, wie authentisch sie nach einem bestimmten Dialekt klingen. Es gibt dabei keine richtigen oder falschen Antworten – wichtig ist deine persönliche Einschätzung.
+              Deine Aufgabe ist es, kurze Audioaufnahmen anzuhören und zu bewerten, wie überzeugend sie nach einem bestimmten Dialekt klingen. Es gibt dabei keine richtigen oder falschen Antworten – wichtig ist deine persönliche Einschätzung.
             </p>
           </div>
 
@@ -41,19 +41,19 @@ export default function OnboardingInfoView({
                 <span className="flex-shrink-0 w-6 h-6 bg-blue-600 text-white rounded-full flex items-center justify-center text-sm font-semibold">
                   1
                 </span>
-                <span>Du beantwortest zuerst ein paar kurze Fragen zu dir und deiner Erfahrung mit Schweizer Dialekten</span>
+                <span>Du beantwortest zuerst ein paar kurze Fragen zu dir und deinem Umgang mit Schweizer Dialekten.</span>
               </li>
               <li className="flex gap-3">
                 <span className="flex-shrink-0 w-6 h-6 bg-blue-600 text-white rounded-full flex items-center justify-center text-sm font-semibold">
                   2
                 </span>
-                <span>Danach folgt eine kurze Kalibrierungsphase mit echten Dialektaufnahmen</span>
+                <span>Danach folgt eine kurze Kalibrierungsphase mit echten Dialektaufnahmen.</span>
               </li>
               <li className="flex gap-3">
                 <span className="flex-shrink-0 w-6 h-6 bg-blue-600 text-white rounded-full flex items-center justify-center text-sm font-semibold">
                   3
                 </span>
-                <span>Anschliessend beginnt die eigentliche Bewertung der synthetischen Aufnahmen</span>
+                <span>Anschliessend beginnt die eigentliche Bewertung der synthetischen Aufnahmen.</span>
               </li>
             </ol>
           </div>
@@ -62,7 +62,7 @@ export default function OnboardingInfoView({
           {/* Participation Section */}
           <div className="mb-12">
             <p className="text-gray-700 mb-4">
-              Du entscheidest selbst, wie viele Aufnahmen du bewertest. Die gesamte Teilnahme inklusive Formular, Kalibrierung und 50 bewerteten Aufnahmen dauert etwa 30 Minuten. Unter allen Teilnehmenden, die 50 oder mehr Aufnahmen bewertet haben, <strong>verlosen wir 5x <a href="https://bontique.ch/de/bontique-check/#check-offer" target="_blank" className="text-blue-600 underline " rel="noopener noreferrer">Bontique-Gutscheine</a> (einlösbar bei über 100 Marken/Shops) im Wert von je 20.- CHF!</strong>
+              Du entscheidest selbst, wie viele Aufnahmen du bewertest. Die gesamte Teilnahme inklusive Formular, Kalibrierung und 50 bewerteten Aufnahmen dauert etwa 30 Minuten. Unter allen Teilnehmenden, die 50 oder mehr Aufnahmen bewertet haben (ohne Kalibrierung), <strong>verlosen wir 5x <a href="https://bontique.ch/de/bontique-check/#check-offer" target="_blank" className="text-blue-600 underline " rel="noopener noreferrer">Bontique-Gutscheine</a> (einlösbar bei über 100 Marken/Shops) im Wert von je 20.- CHF!</strong>
             </p>
             <p className="text-gray-700 mb-4">
               Alle Angaben werden anonym ausgewertet und ausschliesslich zu Forschungszwecken verwendet.
