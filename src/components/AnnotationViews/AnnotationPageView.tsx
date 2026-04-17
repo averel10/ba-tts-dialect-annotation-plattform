@@ -273,7 +273,21 @@ export default function AnnotationPageView({
         {/* Main content area */}
         <div className="flex-1 flex flex-col overflow-hidden">
           {/* Top bar */}
-          <div className="sticky top-1 z-40 bg-white border-b border-gray-200 pb-5 px-4">
+          <div className="sticky top-1 z-40 bg-white border-b border-gray-200 px-4 pb-4">
+            {/* Mobile progress indicator */}
+            <div className="md:hidden mb-3">
+              <div className="flex items-center justify-between mb-2">
+                <span className="text-xs font-semibold text-gray-700">Fortschritt</span>
+                <span className="text-xs text-gray-600">{annotatedCount}/{entries.length}</span>
+              </div>
+              <div className="w-full bg-gray-200 rounded-full h-2">
+                <div
+                  className="bg-blue-500 h-2 rounded-full transition-all duration-500"
+                  style={{ width: `${progressPct}%` }}
+                />
+              </div>
+            </div>
+
             <div className="flex items-center justify-between max-w-4xl mx-auto">
               {/* Toggle and Home buttons */}
               <div className="flex gap-3">
