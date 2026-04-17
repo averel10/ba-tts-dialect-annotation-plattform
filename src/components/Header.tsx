@@ -22,9 +22,9 @@ export function Header() {
   return (
     <header className="sticky top-0 z-50 bg-gradient-to-r from-blue-600 to-blue-700 text-white shadow-lg">
       <div className="px-4 sm:px-6 lg:px-8">
-        <div className="flex justify-between items-center py-5">
+        <div className="flex justify-between items-center py-2 md:py-4">
           {/* Logo */}
-          <Link href="/" className="font-bold hover:text-blue-100 transition-colors text-lg sm:text-2xl">
+          <Link href="/" className="font-bold hover:text-blue-100 transition-colors text-lg md:text-2xl py-1">
             <span className="hidden sm:inline">TTS Dialektannotation</span>
             <span className="sm:hidden">TTS Dialektannotation</span>
           </Link>
@@ -33,7 +33,7 @@ export function Header() {
           {(loading || session) && (
             <nav className="hidden md:flex items-center gap-6">
               {loading ? (
-                <span className="text-sm text-blue-100">Laden...</span>
+                <></>
               ) : session && (
                 <div className="flex items-center gap-6">
                   <div className="text-right">
@@ -80,7 +80,7 @@ export function Header() {
 
       {/* Mobile Fullscreen Menu */}
       {mobileMenuOpen && session && (
-        <div className="md:hidden fixed inset-0 top-16 bg-blue-700 z-40 flex flex-col p-4 space-y-4">
+        <div className="md:hidden fixed inset-0 top-14 bg-blue-700 z-40 flex flex-col p-4 space-y-4">
           {loading ? (
             <span className="text-sm text-blue-100">Laden...</span>
           ) : (
