@@ -154,6 +154,10 @@ export default function ParticipantDetailView({ participant, experimentId }: Par
                   <div className="text-2xl font-bold text-gray-900">{selectedAnnotation.rating}</div>
                 </div>
                 <div>
+                  <div className="text-sm text-gray-600 mb-1">Confidence</div>
+                  <div className="text-2xl font-bold text-gray-900">{selectedAnnotation.confidence}</div>
+                </div>
+                <div>
                   <div className="text-sm text-gray-600 mb-1">Dialect</div>
                   <div className="inline-block px-3 py-1 bg-blue-100 text-blue-800 rounded-full text-sm font-medium">
                     {selectedAnnotation.dialectLabel}

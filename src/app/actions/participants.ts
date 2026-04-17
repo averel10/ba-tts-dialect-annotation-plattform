@@ -36,6 +36,7 @@ export interface ParticipantDetail extends ParticipantListItem {
     rating: number;
     dialectLabel: string;
     createdAt: Date;
+    confidence: number;
   }>;
 }
 
@@ -172,6 +173,7 @@ export async function getParticipantDetail(
         rating: annotation.rating,
         dialectLabel: annotation.dialectLabel,
         createdAt: annotation.createdAt,
+        confidence: annotation.confidence,
       })
       .from(annotation)
       .leftJoin(dataset_entry, eq(annotation.datasetEntryId, dataset_entry.id))
@@ -201,6 +203,7 @@ export async function getParticipantDetail(
         externalId: a.externalId || 'Unknown',        fileName: a.fileName || 'Unknown',
         datasetId: a.datasetId || 0,        rating: a.rating,
         dialectLabel: a.dialectLabel,
+        confidence: a.confidence,
         createdAt: a.createdAt,
       })),
       createdAt: p.createdAt,
@@ -316,6 +319,7 @@ export async function exportParticipantDataAsJson(
         fileName: ann.fileName,
         datasetId: ann.datasetId,
         rating: ann.rating,
+        confidence: ann.confidence,
         dialectLabel: ann.dialectLabel,
         createdAt: ann.createdAt,
       })),
