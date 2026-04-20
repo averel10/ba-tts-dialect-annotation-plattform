@@ -234,7 +234,7 @@ export default function WaveformPlayer({
           <div className="flex items-center gap-1">
             <button
               onClick={isPlaying ? (playMode === 'stop' ? handleStop : handlePause) : handlePlay}
-              className={`inline-flex items-center justify-center w-8 h-8 rounded-full transition-colors ${
+              className={`inline-flex items-center justify-center w-11 h-11 rounded-full transition-colors ${
                 isPlaying
                   ? 'bg-red-500 hover:bg-red-600 text-white'
                   : 'bg-blue-500 hover:bg-blue-600 text-white'
@@ -287,7 +287,7 @@ export default function WaveformPlayer({
         <div className="flex items-center gap-1">
           <button
             onClick={isPlaying ? (playMode === 'stop' ? handleStop : handlePause) : handlePlay}
-            className={`flex-shrink-0 inline-flex items-center justify-center w-9 h-9 rounded-full transition-colors ${
+            className={`flex-shrink-0 inline-flex items-center justify-center w-11 h-11 rounded-full transition-colors ${
               isPlaying
                 ? 'bg-red-500 hover:bg-red-600 text-white'
                 : 'bg-blue-500 hover:bg-blue-600 text-white'
