@@ -127,10 +127,10 @@ export default function ParticipantDetailView({ participant, experimentId }: Par
                       : 'border-gray-200 bg-gray-50 hover:border-gray-300'
                   }`}
                 >
-                  <div className="font-medium text-gray-900">{annotation.externalId}</div>
+                  <div className="font-medium text-gray-900">{annotation.datasetEntry?.externalId || 'Unknown'}</div>
                   <div className="text-sm text-gray-600 mt-1">
                     Rating: <span className="font-semibold">{annotation.rating}</span> | Dialect:{' '}
-                    <span className="font-semibold">{annotation.dialectLabel}</span>
+                    <span className="font-semibold">{annotation.datasetEntry?.dialect || 'Unknown'}</span>
                   </div>
                   <div className="text-xs text-gray-500 mt-1">
                     {new Date(annotation.createdAt).toLocaleString()}
@@ -147,7 +147,7 @@ export default function ParticipantDetailView({ participant, experimentId }: Par
               <div className="space-y-4">
                 <div>
                   <div className="text-sm text-gray-600 mb-1">External ID</div>
-                  <div className="font-medium text-gray-900 break-all">{selectedAnnotation.externalId}</div>
+                  <div className="font-medium text-gray-900 break-all">{selectedAnnotation.datasetEntry?.externalId || 'Unknown'}</div>
                 </div>
                 <div>
                   <div className="text-sm text-gray-600 mb-1">Rating</div>
@@ -160,7 +160,7 @@ export default function ParticipantDetailView({ participant, experimentId }: Par
                 <div>
                   <div className="text-sm text-gray-600 mb-1">Dialect</div>
                   <div className="inline-block px-3 py-1 bg-blue-100 text-blue-800 rounded-full text-sm font-medium">
-                    {selectedAnnotation.dialectLabel}
+                    {selectedAnnotation.datasetEntry?.dialect || 'Unknown'}
                   </div>
                 </div>
                 <div>
@@ -170,8 +170,8 @@ export default function ParticipantDetailView({ participant, experimentId }: Par
                 <div>
                   <div className="text-sm text-gray-600 mb-1">Audio</div>
                   {(() => {
-                    const fileExtension = selectedAnnotation.fileName.substring(selectedAnnotation.fileName.lastIndexOf('.'));
-                    const src = `/public/datasets/${selectedAnnotation.datasetId}/${selectedAnnotation.externalId}${fileExtension}`;
+                    const fileExtension = selectedAnnotation.datasetEntry?.fileName.substring(selectedAnnotation.datasetEntry?.fileName.lastIndexOf('.'));
+                    const src = `/public/datasets/${selectedAnnotation.datasetEntry?.datasetId}/${selectedAnnotation.datasetEntry?.externalId}${fileExtension}`;
                     return <WaveformPlayer src={src} showWaveform={false} playMode='stop' />;
                   })()}
                 </div>

@@ -4,8 +4,9 @@ import db from '@/lib/db';
 import { participant } from '@/lib/model/participant';
 import { annotation } from '@/lib/model/annotation';
 import { experiment } from '@/lib/model/experiment';
+import { experiment_calibration, ExperimentCalibration } from '@/lib/model/experiment_calibration';
 import { dataset } from '@/lib/model/dataset';
-import { dataset_entry } from '@/lib/model/dataset_entry';
+import { dataset_entry, DatasetEntry } from '@/lib/model/dataset_entry';
 import { user } from '@/lib/model/auth-schema';
 import { and, eq, count } from 'drizzle-orm';
 import { requireAdmin } from '@/lib/auth';
@@ -24,19 +25,23 @@ export interface ParticipantListItem {
   updatedAt: Date;
 }
 
+export interface EnrichedCalibrationAnswer {
+  dialectLabel: string;
+  confidence: number;
+  calibrationEntry: ExperimentCalibration | null;
+}
+
+
+
 export interface ParticipantDetail extends ParticipantListItem {
   onboardingAnswers: any;
-  calibrationAnswers: any;
+  calibrationAnswers: EnrichedCalibrationAnswer[];
   annotations: Array<{
     id: number;
-    datasetEntryId: number;
-    externalId: string;
-    fileName: string;
-    datasetId: number;
     rating: number;
-    dialectLabel: string;
-    createdAt: Date;
     confidence: number;
+    createdAt: Date;
+    datasetEntry: DatasetEntry | null;
   }>;
 }
 
@@ -166,7 +171,7 @@ export async function getParticipantDetail(
     const participantAnnotations = await db
       .select({
         id: annotation.id,
-        datasetEntryId: annotation.datasetEntryId,
+        datasetEntry: dataset_entry,
         externalId: dataset_entry.externalId,
         fileName: dataset_entry.fileName,
         datasetId: dataset_entry.datasetId,
@@ -184,6 +189,42 @@ export async function getParticipantDetail(
         )
       );
 
+    // Enrich calibration answers with calibration entry details
+    const enrichedCalibrationAnswers: EnrichedCalibrationAnswer[] = [];
+    if (p.calibrationAnswers && typeof p.calibrationAnswers === 'object') {
+      const answers = p.calibrationAnswers as Record<number, any>;
+      
+      // Get all calibration entries for this experiment
+      const calibrationEntries = await db
+        .select()
+        .from(experiment_calibration)
+        .where(eq(experiment_calibration.experimentId, experimentId));
+      
+      // Create a map of calibration entries by ID for quick lookup
+      const entriesMap = new Map(calibrationEntries.map(e => [e.id, e]));
+      
+      // Enrich each answer with calibration entry data
+      for (const [itemId, answer] of Object.entries(answers)) {
+        const calibrationId = parseInt(itemId);
+        const entry = entriesMap.get(calibrationId);
+        
+        if (entry) {
+          enrichedCalibrationAnswers.push({
+            dialectLabel: answer.dialectLabel,
+            confidence: answer.confidence,
+            calibrationEntry: entry,
+          });
+        } else {
+          // Fallback if entry not found
+          enrichedCalibrationAnswers.push({
+            dialectLabel: answer.dialectLabel,
+            confidence: answer.confidence,
+            calibrationEntry: null,
+          });
+        }
+      }
+    }
+
     // Use the proper calibration validation function
     const completedCalibration = await isParticipantCalibrationDone(experimentId, p);
 
@@ -195,16 +236,14 @@ export async function getParticipantDetail(
       completedOnboarding: p.onboardingAnswers !== null && p.onboardingAnswers !== undefined,
       completedCalibration,
       onboardingAnswers: p.onboardingAnswers || {},
-      calibrationAnswers: p.calibrationAnswers || {},
+      calibrationAnswers: enrichedCalibrationAnswers,
       annotationCount: participantAnnotations.length,
       annotations: participantAnnotations.map(a => ({
         id: a.id,
-        datasetEntryId: a.datasetEntryId,
-        externalId: a.externalId || 'Unknown',        fileName: a.fileName || 'Unknown',
-        datasetId: a.datasetId || 0,        rating: a.rating,
-        dialectLabel: a.dialectLabel,
+        rating: a.rating,
         confidence: a.confidence,
         createdAt: a.createdAt,
+        datasetEntry: a.datasetEntry
       })),
       createdAt: p.createdAt,
       updatedAt: p.updatedAt,
@@ -311,18 +350,19 @@ export async function exportParticipantDataAsJson(
       },
       calibration: {
         completed: participantDetail.completedCalibration,
-        answers: participantDetail.calibrationAnswers,
+        entries: participantDetail.calibrationAnswers.map((answer) => ({
+              dialectLabel: answer.dialectLabel,
+              confidence: answer.confidence,
+              calibrationEntry: answer.calibrationEntry
+        })),
         scores: calibrationScores,
       },
       annotations: participantDetail.annotations.map((ann) => ({
         id: ann.id,
-        externalId: ann.externalId,
-        fileName: ann.fileName,
-        datasetId: ann.datasetId,
         rating: ann.rating,
         confidence: ann.confidence,
-        dialectLabel: ann.dialectLabel,
         createdAt: ann.createdAt,
+        datasetEntry: ann.datasetEntry
       })),
     };
 
