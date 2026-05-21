@@ -26,10 +26,10 @@ export default async function HomePage() {
     return (
       <div className="max-w-xl mx-auto text-center py-20">
         <h1 className="text-2xl font-bold text-gray-800 mb-3">
-          Keine Experimente verfügbar
+          Experiment beendet
         </h1>
         <p className="text-gray-500">
-          Es wurden noch keine Experimente freigeschalten. Wenden Sie sich an einen Administrator.
+          Die Studie ist bereits beendet. Vielen Dank für Ihre Teilnahme.
         </p>
       </div>
     );
